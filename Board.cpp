@@ -45,7 +45,13 @@ namespace chess {
         m_Boardstate[62] = Piece::Piece(7,6,'N', "Black");
         m_Boardstate[63] = Piece::Piece(7,7,'R', "Black");
 
+            for (int i = 0; i< 16; i++) {
+                m_whitePieces.push_back(&m_Boardstate[i]);
+            }
         
+            for (int i = 48; i< 64; i++) {
+                m_blackPieces.push_back(&m_Boardstate[i]);
+            }
 
     }
     
@@ -67,64 +73,84 @@ namespace chess {
      vector<string>* Board::getBlackMoves(){
         return &m_blackMoves;
     }
-    
-    vector<Piece*>* Board::findPlayerPieces(string playerColor){
-        vector<Piece*>* pPlayerPieces;
-        if (playerColor == "White") {
-            m_whitePieces.clear();
-            pPlayerPieces = &m_whitePieces;
+    vector<Piece*>* Board::getPieces(string color){
+        if (color == "White") {
+            return &m_whitePieces;
         }
-        else if (playerColor == "Black"){
-            m_blackPieces.clear();
-            pPlayerPieces = &m_blackPieces;
+        else if (color == "Black"){
+            return &m_blackPieces;
         }
-        else {
+        else{
+            cout << "Invalid player color input to function Board::getPieces(string color)" << endl;
             return NULL;
         }
-        for (int i = 0; i < 64; i++) {
-            if (m_Boardstate[i].getColor() == playerColor) {
-                    pPlayerPieces->push_back(&m_Boardstate[i]);
-                
-            }
-        }
-        return pPlayerPieces;
     }
-    Piece* Board::findPiece(string color, char type){
+    
+    void Board::findPlayerPieces(){
+        m_whitePieces.clear();
+        m_blackPieces.clear();
+        
         for (int i = 0; i < 64; i++) {
-            if (m_Boardstate[i].getColor() == color && m_Boardstate[i].getType() == type) {
-                return &m_Boardstate[i];
-                // Need to keep coding the find piece function/ check that it works
+            string color = m_Boardstate[i].getColor();
+            if (color == "White") {
+                    m_whitePieces.push_back(&m_Boardstate[i]);
+            }
+            else if(color == "Black"){
+                m_blackPieces.push_back(&m_Boardstate[i]);
             }
         }
-        cout << "Piece could not be found, returning NULL" << endl;
+        return;
+    }
+    Piece* Board::findKing(string color){ // this function only works for kings for now,  it is only needed for kings
+        vector<Piece*>* pieceList;
+        if (color == "White") {
+            pieceList = getPieces("White");
+        }
+        else if(color == "Black"){
+            pieceList = getPieces("Black");
+        }
+        else {
+            cout << "King not found, returning NULL" << endl;
+            return NULL;
+        }
+        
+        for (auto it = pieceList->begin(); it != pieceList->end(); it++) {
+            auto tempPiece = **it;
+            if (tempPiece.getType() == 'K'){
+                return *it;
+            }
+        }
+        
+        cout << "King captured, returning NULL" << endl;
         return NULL;
+        
     }
     
     
     
     
     
-    void Board::calcPlayerMoveset(string playerColor, int currentTurn, bool checkMoveValidity){
+    void Board::calcValidatedPlayerMoveset(string playerColor, int currentTurn, bool checkMoveValidity){
         
         //cout << "Calculating moveset for player: " << playerColor << endl;
         
         // Piece kingPiece = *findPiece(playerColor, 'K');  // commented this out because think i dont need it
         
-        vector<Piece*>* pPlayerColorPieces = findPlayerPieces(playerColor);
+        vector<Piece*>* pPlayerColorPieces = getPieces(playerColor);
         vector<Piece*> playerColorPieces = *pPlayerColorPieces;
         vector<string>* completePlayerMoveset;
-        vector<string> enemyMoveset;
+        vector<string>* enemyMoveset;
         bool firstTimeAddingCastling = true;
         if (playerColor == "White") {
             m_whiteMoves.clear();
             completePlayerMoveset = &m_whiteMoves;
-            enemyMoveset = m_blackMoves;
+            enemyMoveset = &m_blackMoves;
             
         }
         else if (playerColor == "Black"){
             m_blackMoves.clear();
             completePlayerMoveset = &m_blackMoves;
-            enemyMoveset = m_whiteMoves;
+            enemyMoveset = &m_whiteMoves;
         }
         else return;
         
@@ -135,7 +161,7 @@ namespace chess {
             //Add castling to the move choices if it is viable
             if (tempPiece.getType() == 'K' && firstTimeAddingCastling && tempPiece.getFile() == 4) {
                 bool check = false;
-                int attackerNum = tempPiece.countNumAttackers(enemyMoveset, tempPiece.getFile(), tempPiece.getRank());
+                int attackerNum = tempPiece.countNumAttackers(*enemyMoveset, tempPiece.getFile(), tempPiece.getRank());
                 if (attackerNum > 0) {check = true;}
                 
                 //All conditions for castling
@@ -149,16 +175,16 @@ namespace chess {
                 bool rightRookHasMoved = m_Boardstate[tempPiece.convertCoordinateToBoardIndex(tempPiece.getRank(), tempPiece.getFile()+3)].getMoved();
                 int pieceTypeOnSameRankPlus1FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()+1, tempPiece.getRank());
                 int pieceTypeOnSameRankPlus2FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()+2, tempPiece.getRank());
-                int numAttackersOnSameRankPlus1FILE = this->countNumAttackers(enemyMoveset, 5, 0);
-                int numAttackersOnSameRankPlus2FILE = this->countNumAttackers(enemyMoveset, 6, 0);
+                int numAttackersOnSameRankPlus1FILE = this->countNumAttackers(*enemyMoveset, 5, 0);
+                int numAttackersOnSameRankPlus2FILE = this->countNumAttackers(*enemyMoveset, 6, 0);
                 
                 // Queenside:
                 bool leftRookHasMoved = m_Boardstate[tempPiece.convertCoordinateToBoardIndex(tempPiece.getRank(), tempPiece.getFile()-4)].getMoved();
                 int pieceTypeOnSameRankminus1FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-1, tempPiece.getRank());
                 int pieceTypeOnSameRankminus2FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-2, tempPiece.getRank());
                 int pieceTypeOnSameRankminus3FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-3, tempPiece.getRank());
-                int numAttackersOnSameRankMinus1FILE = this->countNumAttackers(enemyMoveset, 5, 0);
-                int numAttackersOnSameRankMinus2FILE = this->countNumAttackers(enemyMoveset, 6, 0);
+                int numAttackersOnSameRankMinus1FILE = this->countNumAttackers(*enemyMoveset, 5, 0);
+                int numAttackersOnSameRankMinus2FILE = this->countNumAttackers(*enemyMoveset, 6, 0);
                 
                 
                 
@@ -206,7 +232,7 @@ namespace chess {
             
             chess::Board tempBoard = *this;
             Piece* tempBoardstate = tempBoard.getBoardstate();
-            Piece kingPiece = *findPiece(playerColor, 'K');
+            Piece kingPiece = *findKing(playerColor);
             
             for (auto it = completePlayerMoveset->begin(); it != completePlayerMoveset->end();) {
                 auto move = *it;
@@ -254,7 +280,6 @@ namespace chess {
             tempBoardstate[newIndex].setColor(tempBoardstate[prevIndex].getColor());
             if (promotePawn) {
                 tempBoardstate[newIndex].setType(promotionChoice);
-                promotePawn = false;
             }
             else {
             tempBoardstate[newIndex].setType(tempBoardstate[prevIndex].getType());
@@ -321,31 +346,20 @@ namespace chess {
         
         if (playerColor == "White") {
             
-            // time check of evaluate board function
-            auto start = std::chrono::system_clock::now();
-            tempBoard.calcPlayerMoveset("Black", currentTurn, false); // generates possible moves for black and doesn't check move if moves put black in check
-            auto end = std::chrono::system_clock::now();
+            tempBoard.calcValidatedPlayerMoveset("Black", currentTurn, false); // generates possible moves for black and doesn't check move if moves put black in check
             
-            std::chrono::duration<double> elapsed_seconds = end-start;
-            //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-            
-            std::cout << "finished calc moveset false computation.  "
-            << "Elapsed time: " << elapsed_seconds.count() << "s\n";
-            
-            
-            
-            enemyMoveset = *tempBoard.getBlackMoves();
+            enemyMoveset = tempBoard.getBlackMoves(); // this is redundant but I'll leave for clarity purpose
         }
         else if (playerColor == "Black"){
-            tempBoard.calcPlayerMoveset("White", currentTurn+1, false);
-            enemyMoveset = *tempBoard.getWhiteMoves();
+            tempBoard.calcValidatedPlayerMoveset("White", currentTurn+1, false);
+            enemyMoveset = tempBoard.getWhiteMoves(); // this is redundant but I'll leave for clarity purpose
         }
         
         // find the player's king on this new hypothetical board
-        auto tempPiece = *tempBoard.findPiece(playerColor, 'K');
+        auto tempPiece = *tempBoard.findKing(playerColor);
         
         //calculate the number of pieces attacking the king
-        int attackerNum = tempPiece.countNumAttackers(enemyMoveset, tempPiece.getFile(), tempPiece.getRank());
+        int attackerNum = tempPiece.countNumAttackers(*enemyMoveset, tempPiece.getFile(), tempPiece.getRank());
         
         // if the number of attackers on king == 0, declare it a verified move and make the real board equal to the hypothetical board
         if (attackerNum == 0) {
@@ -363,14 +377,298 @@ namespace chess {
         } // end of for loop for each move
         //std::cout << endl;
         }
-    }
+    } // Super slow move calculaion N^2 where N = move num
+    
+    void Board::calcScreenMovesets(){
+        
+        //cout << "Calculating moveset for player: " << playerColor << endl;
+        
+        // Piece kingPiece = *findPiece(playerColor, 'K');  // commented this out because think i dont need it
+        
+        m_whiteScreenMoves.clear();
+        m_blackScreenMoves.clear();
+        
+        for(auto it = m_whitePieces.begin(); it != m_whitePieces.end(); it++){
+            Piece tempPiece = **it;
+            
+            // get the piece moves from the pieces that are on the board that are your color
+                auto partialScreenMoveset = tempPiece.getScreenMoves(m_Boardstate); // the -1 parameter isn't needed but function prototype demands it
+                m_whiteScreenMoves.insert(m_whiteScreenMoves.end(), partialScreenMoveset->begin(),partialScreenMoveset->end());
+        }
+        for(auto it = m_blackPieces.begin(); it != m_blackPieces.end(); it++){
+            Piece tempPiece = **it;
+            
+            // get the piece moves from the pieces that are on the board that are your color
+            auto partialScreenMoveset = tempPiece.getScreenMoves(m_Boardstate); // the -1 parameter isn't needed but function prototype demands it
+            m_blackScreenMoves.insert(m_blackScreenMoves.end(), partialScreenMoveset->begin(),partialScreenMoveset->end());
+        }
+        
+            }
+    
+    void Board::calcPlayerMovesetV2(string playerColor, int currentTurn, bool validateMoveset){
+        
+        //cout << "Calculating moveset for player: " << playerColor << endl;
+        
+        
+        vector<Piece*>* pPlayerColorPieces = getPieces(playerColor);
+        vector<Piece*> playerColorPieces = *pPlayerColorPieces;
+        vector<string>* completePlayerMoveset;
+        vector<string>* enemyMoveset;
+        vector<string>* enemyScreenMoveset;
+        string enemyColor;
+        bool addCastling = false;
+        
+        if (playerColor == "White") {
+            m_whiteMoves.clear();
+            completePlayerMoveset = &m_whiteMoves;
+            enemyMoveset = &m_blackMoves;
+            enemyScreenMoveset = &m_blackScreenMoves;
+            enemyColor = "Black";
+        }
+        else if (playerColor == "Black"){
+            m_blackMoves.clear();
+            completePlayerMoveset = &m_blackMoves;
+            enemyMoveset = &m_whiteMoves;
+            enemyScreenMoveset = &m_whiteScreenMoves;
+            enemyScreenMoveset->clear();
+            enemyColor = "White";
+        }
+        else return;
+        
+        
+        calcScreenMovesets();
+        
+        // find king, calculate checks on king, calculate screen attackers on king
+        
+        Piece* kingPiece = findKing(playerColor);  // might have issue with this if comp is simulating taking enemy king
+        
+        if (kingPiece == nullptr) {
+            SDL_Delay(1);
+            return;
+        }
+        
+        vector<string> attackingKingMoves;
+        vector<string> apparentScreenAttackingKingMoves;
+        vector<string> screenAttackingKingMoves;
+        vector<string> kingUnfilteredMoveset;
+        vector<string> kingFilteredMoveset;
+        vector<string> castlingMoveset;
+        int checksOnKing = 0;
+        
+        if (!validateMoveset) {
+            for (auto it = pPlayerColorPieces->begin(); it != pPlayerColorPieces->end(); it++) {
+                Piece tempPiece = **it;
+                if (tempPiece.getType() != 'K') {
+                    auto partialMoveset = tempPiece.getMoves(m_Boardstate, currentTurn);
+                    completePlayerMoveset->insert(completePlayerMoveset->end(), partialMoveset->begin(),partialMoveset->end());
+                }
+            }
+            return;
+        }
+        
+        calcPlayerMovesetV2(enemyColor, currentTurn, false);
+        
+        getAttackingMoves(*enemyMoveset, kingPiece->getFile(), kingPiece->getRank(), &attackingKingMoves);
+        getAttackingMoves(*enemyScreenMoveset, kingPiece->getFile(), kingPiece->getRank(), &screenAttackingKingMoves);
+        
+        checksOnKing = attackingKingMoves.size();
+        
+        enemyScreenMoveset->clear();
+        
+        if (checksOnKing == 2){ // shortest: linear time
+            // only get king moves and don't do moveset creation below
+            
+            kingUnfilteredMoveset = *kingPiece->getMoves(getBoardstate(), currentTurn);
+            for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();) {
+                string move = *it;
+                
+                char pieceType, prevFile, newFile;
+                int prevRank, newRank;
+                
+                parseMove(move, &pieceType, &prevFile, &prevRank, &newFile, &newRank);
+                
+                if (countNumAttackers(*enemyMoveset, static_cast<int>(newFile-'A'), newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
+                    kingUnfilteredMoveset.erase(it);
+                }
+                else {
+                    ++it;
+                }
+                
+            }
+            kingFilteredMoveset = kingUnfilteredMoveset; // create an updated variable
+            completePlayerMoveset->insert(completePlayerMoveset->end(), kingFilteredMoveset.begin(),kingFilteredMoveset.end());
+            
+            return; // Return because the only viable moves are ones where the king moves
+            
+        }
+        for(auto it = playerColorPieces.begin(); it != playerColorPieces.end(); it++){
+            Piece tempPiece = **it;
+            
+            
+            //Add castling to the move choices if it is viable
+            if (tempPiece.getType() == 'K' && tempPiece.getFile() == 4 && tempPiece.getMoved() == false) {
+                bool check = false;
+                castlingMoveset.clear();
+                int attackerNum = tempPiece.countNumAttackers(*enemyMoveset, tempPiece.getFile(), tempPiece.getRank());
+                if (attackerNum > 0) {check = true;}
+                
+                //All conditions for castling
+                
+                //Mutual:
+                bool notInCheck = !check;
+                bool kingHasMoved = tempPiece.getMoved();
+                
+                // Kingside:
+                
+                bool rightRookHasMoved = m_Boardstate[tempPiece.convertCoordinateToBoardIndex(tempPiece.getRank(), tempPiece.getFile()+3)].getMoved();
+                int pieceTypeOnSameRankPlus1FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()+1, tempPiece.getRank());
+                int pieceTypeOnSameRankPlus2FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()+2, tempPiece.getRank());
+                int numAttackersOnSameRankPlus1FILE = this->countNumAttackers(*enemyMoveset, 5, 0);
+                int numAttackersOnSameRankPlus2FILE = this->countNumAttackers(*enemyMoveset, 6, 0);
+                
+                // Queenside:
+                bool leftRookHasMoved = m_Boardstate[tempPiece.convertCoordinateToBoardIndex(tempPiece.getRank(), tempPiece.getFile()-4)].getMoved();
+                int pieceTypeOnSameRankminus1FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-1, tempPiece.getRank());
+                int pieceTypeOnSameRankminus2FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-2, tempPiece.getRank());
+                int pieceTypeOnSameRankminus3FILE = tempPiece.containsFriendlyPiece(m_Boardstate, tempPiece.getFile()-3, tempPiece.getRank());
+                int numAttackersOnSameRankMinus1FILE = this->countNumAttackers(*enemyMoveset, 5, 0);
+                int numAttackersOnSameRankMinus2FILE = this->countNumAttackers(*enemyMoveset, 6, 0);
+                
+                
+                
+                if (notInCheck && pieceTypeOnSameRankPlus1FILE == 0 && pieceTypeOnSameRankPlus2FILE == 0 && kingHasMoved == false && rightRookHasMoved == false && numAttackersOnSameRankPlus1FILE == 0 && numAttackersOnSameRankPlus2FILE == 0){
+                    
+                    castlingMoveset.push_back("O-O");
+                    addCastling = true;
+                    //std::cout << "Player may castle king-side" << endl;
+                }
+                if (notInCheck && pieceTypeOnSameRankminus1FILE == 0 && pieceTypeOnSameRankminus2FILE == 0 && pieceTypeOnSameRankminus3FILE == 0 && tempPiece.getMoved() == false && leftRookHasMoved == false && numAttackersOnSameRankMinus1FILE == 0 && numAttackersOnSameRankMinus2FILE == 0) {
+                    castlingMoveset.push_back("O-O-O");
+                    addCastling = true;
+                    //std::cout << "Player may castle queen-side" << endl;
+                }
+            } // add castling if viable
+            if (tempPiece.getType() != 'K'){ // if a piece is not the king
+                if (!screenAttackingKingMoves.empty()) { // if there is still an unremoved pinning move
+                    auto partialMoveset = tempPiece.getMoves(m_Boardstate, currentTurn);
+
+                    for (auto it = screenAttackingKingMoves.begin(); it != screenAttackingKingMoves.end();) { // for each of the pinning moves
+                        string move = *it;
+                        
+                        if (squareIsBetweenSquares(move, tempPiece.getFile(), tempPiece.getRank())) { // if the piece is the one being pinned
+                            for (auto it1 = partialMoveset->begin(); it1 != partialMoveset->end();) { // for each of the moves in the single piece's moveset
+                                auto possibleMove = *it1;
+                                int testFile = possibleMove[3]-'A';
+                                int testRank = possibleMove[4]-'1';
+                                if (!squareIsBetweenSquares(move, testFile, testRank)) { // if the move is not between the king and the attacker
+                                    partialMoveset->erase(it1); // erase the possible move from the vector as invalid
+                                }
+                                else {
+                                    ++it1;
+                                }
+                            }
+                            screenAttackingKingMoves.erase(it); // erase the pinning move from the pinning move moveset because we've found the piece being pinned and have modified its moveset to account for being pinned
+                        }
+                        else {
+                            ++it;
+                        }
+                    }
+                    
+                    completePlayerMoveset->insert(completePlayerMoveset->end(), partialMoveset->begin(),partialMoveset->end()); // add the filtered moveset to the complete moveset
+                }
+                else { // add one of the regular unpinned movesets from pieces
+                    
+                    auto partialMoveset = tempPiece.getMoves(m_Boardstate, currentTurn);
+                    completePlayerMoveset->insert(completePlayerMoveset->end(), partialMoveset->begin(),partialMoveset->end());
+                    
+                    //cout << endl;
+                }
+            }
+            else if (tempPiece.getType() == 'K') { // add king's viable moves depending on what would put it in check
+                kingUnfilteredMoveset = *tempPiece.getMoves(m_Boardstate, currentTurn);
+                    for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();) {
+                        string move = *it;
+                        
+                        char pieceType, prevFile, newFile;
+                        int prevRank, newRank;
+                        
+                        parseMove(move, &pieceType, &prevFile, &prevRank, &newFile, &newRank);
+                        
+                        if (countNumAttackers(*enemyMoveset, static_cast<int>(newFile-'A'), newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
+                            kingUnfilteredMoveset.erase(it);
+                        }
+                        else {
+                            ++it;
+                        }
+                        
+                    }
+                
+                kingFilteredMoveset = kingUnfilteredMoveset; // create an updated variable
+                completePlayerMoveset->insert(completePlayerMoveset->end(), kingFilteredMoveset.begin(),kingFilteredMoveset.end()); // add filtered moveset to complete moveset
+                
+            }
+        }
+        
+        if (checksOnKing == 1) {
+            
+            for (auto pMove = completePlayerMoveset->begin(); pMove != completePlayerMoveset->end();) {
+                string move = *pMove;
+                char pieceType = move[0];
+                int testSquareFile = move[3] - 'A';
+                int testSquareRank = move[4] - '1';
+                char pieceAttackingKingType = attackingKingMoves[0][0]; // attacking move attacking piece type
+                if (pieceType == 'K'){ // IF WE'RE LOOKING AT KING MOVES, THEN IT CAN MOVE OUT OF CHECK
+                    ++pMove;
+                }
+                else if (pieceAttackingKingType == 'N') {
+                    int pieceAttackingKingFile = attackingKingMoves[0][1]-'A';
+                    int pieceAttackingKingRank = attackingKingMoves[0][2]-'1';
+                    if (testSquareRank == pieceAttackingKingRank && testSquareFile == pieceAttackingKingFile) {
+                        ++pMove;
+                    }
+                    else{
+                        completePlayerMoveset->erase(pMove);
+                    }
+                }
+                else if (!squareIsBetweenSquares(attackingKingMoves[0], testSquareFile, testSquareRank)) {
+                    completePlayerMoveset->erase(pMove);
+                }
+                else {
+                    ++pMove;
+                }
+                
+                
+            }
+            
+            
+            
+        }
+        // Writes out list of moves:
+        //cout << "Moveset List for " << playerColor << endl;
+        //for (auto it = completePlayerMoveset->begin(); it != completePlayerMoveset->end(); it++) {
+        //    cout << *it << ", ";
+        //}
+        //cout << endl;
+        
+        if (addCastling) {
+            completePlayerMoveset->insert(completePlayerMoveset->end(), castlingMoveset.begin(),castlingMoveset.end()); // add filtered moveset to complete moveset
+        }
+        
+        
+        
+        
+        //Check the moves and remove invalid ones here
+        // to know if move is invalid
+    } // Fast move calculation
+    
+    
     
     int Board::countNumAttackers(vector<string> playerMoveset, int forFile, int forRank){
         int attackerCount = 0;
         for (auto it = playerMoveset.begin(); it != playerMoveset.end(); it++) {
-            string simple = it->c_str();
-            int file = Piece::cFileToIndex(simple[3]);
-            int rank = simple[4] - '0'-1;
+            string move = *it;
+            int file = Piece::cFileToIndex(move[3]);
+            int rank = move[4] - '0'-1;
             
             if (file == forFile && rank == forRank) {
                 attackerCount++;
@@ -405,6 +703,7 @@ namespace chess {
         
         if (pieceType == 'N') {
             cout << "Cannot make colinear squares vector from knight moves" << endl;
+            return;
         }
         
         
@@ -442,12 +741,203 @@ namespace chess {
         
     }
     
+    bool Board::squareIsBetweenSquares(string move, int testSquareFile, int testSquareRank){
+        
+        char pieceType, prevFile, newFile;
+        int prevRank, newRank;
+        
+        parseMove(move, &pieceType, &prevFile, &prevRank, &newFile, &newRank);
+        
+        if (pieceType == 'N') {
+            return false;
+        }
+        
+        
+        int square2File = newFile - 'A';
+        int square2Rank = newRank;
+        int square1File = prevFile - 'A';
+        int square1Rank = prevRank;
+        
+        int x1 = 0, x2=0, y1=0, y2=0;
+        
+        int y, x;
+        
+        x = testSquareFile;
+        y = testSquareRank;
+        
+        if (square1Rank >= square2Rank) {
+            y2 = square1Rank;
+            x2 = square1File;
+            y1 = square2Rank;
+            x1 = square2File;
+        }
+        else if (square2Rank > square1Rank){
+            y2 = square2Rank;
+            x2 = square2File;
+            y1 = square1Rank;
+            x1 = square1File;
+        }
+        
+        // if it's a vertical line, if the file is the same, and the square is inbetween or on the endpoints, return true
+        if (x2 == x1) {
+            if (x == x1 && y1 <= y && y <= y2) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        // if it's a horizontal line, if the test rank is the same, and the square is inbetween or on the endpoints, return true
+        if (y2 == y1) {
+            if (y == y1) {
+                if (x1 <= x2) {
+                    if (x1 <= x && x <= x2) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else if (x2<=x1){
+                    if (x2<=x && x <= x1) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        
+        float slope = (y2-y1)/(x2-x1); // calculate slope of line  (the only valid slope is 1 or -1)
+        
+        int b = y1-slope*x1; // calculate the y intercept
+        
+        if (y == slope*x+b && y1 <= y && y <= y2) { // if the point is on the line and the y value is on or between endpoints, return true
+            return true;
+        }
+        
+        return false; // all other cases the test square isn't on the line between the pieces
+        
+        
+    }
+    
+    void Board::getSquaresBetweenSquares(string move, vector<string>* returnVectorPointer){
+        
+        char pieceType, prevFile, newFile;
+        int prevRank, newRank;
+        
+        parseMove(move, &pieceType, &prevFile, &prevRank, &newFile, &newRank);
+        
+        
+        
+        int square2File = newFile - 'A';
+        int square2Rank = newRank;
+        int square1File = prevFile - 'A';
+        int square1Rank = prevRank;
+        
+        int x1 = 0, x2=0, y1=0, y2=0;
+        vector<string> holderVector;
+        
+        if (square1Rank >= square2Rank) {
+            y2 = square1Rank;
+            y1 = square2Rank;
+        }
+        else if (square2Rank > square1Rank){
+            y2 = square2Rank;
+            y1 = square1Rank;
+        }
+        
+        if (square1File >= square2File) {
+            x2 = square1File;
+            x1 = square2File;
+        }
+        else if (square2File > square1File){
+            x2 = square2File;
+            x1 = square1File;
+        }
+        
+        // if it's a vertical line, if the file is the same, and the square is inbetween or on the endpoints, return true
+        if (x2 == x1) {
+            for (int i = 0; i < y2-y1; i++) {
+                char y, x;
+                y = static_cast<char>(y1+i);
+                x = static_cast<char>(x1);
+                string sX(1, x);
+                string sY(1,y);
+                
+                holderVector.push_back(sX+sY);
+            }
+            *returnVectorPointer = holderVector;
+            return;
+        }
+        // if it's a horizontal line, if the test rank is the same, and the square is inbetween or on the endpoints, return true
+        if (y2 == y1) {
+            for (int i = 0; i < x2-x1; i++) {
+                char y, x;
+                y = static_cast<char>(y1);
+                x = static_cast<char>(x1+i);
+                string sX(1, x);
+                string sY(1,y);
+                
+                holderVector.push_back(sX+sY);
+            }
+            *returnVectorPointer = holderVector;
+            return;
+        }
+        
+        float slope = (y2-y1)/(x2-x1); // calculate slope of line  (the only valid slope is 1 or -1)
+        //test the slope
+        if (abs(slope) != 1) {
+            std::cout << "two non linear squares given, invalid inputs" << endl;
+        }
+        
+        for (int i = 0; i < x2-x1; i++) {
+            char y, x;
+            y = static_cast<char>(y1+i);
+            x = static_cast<char>(x1+i);
+            string sX(1, x);
+            string sY(1,y);
+            
+            holderVector.push_back(sX+sY);
+        }
+        *returnVectorPointer = holderVector;
+        return;
+        
+    }
+    
     void Board::parseMove( string move, char* pieceTypeAddress, char* prevFileAddress, int* prevRankAddress, char* newFileAddress, int* newRankAddress){
         *pieceTypeAddress = move[0];
-        *prevFileAddress = Piece::cFileToIndex(move[1]);
+        *prevFileAddress = move[1];
         *prevRankAddress = move[2] - '0'-1;
-        *newFileAddress = Piece::cFileToIndex(move[3]);
+        *newFileAddress = move[3];
         *newRankAddress = move[4] -'0'-1;    // Convert string to int
+    }
+    
+    int Board::containsFriendlyPiece(string playerColor, int nFile, int rank){
+        Piece* boardState = getBoardstate();
+        if (nFile >= 0 && nFile <= 7 && rank >= 0 && rank <= 7) {
+            if(boardState[Piece::convertCoordinateToBoardIndex(nFile, rank)].getColor() == playerColor){
+                //  cout << "Friendly piece on square " << indexTo_cFile(nFile) << rank << endl;
+                return 1;
+            }
+            else if (boardState[Piece::convertCoordinateToBoardIndex(nFile, rank)].getColor() == "Empty"){
+                //  cout << "Square " << indexTo_cFile(nFile) << rank+1 << " is empty" << endl;
+                return 0;
+            }
+            else {
+                //  cout << "Enemy piece on square " << indexTo_cFile(nFile) << rank << endl;
+                
+                return -1;
+            }
+        }
+        
+        cout << "Warning, illegal rank and file numbers" << endl;
+        
+        return -2;
     }
     
 }

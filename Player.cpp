@@ -72,14 +72,15 @@ namespace Player{
 
 
         
-        // ask the player for move and test if the moves is valid, if the move isn't valid, discard their choice and ask again
+        // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
         
         string move;
         string enemyColor;
         cout << "It is " << m_player_color << "'s turn" << endl; // announce who's turn it is
         if (humanPlayer == true){
             
-            board->calcPlayerMoveset(m_player_color, turnCounter, true);  // calculates player moves
+            //board->calcValidatedPlayerMoveset(m_player_color, turnCounter, true);  // calculates player moves
+            board->calcPlayerMovesetV2(m_player_color, turnCounter, true);  // calculates player moves
             
             if (m_player_color == "White") {
                 m_completeMoveset = *board->getWhiteMoves();
@@ -92,7 +93,18 @@ namespace Player{
             }
             move = askPlayerForValidMove(&m_completeMoveset);
         }
-        else { move = computerBeginThinking(board);
+        else {
+            // time check of evaluate board function
+            auto start = std::chrono::system_clock::now();
+            move = computerBeginThinking(board);
+            auto end = std::chrono::system_clock::now();
+            
+            std::chrono::duration<double> elapsed_seconds = end-start;
+            std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+            
+            std::cout << "elapsed comp think time: " << elapsed_seconds.count() << "s\n";
+            
+            
             if (move == "") {
                 SDL_Delay(1); // passed a bad move
             }
@@ -106,21 +118,28 @@ namespace Player{
         if (m_player_color == "White") {
             
             enemyColor = "Black";
-            board->calcPlayerMoveset("White", turnCounter+1, true);
-            board->calcPlayerMoveset("Black", turnCounter, true);
+            //board->calcValidatedPlayerMoveset("White", turnCounter+1, true);
+            //board->calcValidatedPlayerMoveset("Black", turnCounter, true);
+            board->calcPlayerMovesetV2("White", turnCounter+1, true);  // can decrease number of calls here
+            board->calcPlayerMovesetV2("Black", turnCounter, true);
             m_completeMoveset = *board->getWhiteMoves();
             
         }
         else if (m_player_color == "Black"){
             
             enemyColor = "White";
-            board->calcPlayerMoveset("White", turnCounter+1, true);
-            board->calcPlayerMoveset("Black", turnCounter+1, true);
+            //board->calcValidatedPlayerMoveset("White", turnCounter+1, true);
+            //board->calcValidatedPlayerMoveset("Black", turnCounter+1, true);
+            board->calcPlayerMovesetV2("White", turnCounter, true);
+            board->calcPlayerMovesetV2("Black", turnCounter, true);
             m_completeMoveset = *board->getBlackMoves();
         }
         
-        auto kingPiece = *board->findPiece(enemyColor, 'K');
-        int numAttackers = kingPiece.countNumAttackers(m_completeMoveset, kingPiece.getFile(), kingPiece.getRank());
+        auto kingPiece = board->findKing(enemyColor);
+        if (kingPiece == NULL) {
+            return true;
+        }
+        int numAttackers = kingPiece->countNumAttackers(m_completeMoveset, kingPiece->getFile(), kingPiece->getRank());
         if(numAttackers != 0){
             return achievedCheckmateOnEnemy(board);
         }
@@ -171,18 +190,16 @@ namespace Player{
             
             if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
                 int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-                Piece enPassantedPiece = boardState[enPassantedPieceIndex];
                 boardState[enPassantedPieceIndex].setColor("Empty");
                 boardState[enPassantedPieceIndex].setType('E');
             }
             
             boardState[newIndex].setColor(boardState[prevIndex].getColor());
-            if (promotePawn) {
-                boardState[newIndex].setType(promotionChoice);
-                promotePawn = false;
+            if (!promotePawn) {
+                boardState[newIndex].setType(boardState[prevIndex].getType());
             }
             else {
-                boardState[newIndex].setType(boardState[prevIndex].getType());
+                boardState[newIndex].setType(promotionChoice);
             }
             boardState[prevIndex].setColor("Empty");
             boardState[prevIndex].setType('E');
@@ -197,7 +214,7 @@ namespace Player{
         else if (move == "O-O"){
             
             // finds the king on the board
-            auto kingPiece = *board->findPiece(m_player_color, 'K');
+            auto kingPiece = *board->findKing(m_player_color);
             
             // makes the move the player chose on this hypothetical board
             prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
@@ -222,7 +239,7 @@ namespace Player{
             // Check conditions for the player to castle Queenside
             
             // finds the king on the board
-            auto kingPiece = *board->findPiece(m_player_color, 'K');
+            auto kingPiece = *board->findKing(m_player_color);
             
             // makes the move the player chose on this hypothetical board
             prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
@@ -244,6 +261,8 @@ namespace Player{
             
         }
         
+        board->findPlayerPieces(); // after making the move, update the lists containing the locations of all player pieces
+        
     }
     
     bool Player::achievedCheckmateOnEnemy(chess::Board* board){
@@ -252,14 +271,14 @@ namespace Player{
         Piece enemyKing;
         
         if (m_player_color == "White") {
-            checkmateBoard.calcPlayerMoveset("White",turnCounter+1, true);
+            checkmateBoard.calcPlayerMovesetV2("White",turnCounter+1, true);
             m_completeMoveset = *checkmateBoard.getWhiteMoves();
-            enemyKing = *checkmateBoard.findPiece("Black", 'K');
+            enemyKing = *checkmateBoard.findKing("Black");
         }
         if (m_player_color == "Black") {
-            checkmateBoard.calcPlayerMoveset("Black",turnCounter+1, true);
+            checkmateBoard.calcPlayerMovesetV2("Black",turnCounter+1, true);
             m_completeMoveset = *checkmateBoard.getBlackMoves();
-            enemyKing = *checkmateBoard.findPiece("White", 'K');
+            enemyKing = *checkmateBoard.findKing("White");
             
         }
         
@@ -272,11 +291,11 @@ namespace Player{
             vector<string> enemyMoveset;
             
             if (m_player_color == "White") {
-                checkmateBoard.calcPlayerMoveset("Black",turnCounter, true);
+                checkmateBoard.calcPlayerMovesetV2("Black",turnCounter, true);
                 enemyMoveset = *checkmateBoard.getBlackMoves();
             }
             if (m_player_color == "Black") {
-                checkmateBoard.calcPlayerMoveset("White",turnCounter+1, true);
+                checkmateBoard.calcPlayerMovesetV2("White",turnCounter+1, true);
                 enemyMoveset = *checkmateBoard.getWhiteMoves();
                 
             }
@@ -307,24 +326,23 @@ namespace Player{
                 // perform en passant if the conditions apply
                 if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
                     int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-                    Piece enPassantedPiece = boardState[enPassantedPieceIndex];
                     boardState[enPassantedPieceIndex].setColor("Empty");
                     boardState[enPassantedPieceIndex].setType('E');
                 }
                 
                 if (m_player_color == "White") {
-                    //checkmateBoard.calcPlayerMoveset("Black",turnCounter);
+                    //checkmateBoard.calcValidatedPlayerMoveset("Black",turnCounter);
                     //enemyMoveset = *checkmateBoard.getBlackMoves();  // enemyMoveset was already calculated above
                     //cout << "Enemy move is: " << move << endl;
-                    enemyKing = *checkmateBoard.findPiece("Black", 'K');
-                    checkmateBoard.calcPlayerMoveset("White", turnCounter+1, true);
+                    enemyKing = *checkmateBoard.findKing("Black");
+                    checkmateBoard.calcPlayerMovesetV2("White", turnCounter+1, true);
                     m_completeMoveset = *checkmateBoard.getWhiteMoves();
                 }
                 if (m_player_color == "Black") {
-                    //checkmateBoard.calcPlayerMoveset("White",turnCounter+1);
+                    //checkmateBoard.calcValidatedPlayerMoveset("White",turnCounter+1);
                     //enemyMoveset = *checkmateBoard.getWhiteMoves();  // enemyMoveset was already calculated above
-                    enemyKing = *checkmateBoard.findPiece("White", 'K');
-                    checkmateBoard.calcPlayerMoveset("Black", turnCounter+1, true);
+                    enemyKing = *checkmateBoard.findKing("White");
+                    checkmateBoard.calcPlayerMovesetV2("Black", turnCounter+1, true);
                     m_completeMoveset = *checkmateBoard.getBlackMoves();
                     
                 }
@@ -356,19 +374,19 @@ namespace Player{
     string Player::computerBeginThinking(chess::Board *board){
         
         // setup get the board and copy it to a simulation board, and calculate possible moves for the position
-        int stopDepth = 2;
+        static int maxStopDepth = 4;
+        currentTurnBoardScore = computerEvaluateBoard(board, m_player_color);
         auto simulationBoard = *board;
         
         // time check of evaluate board function
         auto start = std::chrono::system_clock::now();
-        computerEvaluateBoard(board, m_player_color);;
+        computerEvaluateBoard(board, m_player_color);
         auto end = std::chrono::system_clock::now();
 
         std::chrono::duration<double> elapsed_seconds = end-start;
         std::time_t end_time = std::chrono::system_clock::to_time_t(end);
         
-        std::cout << "finished board evaluation computation at " << std::ctime(&end_time)
-        << "elapsed time: " << elapsed_seconds.count() << "s\n";
+        std::cout << "elapsed board eval time: " << elapsed_seconds.count() << "s\n";
         
         vector<string> simMoveset;
         vector<string> simEnemyMoveset;
@@ -376,14 +394,17 @@ namespace Player{
         
         // time check of calc moveset function
          start = std::chrono::system_clock::now();
-        simulationBoard.calcPlayerMoveset(m_player_color, turnCounter, true);
+        simulationBoard.calcPlayerMovesetV2(m_player_color, turnCounter, true);
          end = std::chrono::system_clock::now();
         
         elapsed_seconds = end-start;
         end_time = std::chrono::system_clock::to_time_t(end);
         
-        std::cout << "finished move calc computation at " << std::ctime(&end_time)
-        << "elapsed time: " << elapsed_seconds.count() << "s\n";
+        std::cout << "move calc computation elapsed time" << elapsed_seconds.count() << "s\n";
+        const double OVERHEADCOMPENSATION = 1.06875;
+        long double maxMoveTime = 0.00021*pow((simulationBoard.getWhiteMoves()->size()+simulationBoard.getBlackMoves()->size())/2, maxStopDepth)*1.5;
+        
+        cout << "Max possible move time calculation: " << maxMoveTime << " seconds" << endl;;
         
         
         
@@ -407,11 +428,12 @@ namespace Player{
                 elapsed_seconds = end-start;
                 end_time = std::chrono::system_clock::to_time_t(end);
                 
-                std::cout << "finished modify board with move calc computation at " << std::ctime(&end_time)
-                << "elapsed time: " << elapsed_seconds.count() << "s\n";
+                //std::cout << "finished modify board with move calc computation at " << std::ctime(&end_time)
+                //<< "elapsed time: " << elapsed_seconds.count() << "s\n";
                 
+                // do a breadth calculation of depth 2 and find all the moves that suck and remove them from here, then feed those moves into next layer
                 
-                float moveScore = computerMinimizer(&simulationBoard, 1, stopDepth); // it's returning the overall value of the board some moves into the future
+                float moveScore = computerMinimizer(&simulationBoard, 1, maxStopDepth); // Need a filtered moveset parameter // it's returning the overall value of the board some moves into the future
                 moveScores.insert (std::pair<string,float>(move,moveScore) );
                 simulationBoard = holderBoard;
                 
@@ -441,8 +463,8 @@ namespace Player{
             
             for (auto it = simMoveset.begin(); it != simMoveset.end(); it++) {
             string move = *it;
-            modifyBoardWithMove(&simulationBoard, move);
-            float moveScore = computerMaximizer(&simulationBoard, 1, stopDepth);
+            modifyBoardWithMove(&simulationBoard, move);  // makes test move for black
+            float moveScore = computerMaximizer(&simulationBoard, 1, maxStopDepth); // inputs test move into calculator
             moveScores.insert (std::pair<string,float>(move,moveScore) );
             simulationBoard = holderBoard;
             }
@@ -500,11 +522,14 @@ namespace Player{
         float score = 0;
         auto evaluationBoard = *board;
         
-        vector<Piece*> whitePieces = *evaluationBoard.findPlayerPieces("White");
-        vector<Piece*> blackPieces = *evaluationBoard.findPlayerPieces("Black");
-        if (blackPieces.size() == 0) {
+        vector<Piece*> whitePieces = *evaluationBoard.getPieces("White");
+        vector<Piece*> blackPieces = *evaluationBoard.getPieces("Black");
+        if (blackPieces.empty()) {
             cout << "Warning: Black's pieces have not been found yet";
         }
+        
+        auto playerMoveset = m_completeMoveset;
+        
         Piece* boardState = evaluationBoard.getBoardstate();
         
         for (auto it = whitePieces.begin(); it != whitePieces.end(); it++) { // evaluate white's pieces for material and slight position
@@ -513,28 +538,42 @@ namespace Player{
             switch (evalPiece.getType()) {
                 case 'K':
                     score += kingValue;
+                    
                 case 'Q':
                     score += queenValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score += ((moveCount/MAX_MOVE_NUM_QUEEN)-0.5)*0.95; // apply weighting to incentivize getting queen out third and rook 4th
+                    score += 0.10*(moveCount/MAX_MOVE_NUM_QUEEN); // apply weighting to incentivize getting queen out third and rook 4th
                     break;
                 case 'R':
                     score += rookValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score += ((moveCount/MAX_MOVE_NUM_ROOK)-0.5)*0.9;
+                    score += 0.05*(moveCount/MAX_MOVE_NUM_ROOK);
                     break;
                 case 'N':
                     score += knightValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score += (moveCount/MAX_MOVE_NUM_KNIGHT)-0.5;
+                    score += 0.25*(moveCount/MAX_MOVE_NUM_KNIGHT);
+                    
                     break;
                 case 'B':
                     score += bishopValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score += (moveCount/MAX_MOVE_NUM_BISHOP)-0.5;
+                    score += 0.25*(moveCount/MAX_MOVE_NUM_BISHOP);
+                    /*if (evalPiece.getRank() == 0) {
+                        score -= 0.1;
+                    }
+                     */
                     break;
                 case 'P':
                     score += pawnValue;
+                    /*
+                    if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()-1, evalPiece.getFile()-1)].getType() == 'P') {
+                        score += 0.4;
+                    }
+                    if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()-1, evalPiece.getFile()+1)].getType() == 'P') {
+                        score += 0.1;
+                    }
+                     */
                     break;
                 default:
                     break;
@@ -551,25 +590,32 @@ namespace Player{
                 case 'Q':
                     score -= queenValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score -= ((moveCount/MAX_MOVE_NUM_QUEEN)+0.5)*0.95;
+                    score -= 0.10*((moveCount/MAX_MOVE_NUM_QUEEN));
                     break;
                 case 'R':
                     score -= rookValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score -= ((moveCount/MAX_MOVE_NUM_ROOK)+0.5)*0.9;
+                    score -= 0.05*(moveCount/MAX_MOVE_NUM_ROOK);
                     break;
                 case 'N':
                     score -= knightValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score -= (moveCount/MAX_MOVE_NUM_KNIGHT)+0.5;
+                    score -= 0.25*(moveCount/MAX_MOVE_NUM_KNIGHT);
                     break;
                 case 'B':
                     score -= bishopValue;
                     moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                    score -= (moveCount/MAX_MOVE_NUM_BISHOP)+0.5;
+                    score -= 0.25*(moveCount/MAX_MOVE_NUM_BISHOP);
                     break;
                 case 'P':
                     score -= pawnValue;
+                    /*if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()+1, evalPiece.getFile()-1)].getType() == 'P') {
+                        score -= 0.1;
+                    }
+                    if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()+1, evalPiece.getFile()+1)].getType() == 'P') {
+                        score -= 0.1;
+                    }
+                     */
                     break;
                 default:
                     break;
@@ -583,81 +629,182 @@ namespace Player{
         return score;
     }
     
-    float Player::computerMaximizer(chess::Board* board, int currentDepth, int stopDepth){
+    float Player::computerMaximizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves){
         chess::Board simBoard = *board;
         
-        simBoard.calcPlayerMoveset("White", turnCounter+currentDepth, true);
-        vector<string> moves = *simBoard.getWhiteMoves();
+        //simBoard.calcValidatedPlayerMoveset("White", turnCounter+currentDepth, true); // Old move calculator
+        simBoard.calcPlayerMovesetV2("White", turnCounter+currentDepth, true); // NEW MOVE CALCULATOR
+        vector<string> moves;
+        if (pMoves == NULL) {
+            moves = *simBoard.getWhiteMoves();
+        }
+        else {
+            moves = *pMoves;
+        }
+        
+        chess::Board memBoard = simBoard;
+        int moveVectorSize = moves.size();
+        if (moveVectorSize == 0) {
+            return -1000;
+        }
         
         float* scores;
-        scores = new float[moves.size()];
-        for (int i=0; i<moves.size(); i++) {
+        
+        scores = new float[moveVectorSize];
+        for (int i=0; i<moveVectorSize; i++) {
             scores[i] = 0;    // Initialize all elements to zero.
         }
         
         float singleScore = 0;
         float maxScore;
         
-        if (currentDepth == stopDepth) {
-            singleScore = computerEvaluateBoard(&simBoard, "White");
-            
-            return singleScore;
-        }
-        
         
         int i = 0;
         auto holderBoard = simBoard;
+        float currentBoardVal = 0;
+        int pieceNumBlackPrev = 0;
+        if (currentDepth == stopDepth-1) {
+            //currentBoardVal = computerEvaluateBoard(&simBoard, "White");
+            pieceNumBlackPrev = simBoard.getPieces("Black")->size();
+        }
+        
+        int moveCountBeforeLoop = moves.size();
+        auto movesMem = moves;
+        
+        
+        
         for (auto it = moves.begin(); it != moves.end(); it++) {
             string move = *it;
+            
+            if (moves.size() == 0 || move == "") {
+                int moveSize = moves.size();
+                SDL_Delay(1);
+            }
+            
             modifyBoardWithMove(&simBoard, move);
-            scores[i] = computerMinimizer(&simBoard, currentDepth+1, stopDepth);
-            ++i;
-            simBoard = holderBoard;
+            scores[i] = computerEvaluateBoard(&simBoard, "Black"); // avoids additional function call and just evaluates and returns evaluation
+            
+            
+            if (currentDepth >= 2 && scores[i]-currentTurnBoardScore < -0.95) {
+                continue;
+            }
+            
+            if (currentDepth == stopDepth-1) {
+                
+                //auto modifiedBoardCurrentScore = scores[i];
+                int pieceNumBlackNew = simBoard.getPieces("Black")->size();
+                if (pieceNumBlackPrev-pieceNumBlackNew != 0) { // if there is a piece capture somewhere or the board sees a big swing in score
+                    if (!((currentDepth+1) % 2 == 0 && currentDepth > 4)) { // if we're not at an even depth stopping point
+                        scores[i] = computerMinimizer(&simBoard, currentDepth+1, stopDepth+1); // increase the depth of search by one
+                    }
+                }
+            }
+            /*
+            else if (currentDepth == 2){
+                singleScore = computerEvaluateBoard(&simBoard, "Black");
+                if (singleScore < -1) {
+                    return singleScore;
+                }
+            }
+             */
+            else {
+                scores[i] = computerMinimizer(&simBoard, currentDepth+1, stopDepth);
+            }
+            
+            
+                ++i; // increment the scores array index to
+                simBoard = holderBoard; // reset the board to before the move was tested
+            
         }
-        maxScore = *std::max_element(scores, scores+moves.size());
+        maxScore = *std::max_element(scores, scores+moveVectorSize);
         delete[] scores;
         return maxScore;
         
     }
     
-    float Player::computerMinimizer(chess::Board* board, int currentDepth, int stopDepth){
+    
+    float Player::computerMinimizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves){
         chess::Board simBoard = *board;
-        simBoard.calcPlayerMoveset("Black", turnCounter+currentDepth, true);
-        vector<string> moves = *simBoard.getBlackMoves();
-        //Piece kingPiece = *simBoard.findPiece(m_player_color, 'K'); // REMOVE ME AFTER DEBUGGING
-        float* scores;
-        scores = new float[moves.size()];
-        for (int i=0; i<moves.size(); i++) {
+        vector<string> moves;
+        //simBoard.calcValidatedPlayerMoveset("Black", turnCounter+currentDepth, true);  // Old move calculator
+        simBoard.calcPlayerMovesetV2("Black", turnCounter+currentDepth, true); // NEW MOVE CALCULATOR
+        if (pMoves == NULL) {
+            moves = *simBoard.getBlackMoves();
+        }
+        else {
+            moves = *pMoves;
+        }
+        
+        int moveVectorSize = moves.size();
+        
+        if (moveVectorSize == 0) {
+            return 1000;
+        }
+        
+        float* scores = new float[moveVectorSize];
+        for (int i=0; i<moveVectorSize; i++) {
             scores[i] = 0;    // Initialize all elements to zero.
         }
         float singleScore = 0;
         float minScore;
         
-        if (currentDepth == stopDepth) {
-            singleScore = computerEvaluateBoard(&simBoard, "Black");
-            
-            return singleScore;
-        }
-        
         
         int i = 0;
         auto holderBoard = simBoard;
+        float currentBoardVal = computerEvaluateBoard(&simBoard, "Black");
+        int pieceNumWhitePrev = 0;
+        if (currentDepth == stopDepth-1) {
+            pieceNumWhitePrev = simBoard.getPieces("White")->size();
+            //pieceNumBlackPrev = simBoard.getPieces("Black")->size();
+            //currentBoardVal = computerEvaluateBoard(&simBoard, "White");
+        }
         //kingPiece = *simBoard.findPiece(m_player_color, 'K'); // REMOVE ME AFTER DEBUGGING
         for (auto it = moves.begin(); it != moves.end(); it++) {
             string move = *it;
+            ///// saved piece = function (save move and piece captured) goes here /////
             modifyBoardWithMove(&simBoard, move);
+            scores[i] = computerEvaluateBoard(&simBoard, "White"); // avoids additional function call and just evaluates and returns evaluation
             
-            scores[i] = computerMaximizer(&simBoard, currentDepth+1, stopDepth);
-            ++i;
-            simBoard = holderBoard;
+            if (currentDepth >= 2 && scores[i]-currentTurnBoardScore > 0.95) {
+                continue;
+            }
+            
+            if (currentDepth == stopDepth-1) {
+                
+                //auto currentScore = scores[i]; // readout value for current board situation
+                int pieceNumWhiteNew = simBoard.getPieces("White")->size();
+                if (pieceNumWhitePrev-pieceNumWhiteNew != 0) { // if there is a piece capture somewhere
+                    if (!((currentDepth+1) % 2 == 0 && currentDepth > 4)) { // if we're not at an even depth stopping point
+                        scores[i] = computerMaximizer(&simBoard, currentDepth+1, stopDepth+1); // increase the depth of search by one
+                    }
+                    
+                }
+            }
+            /*
+             else if (currentDepth == 2){
+             singleScore = computerEvaluateBoard(&simBoard, "Black");
+             if (singleScore < -1) {
+             return singleScore;
+             }
+             }
+             */
+            else {
+                scores[i] = computerMaximizer(&simBoard, currentDepth+1, stopDepth);
+            }
+            
+            
+            ++i; // increment the scores array index to
+            
+            // undo move
+            // undo capture 
+            simBoard = holderBoard; // reset the board to before the move was tested
+
         }
-        minScore = *std::min_element(scores, scores+moves.size());
+        minScore = *std::min_element(scores, scores+moveVectorSize);
         delete[] scores;
         return minScore;
     }
-    
-    
-    
+
     
     
 }

@@ -27,7 +27,7 @@ Piece::Piece(int rank, int file, char type, string color){
        // cout << "Created blank piece" << endl;
         m_color = "Empty";
     }
-    else if (color != "White" && color != "Black") {
+    else if (color != "White" && color != "Black") { // can change "Black" and "White" to enums
         // cout << "WARNING: Passed unapplicable color, creating blank piece" << endl;
         m_color = "Empty";
     }
@@ -74,16 +74,10 @@ int Piece::getDoubleJumpedTurn(){
 }
 
  int Piece::cFileToIndex(char cFile){
-    map<char, int> rankLetters = {
-        {'A',0}, {'B',1},{'C',2}, {'D',3},{'E',4}, {'F',5},{'G',6}, {'H',7}
-    };
-    return rankLetters[cFile];
+    return cFile-'A';
 }
 char Piece::indexTo_cFile(int nFile){
-    map<int,char> rankLetters = {
-        {0,'A'}, {1,'B'},{2,'C'}, {3,'D'},{4,'E'}, {5,'F'},{6,'G'}, {7,'H'}
-    };
-    return rankLetters[nFile];
+    return static_cast<char>(nFile + 'A');
 }
 
 int Piece::convertCoordinateToBoardIndex(int nFile, int rank){
@@ -91,7 +85,7 @@ int Piece::convertCoordinateToBoardIndex(int nFile, int rank){
     if (nFile >= 0 && nFile <= 7 && rank >= 0 && rank <= 7) {
         return rank*8 + nFile;
     }
-    cout << "Warning, illegal rank and file numbers" << endl;
+    //cout << "Warning, illegal rank and file numbers" << endl;
     
     return -1;
     
@@ -99,23 +93,25 @@ int Piece::convertCoordinateToBoardIndex(int nFile, int rank){
 
 int Piece::containsFriendlyPiece(Piece* boardState, int nFile, int rank){
     if (nFile >= 0 && nFile <= 7 && rank >= 0 && rank <= 7) {
-        if(boardState[convertCoordinateToBoardIndex(nFile, rank)].getColor() == m_color){
-          //  cout << "Friendly piece on square " << indexTo_cFile(nFile) << rank << endl;
-            return 1;
-        }
-        else if (boardState[convertCoordinateToBoardIndex(nFile, rank)].getColor() == "Empty"){
+        
+        if (boardState[convertCoordinateToBoardIndex(nFile, rank)].getColor() == "Empty"){
           //  cout << "Square " << indexTo_cFile(nFile) << rank+1 << " is empty" << endl;
-        return 0;
+        return EMPTY;
+        }
+        else if(boardState[convertCoordinateToBoardIndex(nFile, rank)].getColor() == m_color){
+            //  cout << "Friendly piece on square " << indexTo_cFile(nFile) << rank << endl;
+            return FRIENDLY;
         }
         else {
           //  cout << "Enemy piece on square " << indexTo_cFile(nFile) << rank << endl;
             
-            return -1;
+            return ENEMY;
         }
     }
+    
     //cout << "Warning, illegal rank and file numbers" << endl;
     
-    return -2;
+    return INVALID;
 }
 
 string Piece::buildPositionString(int boardIndexNew){
@@ -327,68 +323,68 @@ vector<string>* Piece::rookMoves(Piece* boardState){
     if (stopFlag[0] == false) {
         
         int squareStatus = containsFriendlyPiece(boardState, file +i, rank);
-        if (squareStatus == -2 ) {
+        if (squareStatus == INVALID) {
             stopFlag[0] = true;
         }
-        else if (squareStatus == -1){
+        else if (squareStatus == ENEMY){
             moves -> push_back(buildPositionString(file +i, rank));
             stopFlag[0] = true;
         }
-        else if (squareStatus == 0){
+        else if (squareStatus == EMPTY){
             moves -> push_back(buildPositionString(file +i, rank));
         }
-        else if (squareStatus == 1){
+        else if (squareStatus == FRIENDLY){
             stopFlag[0] = true;
         }
     }
     if (stopFlag[1] == false) {
         
         int squareStatus = containsFriendlyPiece(boardState, file -i, rank);
-        if (squareStatus == -2 ) {
+        if (squareStatus == INVALID) {
             stopFlag[1] = true;
         }
-        else if (squareStatus == -1){
+        else if (squareStatus == ENEMY){
             moves -> push_back(buildPositionString(file -i, rank));
             stopFlag[1] = true;
         }
-        else if (squareStatus == 0){
+        else if (squareStatus == EMPTY){
             moves -> push_back(buildPositionString(file -i, rank));
         }
-        else if (squareStatus == 1){
+        else if (squareStatus == FRIENDLY){
             stopFlag[1] = true;
         }
     }
     if (stopFlag[2] == false) {
         
         int squareStatus = containsFriendlyPiece(boardState, file, rank + i);
-        if (squareStatus == -2 ) {
+        if (squareStatus == INVALID) {
             stopFlag[2] = true;
         }
-        else if (squareStatus == -1){
+        else if (squareStatus == ENEMY){
             moves -> push_back(buildPositionString(file, rank +i));
             stopFlag[2] = true;
         }
-        else if (squareStatus == 0){
+        else if (squareStatus == EMPTY){
             moves -> push_back(buildPositionString(file, rank +i));
         }
-        else if (squareStatus == 1){
+        else if (squareStatus == FRIENDLY){
             stopFlag[2] = true;
         }
     }
     if (stopFlag[3] == false) {
         
         int squareStatus = containsFriendlyPiece(boardState, file, rank-i);
-        if (squareStatus == -2 ) {
+        if (squareStatus == INVALID) {
             stopFlag[3] = true;
         }
-        else if (squareStatus == -1){
+        else if (squareStatus == ENEMY){
             moves -> push_back(buildPositionString(file, rank-i));
             stopFlag[3] = true;
         }
-        else if (squareStatus == 0){
+        else if (squareStatus == EMPTY){
             moves -> push_back(buildPositionString(file, rank-i));
         }
-        else if (squareStatus == 1){
+        else if (squareStatus == FRIENDLY){
             stopFlag[3] = true;
         }
     }
@@ -404,6 +400,7 @@ vector<string>* Piece::knightMoves(Piece* boardState){
     int rank = m_rank;
     int file = m_file;
     int squareStatus = containsFriendlyPiece(boardState, file+2, rank+1);
+    
     
     if (squareStatus != 1 && squareStatus != -2) {
         moves->push_back(buildPositionString(file+2, rank+1));
@@ -463,68 +460,68 @@ vector<string>* Piece::bishopMoves(Piece* boardState){
         if (stopFlag[0] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file +i, rank +i));
                 stopFlag[0] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file +i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file +i, rank -i));
                 stopFlag[1] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file +i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file -i, rank+i));
                 stopFlag[2] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file -i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file -i, rank -i));
                 stopFlag[3] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file -i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[3] = true;
             }
         }
@@ -545,136 +542,136 @@ vector<string>* Piece::queenMoves(Piece* boardState){
         if (stopFlag[0] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file +i, rank +i));
                 stopFlag[0] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file +i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file +i, rank -i));
                 stopFlag[1] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file +i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file -i, rank +i));
                 stopFlag[2] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file -i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file -i, rank -i));
                 stopFlag[3] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file -i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[3] = true;
             }
         }
         if (stopFlag[4] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[4] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file +i, rank));
                 stopFlag[4] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[4] = true;
             }
         }
         if (stopFlag[5] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[5] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file -i, rank));
                 stopFlag[5] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file -i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[5] = true;
             }
         }
         if (stopFlag[6] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[6] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file, rank +i));
                 stopFlag[6] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[6] = true;
             }
         }
         if (stopFlag[7] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[7] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 moves -> push_back(buildPositionString(file, rank -i));
                 stopFlag[7] = true;
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[7] = true;
             }
         }
@@ -745,7 +742,7 @@ void Piece::enPassantInitiated(){
 
 // Screen attackers functions
 
-vector<string>* Piece::getScreenMoves(Piece* boardState, int currentTurn){
+vector<string>* Piece::getScreenMoves(Piece* boardState){
     m_moves.clear();
     vector<string>* moves;
     moves = &m_moves;
@@ -757,9 +754,9 @@ vector<string>* Piece::getScreenMoves(Piece* boardState, int currentTurn){
             break;
         case 'N':return moves;
             break;
-        case 'B':return bishopMoves(boardState);
+        case 'B':return bishopScreenMoves(boardState);
             break;
-        case 'Q':return queenMoves(boardState);
+        case 'Q':return queenScreenMoves(boardState);
             break;
         case 'K':return moves;
             break;
@@ -785,86 +782,103 @@ vector<string>* Piece::rookScreenMoves(Piece* boardState){
     int screenNum[4] = {0,0,0,0};
     
     for ( int i = 1; i < 8; i++) {
-        
+        string screenedPiece;
         
         if (stopFlag[0] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file +i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
+                
                 ++screenNum[0];
-                moves -> push_back(buildPositionString(file +i, rank));
-                if (screenNum[0] > 1 || boardState[convertCoordinateToBoardIndex(file +i, rank)].getType() == 'K') {
+                if (screenNum[0] == 2 && boardState[convertCoordinateToBoardIndex(file +i, rank)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file +i, rank));
+                    stopFlag[0] = true;
+                }
+               // screenedPiece = boardState[convertCoordinateToBoardIndex(file +i, rank)].getType();
+                if (screenNum[0] > 1) {
                     stopFlag[0] = true;
                 }
                 
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
+                
                 ++screenNum[1];
-                moves -> push_back(buildPositionString(file -i, rank));
-                if (screenNum[1] > 1 || boardState[convertCoordinateToBoardIndex(file -i, rank)].getType() == 'K') {
+                if (screenNum[1] == 2 && boardState[convertCoordinateToBoardIndex(file -i, rank)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file -i, rank));
+                    stopFlag[1] = true;
+                }
+                if (screenNum[1] > 1) {
                     stopFlag[1] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[2];
-                moves -> push_back(buildPositionString(file, rank+i));
-                if (screenNum[2] > 1 || boardState[convertCoordinateToBoardIndex(file, rank+i)].getType() == 'K') {
+                
+                if (screenNum[2] == 2 && boardState[convertCoordinateToBoardIndex(file, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file, rank+i));
+                    stopFlag[2] = true;
+                }
+                if (screenNum[2] > 1) {
                     stopFlag[2] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank-i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[3];
-                moves -> push_back(buildPositionString(file, rank-i));
-                if (screenNum[3] > 1 || boardState[convertCoordinateToBoardIndex(file, rank-i)].getType() == 'K') {
+                
+                if (screenNum[3] == 2 && boardState[convertCoordinateToBoardIndex(file, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file, rank-i));
+                    stopFlag[3] = true;
+                }
+                if (screenNum[3] > 1) {
                     stopFlag[3] = true;
                 }
             }
-            else if (squareStatus == 0){
+            else if (squareStatus == EMPTY){
                 moves -> push_back(buildPositionString(file, rank-i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[3] = true;
             }
         }
@@ -887,80 +901,96 @@ vector<string>* Piece::bishopScreenMoves(Piece* boardState){
         if (stopFlag[0] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[0];
-                moves -> push_back(buildPositionString(file+i, rank+i));
-                if (screenNum[0] > 1 || boardState[convertCoordinateToBoardIndex(file+i, rank+i)].getType() == 'K') {
+                
+                if (screenNum[0] == 2 && boardState[convertCoordinateToBoardIndex(file+i, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file+i, rank+i));
+                    stopFlag[0] = true;
+                }
+                if (screenNum[0] > 1) {
                     stopFlag[0] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[1];
-                moves -> push_back(buildPositionString(file+i, rank-i));
-                if (screenNum[1] > 1 || boardState[convertCoordinateToBoardIndex(file+i, rank-i)].getType() == 'K') {
+                
+                if (screenNum[1] == 2 && boardState[convertCoordinateToBoardIndex(file+i, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file+i, rank-i));
+                    stopFlag[1] = true;
+                }
+                if (screenNum[1] > 1) {
                     stopFlag[1] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank -i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[2];
-                moves -> push_back(buildPositionString(file-i, rank+i));
-                if (screenNum[2] > 1 || boardState[convertCoordinateToBoardIndex(file-i, rank+i)].getType() == 'K') {
+                
+                if (screenNum[2] == 2 && boardState[convertCoordinateToBoardIndex(file-i, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file-i, rank+i));
+                    stopFlag[2] = true;
+                }
+                if (screenNum[2] > 1) {
                     stopFlag[2] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[3];
-                moves -> push_back(buildPositionString(file-i, rank-i));
-                if (screenNum[3] > 1 || boardState[convertCoordinateToBoardIndex(file-i, rank-i)].getType() == 'K') {
+                
+                if (screenNum[3] == 2 && boardState[convertCoordinateToBoardIndex(file-i, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file-i, rank-i));
+                    stopFlag[3] = true;
+                }
+                if (screenNum[3] > 1) {
                     stopFlag[3] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank -i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[3] = true;
             }
         }
@@ -982,160 +1012,194 @@ vector<string>* Piece::queenScreenMoves(Piece* boardState){
         if (stopFlag[0] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[0];
-                moves -> push_back(buildPositionString(file+i, rank+i));
-                if (screenNum[0] > 1 || boardState[convertCoordinateToBoardIndex(file+i, rank+i)].getType() == 'K') {
+                
+                if (screenNum[0] == 2 && boardState[convertCoordinateToBoardIndex(file+i, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file+i, rank+i));
+                    stopFlag[0] = true;
+                }
+                if (screenNum[0] > 1) {
                     stopFlag[0] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[1];
-                moves -> push_back(buildPositionString(file+i, rank-i));
-                if (screenNum[1] > 1 || boardState[convertCoordinateToBoardIndex(file+i, rank-i)].getType() == 'K') {
+                
+                if (screenNum[1] == 2 && boardState[convertCoordinateToBoardIndex(file+i, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file+i, rank-i));
+                    stopFlag[1] = true;
+                }
+                if (screenNum[1] > 1) {
                     stopFlag[1] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank -i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[2];
-                moves -> push_back(buildPositionString(file-i, rank+i));
-                if (screenNum[2] > 1 || boardState[convertCoordinateToBoardIndex(file-i, rank+i)].getType() == 'K') {
+                
+                if (screenNum[2] == 2 && boardState[convertCoordinateToBoardIndex(file-i, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file-i, rank+i));
+                    stopFlag[2] = true;
+                }
+                if (screenNum[2] > 1) {
                     stopFlag[2] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[3];
-                moves -> push_back(buildPositionString(file-i, rank-i));
-                if (screenNum[3] > 1 || boardState[convertCoordinateToBoardIndex(file-i, rank-i)].getType() == 'K') {
+                
+                if (screenNum[3] == 2 && boardState[convertCoordinateToBoardIndex(file-i, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file-i, rank-i));
+                    stopFlag[3] = true;
+                }
+                if (screenNum[3] > 1) {
                     stopFlag[3] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank -i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[3] = true;
             }
         }
         if (stopFlag[4] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file + i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[4] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[4];
-                moves -> push_back(buildPositionString(file+i, rank));
-                if (screenNum[4] > 1 || boardState[convertCoordinateToBoardIndex(file+i, rank)].getType() == 'K') {
+                
+                if (screenNum[4] == 2 && boardState[convertCoordinateToBoardIndex(file+i, rank)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file+i, rank));
+                    stopFlag[4] = true;
+                }
+                if (screenNum[4] > 1) {
                     stopFlag[4] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file +i, rank));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[4] = true;
             }
         }
         if (stopFlag[5] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file -i, rank);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[5] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[5];
-                moves -> push_back(buildPositionString(file-i, rank));
-                if (screenNum[5] > 1 || boardState[convertCoordinateToBoardIndex(file-i, rank)].getType() == 'K') {
+                
+                if (screenNum[5] == 2 && boardState[convertCoordinateToBoardIndex(file-i, rank)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file-i, rank));
+                    stopFlag[5] = true;
+                }
+                if (screenNum[5] > 1) {
                     stopFlag[5] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file -i, rank));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file -i, rank));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[5] = true;
             }
         }
         if (stopFlag[6] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank + i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[6] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[6];
-                moves -> push_back(buildPositionString(file, rank+i));
-                if (screenNum[6] > 1 || boardState[convertCoordinateToBoardIndex(file, rank+i)].getType() == 'K') {
+                
+                if (screenNum[6] == 2 && boardState[convertCoordinateToBoardIndex(file, rank+i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file, rank+i));
+                    stopFlag[6] = true;
+                }
+                if (screenNum[6] > 1) {
                     stopFlag[6] = true;
                 }
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file, rank +i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file, rank +i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[6] = true;
             }
         }
         if (stopFlag[7] == false) {
             
             int squareStatus = containsFriendlyPiece(boardState, file, rank -i);
-            if (squareStatus == -2 ) {
+            if (squareStatus == INVALID) {
                 stopFlag[7] = true;
             }
-            else if (squareStatus == -1){
+            else if (squareStatus == ENEMY){
                 ++screenNum[7];
-                moves -> push_back(buildPositionString(file, rank-i));
-                if (screenNum[7] > 1 || boardState[convertCoordinateToBoardIndex(file, rank-i)].getType() == 'K') {
+                
+                if (screenNum[7] == 2 && boardState[convertCoordinateToBoardIndex(file, rank-i)].getType() == 'K') {
+                    moves -> push_back(buildPositionString(file, rank-i));
                     stopFlag[7] = true;
                 }
+                
+                if (screenNum[7] > 1) {
+                    stopFlag[7] = true;
+                }
+                
             }
-            else if (squareStatus == 0){
-                moves -> push_back(buildPositionString(file, rank -i));
+            else if (squareStatus == EMPTY){
+                //moves -> push_back(buildPositionString(file, rank -i));
             }
-            else if (squareStatus == 1){
+            else if (squareStatus == FRIENDLY){
                 stopFlag[7] = true;
             }
         }

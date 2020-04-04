@@ -34,6 +34,7 @@ public:
     vector<Piece*> m_pieces; // pointer to a vector containing pointers to pieces, should look at the board state and init once only and have it's ranks and files updated each time a move is made
     bool humanPlayer = true;
     vector<string> m_completeMoveset; // initialize me after finding all your pieces on the board, needs a pointer to the boardstate
+    float currentTurnBoardScore;
     
 public:
     Player(string color);
@@ -46,8 +47,10 @@ public:
     void incrementTurn();
     string computerBeginThinking(chess::Board* board);
     float computerEvaluateBoard(chess::Board* board, string playerTurn);
-    float computerMaximizer(chess::Board* board, int currentDepth, int stopDepth);
-    float computerMinimizer(chess::Board* board, int currentDepth, int stopDepth);
+    float computerMaximizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float computerMinimizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float MiniMaxCalc(chess::Board* board, int maxDepth, vector<string>* pMoves = nullptr); // not used
+    
 
     
 };

@@ -16,7 +16,21 @@
 #include <string>
 #include <vector>
 #include <map>
+#define FRIENDLY 1
+#define ENEMY -1
+#define EMPTY 0
+#define INVALID -2
+
 using namespace std;
+
+// Board implementation is heavy, minimum required for a piece is:
+//Piece: Type, color, doubleJumpTurn, indexLocation on board, pieceMoved
+// Pawn: Color, turn it double jumped on/ just double jumped, rank/file derived from array location/ index on board
+// Rook:
+
+// Implementation of board: array of strings T,C,M,D
+// Player class contains array of indicies instead of pieces
+
 
 class Piece {
     
@@ -45,31 +59,31 @@ public:
     void setType(char type);
     void setDoubleJumpTurn(int turn);
     int getDoubleJumpedTurn();
-    vector<string>* getMoves(Piece* boardState, int currentTurn);
-    vector<string>* getScreenMoves(Piece* boardState, int currentTurn);
-    string buildPositionString(int boardIndexNew);
-    string buildPositionString(int nFileNew, int rankNew);
-    string buildPositionString(char cFileNew, int rankNew);
+    vector<string>* getMoves(Piece* boardState, int currentTurn); // should be assigned to board class
+    vector<string>* getScreenMoves(Piece* boardState); // should be assigned to board class
+    string buildPositionString(int boardIndexNew); // should be assigned to board class - because it doesn't get moves the board class does
+    string buildPositionString(int nFileNew, int rankNew); // should be assigned to board class
+    string buildPositionString(char cFileNew, int rankNew); // should be assigned to board class
     static int cFileToIndex(char cFile);
     static char indexTo_cFile(int nFile);
     static int convertCoordinateToBoardIndex(int rank, int file);
-    int countNumAttackers(vector<string> playerMoveset, int forFile, int forRank);
-    int containsFriendlyPiece(Piece* boardState, int nFile, int rank);
+    int countNumAttackers(vector<string> playerMoveset, int forFile, int forRank); // should be assigned to board class
+    int containsFriendlyPiece(Piece* boardState, int nFile, int rank); // should be assigned to board class
     void enPassantInitiated();
     
 private:
     bool isValidCoordinate(int nFile, int rank);
-    vector<string>* pawnMoves(Piece* boardState, int currentTurn);
-    vector<string>* rookMoves(Piece* boardState);
-    vector<string>* knightMoves(Piece* boardState);
-    vector<string>* bishopMoves(Piece* boardState);
-    vector<string>* queenMoves(Piece* boardState);
-    vector<string>* kingMoves(Piece* boardState);
+    vector<string>* pawnMoves(Piece* boardState, int currentTurn); // should be assigned to board class
+    vector<string>* rookMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* knightMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* bishopMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* queenMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* kingMoves(Piece* boardState); // should be assigned to board class
     
     // Screen move calculators
-    vector<string>* rookScreenMoves(Piece* boardState);
-    vector<string>* bishopScreenMoves(Piece* boardState);
-    vector<string>* queenScreenMoves(Piece* boardState);
+    vector<string>* rookScreenMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* bishopScreenMoves(Piece* boardState); // should be assigned to board class
+    vector<string>* queenScreenMoves(Piece* boardState); // should be assigned to board class
 
     
     
