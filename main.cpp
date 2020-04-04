@@ -29,6 +29,7 @@ int main(int argc, const char * argv[]) {
     ChessGame::Game game;
     game.init();
     
+    
     //auto boardstate = board.getBoardstate()[17];
     //auto playerPieces = player1.m_pieces;
     //SDL_Delay(500);
@@ -38,6 +39,12 @@ int main(int argc, const char * argv[]) {
     //}
     //Rectbuild my_rect = Rectbuild(200,200,77,77,"WhitePawn.png", screen);
     
+    /////test space/////
+
+    
+    ///////////////
+    
+    
     //my_rect.draw();
     GraphicsHandler GFX(screen.getRenderer());
     GFX.boardGraphicsInit();
@@ -45,8 +52,9 @@ int main(int argc, const char * argv[]) {
     screen.update();
     //SDL_Delay(500);
     
+    game.m_white.humanPlayer = true;  // tells game it's a comp player
     game.m_black.humanPlayer = false;  // tells game it's a comp player
-    game.m_white.humanPlayer = false;  // tells game it's a comp player
+    
     
     
     while (1) {
