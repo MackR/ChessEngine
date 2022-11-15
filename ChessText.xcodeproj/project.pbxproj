@@ -34,6 +34,7 @@
 /* Begin PBXFileReference section */
 		644A30CE28F77F2100614BF9 /* TextBoard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextBoard.cpp; sourceTree = "<group>"; };
 		644A30CF28F77F2100614BF9 /* TextBoard.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextBoard.hpp; sourceTree = "<group>"; };
+		644A30D82924321F00614BF9 /* ChessEngine.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ChessEngine.xcodeproj; path = ChessEngine/ChessEngine.xcodeproj; sourceTree = "<group>"; };
 		64D6CBFA235BC6400046E52C /* Chess */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chess; sourceTree = BUILT_PRODUCTS_DIR; };
 		64D6CBFD235BC6400046E52C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		64D6CC04235BC8600046E52C /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -65,9 +66,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		644A30D92924321F00614BF9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		64D6CBF1235BC63F0046E52C = {
 			isa = PBXGroup;
 			children = (
+				644A30D82924321F00614BF9 /* ChessEngine.xcodeproj */,
 				64D6CC30237399E90046E52C /* SDL2_image.framework */,
 				64D6CC04235BC8600046E52C /* SDL2.framework */,
 				64D6CBFC235BC6400046E52C /* Chess */,
@@ -150,6 +159,12 @@
 			mainGroup = 64D6CBF1235BC63F0046E52C;
 			productRefGroup = 64D6CBFB235BC6400046E52C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 644A30D92924321F00614BF9 /* Products */;
+					ProjectRef = 644A30D82924321F00614BF9 /* ChessEngine.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				64D6CBF9235BC6400046E52C /* Chess */,
