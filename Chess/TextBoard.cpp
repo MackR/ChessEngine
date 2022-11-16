@@ -1698,7 +1698,7 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
                 
             }
             
-            kingFilteredMoveset = kingUnfilteredMoveset; // create an updated variable
+            kingFilteredMoveset = kingUnfilteredMoveset; // create an updated variable because moveset has been filtered/cleaned
             completePlayerMoveset->insert(completePlayerMoveset->end(), kingFilteredMoveset.begin(),kingFilteredMoveset.end()); // add filtered moveset to complete moveset
             
             // INSERT HERE
@@ -1718,28 +1718,28 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
                 // Kingside:
                 
                 hRookHasMoved;
-                int pieceTypeOnSameRankPlus1FILE = checkSquareStatus(playerColor, tempFile+1, tempRank);
-                int pieceTypeOnSameRankPlus2FILE = checkSquareStatus(playerColor, tempFile+2, tempRank);
-                int numAttackersOnSameRankPlus1FILE = countNumAttackers(*enemyMoveset, tempFile+1, tempRank);
-                int numAttackersOnSameRankPlus2FILE = countNumAttackers(*enemyMoveset, tempFile+2, tempRank);
+                const bool fSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile+1, tempRank) == EMPTY;
+                const bool gSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile+2, tempRank) == EMPTY;
+                const bool fSquareAdjacentKingUnderAttack = countNumAttackers(*enemyMoveset, tempFile+1, tempRank) > 0;
+                const bool gSquareAdjacentKingUnderAttack = countNumAttackers(*enemyMoveset, tempFile+2, tempRank) > 0;
                 
                 // Queenside:
                 aRookHasMoved;
-                int pieceTypeOnSameRankMinus1FILE = checkSquareStatus(playerColor, tempFile-1, tempRank);
-                int pieceTypeOnSameRankMinus2FILE = checkSquareStatus(playerColor, tempFile-2, tempRank);
-                int pieceTypeOnSameRankMinus3FILE = checkSquareStatus(playerColor, tempFile-3, tempRank);
-                int numAttackersOnSameRankMinus1FILE = countNumAttackers(*enemyMoveset, tempFile-1, tempRank);
-                int numAttackersOnSameRankMinus2FILE = countNumAttackers(*enemyMoveset, tempFile-2, tempRank);
+                const bool dSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-1, tempRank) == EMPTY;
+                const bool cSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-2, tempRank) == EMPTY;
+                const bool bSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-3, tempRank) == EMPTY;
+                const bool dSquareAdjacentKingUnderAttack = countNumAttackers(*enemyMoveset, tempFile-1, tempRank) > 0;
+                const bool cSquareAdjacentKingUnderAttack = countNumAttackers(*enemyMoveset, tempFile-2, tempRank) > 0;
                 
                 
                 
-                if (notInCheck && pieceTypeOnSameRankPlus1FILE == EMPTY && pieceTypeOnSameRankPlus2FILE == EMPTY && !kingHasMoved && !hRookHasMoved && numAttackersOnSameRankPlus1FILE == 0 && numAttackersOnSameRankPlus2FILE == 0){
+                if (notInCheck && fSquareAdjacentKingIsEmpty && gSquareAdjacentKingIsEmpty && !kingHasMoved && !hRookHasMoved && !fSquareAdjacentKingUnderAttack && !gSquareAdjacentKingUnderAttack){
                     
                     castlingMoveset.push_back("O-O");
                     addCastling = true;
                     //std::cout << "Player may castle king-side" << endl;
                 }
-                if (notInCheck && pieceTypeOnSameRankMinus1FILE == EMPTY && pieceTypeOnSameRankMinus2FILE == EMPTY && pieceTypeOnSameRankMinus3FILE == EMPTY && !kingHasMoved && !aRookHasMoved && numAttackersOnSameRankMinus1FILE == 0 && numAttackersOnSameRankMinus2FILE == 0) {
+                if (notInCheck && dSquareAdjacentKingIsEmpty && cSquareAdjacentKingIsEmpty && bSquareAdjacentKingIsEmpty && !kingHasMoved && !aRookHasMoved && !dSquareAdjacentKingUnderAttack && !cSquareAdjacentKingUnderAttack) {
                     castlingMoveset.push_back("O-O-O");
                     addCastling = true;
                     //std::cout << "Player may castle queen-side" << endl;
@@ -1756,13 +1756,13 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
             char pieceType = move[0];
             int moveEndFile = move[3] - 'A';
             int moveEndRank = move[4] - '1';
-            char pieceAttackingKingType = attackingKingMoves.first[0]; // get the attacking enemy piece type
+            char pieceAttackingKingType = attackingKingMoves->begin()[0]; // get the attacking enemy piece type
             if (pieceType == 'K'){ // IF WE'RE LOOKING AT KING MOVES, THEN IT CAN MOVE OUT OF CHECK, or capture the attacker. We've already filtered the king moves for legality, so all the king moves are okay.
                 ++pMove; // this move is fine, move on to the next move in the list
             }
             else if (pieceAttackingKingType == 'N') { // if the attacker is a knight
-                int knightAttackingKingFile = attackingKingMoves.first[1]-'A'; // attackingKingMoves is a string vector of moves
-                int knightAttackingKingRank = attackingKingMoves.first[2]-'1';
+                int knightAttackingKingFile = attackingKingMoves->begin()[1]-'A'; // attackingKingMoves is a string vector of moves
+                int knightAttackingKingRank = attackingKingMoves->begin()[2]-'1';
                 if (moveEndRank == knightAttackingKingRank && moveEndFile == knightAttackingKingFile) { // if we can capture the knight
                     ++pMove; // then keep the move as valid move, because we are removing the knight threat
                 }
@@ -1770,7 +1770,7 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
                     completePlayerMoveset->erase(pMove); // the move won't get us out of check. Erase it.
                 }
             }
-            else if (!squareIsBetweenSquares(attackingKingMoves.first, moveEndFile, moveEndRank)) { // if the piece is not a knight and your possible move cannot get between the attacker or capture it
+            else if (!squareIsBetweenSquares(attackingKingMoves.begin()*, moveEndFile, moveEndRank)) { // if the piece is not a knight and your possible move cannot get between the attacker or capture it
                 completePlayerMoveset->erase(pMove); // throw out the move
             }
             else {
@@ -1803,17 +1803,28 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
 
 
 // Public functions excluding constructor and destructor
-void getBoardState(Pieces (&board)[8][8]){
-    board = m_board;
-    return;
+const Pieces (&board)[8][8] getBoardState(){
+    return m_board;
 }
 bool makeMove(std::string move){
     
 }
 bool editBoard(int file, int rank, Pieces newPiece){};
 void undoLastMove(){};
-Colors getLegalMoves(std::list<std::string> &legalMoves){}; // function will be called A LOT, should look into how to get read only access to the list of player moves. Because I don't want to allow the function to accidentally modify the list, and I don't want to keep copying the entire string of moves to playerMoves list
-bool isWinner(Colors winnerColor){}; // Reports if white or black is the winner when asked
+const std::list<std::string>& getLegalMoves(Color color) const{
+    switch (color){
+        case WHITE:
+            return m_whiteMoves;
+        case BLACK:
+            return m_blackMoves;
+        default:
+            std::cout << "ERROR: Invalid color give to function getLegalMoves(color)" << std::endl;
+            return nullptr;
+    }
+}
+bool isWinner(Colors winnerColor){
+    //If current players moveset is empty. Report winner is the opposing player!
+}; // Reports if white or black is the winner when asked
 bool makeMove(std::string move){
 
     int prevFile = 0;
@@ -1823,6 +1834,7 @@ bool makeMove(std::string move){
     char pieceType;
     int prevIndex = 0;
     int newIndex = 0;
+    Color pieceColor = -1;
     char promotionChoice = 'P';
     bool promotePawn = false;
     int prevKingIndex = 0;
@@ -1835,44 +1847,82 @@ bool makeMove(std::string move){
         return;
     }
     
-    if (!(move == "O-O" || move == "O-O-O")) {
+    if (!(move == "O-O" || move == "O-O-O")) { // If it's a normal move and not castling
         
-        TextBoard::parseMove( move, pieceType, prevFile, prevRank, newFile, newRank);
+        TextBoard::parseMove( move, pieceType, prevFile, prevRank, newFile, newRank); // parse the move
+        pieceColor = getPieceColor(prevFile, prevRank);
         
-        if (move.size() == 6) {
+        if (move.size() == 6) { // If we are promoting a piece, set the flag.
             promotionChoice = move[5];
             promotePawn = true;
         }
         
         // ################### modifies the board with the move the player chose #########################
         
+        /*
         Piece destination = m_board[newRank][newFile];
-        int destinationColor = getPieceColor(newFile, newRow);
+        int destinationColor = getPieceColor(newFile, newRank);
         char destinationType = getPieceType(newFile, newRank);
         prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
         newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
-        
-        if (destinationColor == EMPTY && destinationType == 'P' && abs(newFile-prevFile) == 1) {
-            int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-            boardState[enPassantedPieceIndex].setColor("Empty");
-            boardState[enPassantedPieceIndex].setType('E');
+        */
+        if (pieceType == 'P' && abs(newFile-prevFile) == 1) { // If a pawn is capturing
+            if(getPieceColor(newFile, newRank) == EMPTY){ // Check for enpassant
+                m_Board[prevRank][newFile] = EMPTY; // Enpassant initiated and pawn deleted
+            }
         }
         
-        boardState[newIndex].setColor(boardState[prevIndex].getColor());
-        if (!promotePawn) {
-            boardState[newIndex].setType(boardState[prevIndex].getType());
+        if (!promotePawn) { // If we are not promoting a pawn
+            m_Board[newRank][newFile] = m_Board[prevRank][prevFile];
         }
         else {
-            boardState[newIndex].setType(promotionChoice);
+            if (pieceColor == WHITE){
+                switch(promotionChoice){ // Check the pieces from most commonly moved to least common
+                    case 'P':
+                        m_Board[newRank][newFile] = WPAWN;
+                        break;
+                    case 'N':
+                        m_Board[newRank][newFile] = WKNIGHT;
+                        break;
+                    case 'B':
+                        m_Board[newRank][newFile] = WBISHOP;
+                        break;
+                    case 'Q':
+                        m_Board[newRank][newFile] = WQUEEN;
+                        break;
+                    case 'R':
+                        m_Board[newRank][newFile] = WROOK;
+                        break;
+                    default:
+                        std::cout << "ERROR: Attempting to assign invalid piece type to square" << std::endl;
+                        return false;
+                }
+            }
+            else if (pieceColor == BLACK){
+                switch(promotionChoice){ // Check the pieces from most commonly moved to least common
+                    case 'P':
+                        m_Board[newRank][newFile] = BPAWN;
+                        break;
+                    case 'N':
+                        m_Board[newRank][newFile] = BKNIGHT;
+                        break;
+                    case 'B':
+                        m_Board[newRank][newFile] = BBISHOP;
+                        break;
+                    case 'Q':
+                        m_Board[newRank][newFile] = BQUEEN;
+                        break;
+                    case 'R':
+                        m_Board[newRank][newFile] = BROOK;
+                        break;
+                    default:
+                        std::cout << "ERROR: Attempting to assign invalid piece type to square" << std::endl;
+                        return false;
+                }
+            
         }
-        boardState[prevIndex].setColor("Empty");
-        boardState[prevIndex].setType('E');
-        // SETTING ENPASSANT FLAG HERE
-        if (boardState[newIndex].getType() == 'P' && (abs(newRank - prevRank) == 2)) {
-            boardState[newIndex].setDoubleJumpTurn(turnCounter);
         }
-        
-        boardState[prevIndex].Moved();
+        m_Board[prevRank][prevFile] = EMPTY;
         
     }
     else if (move == "O-O"){

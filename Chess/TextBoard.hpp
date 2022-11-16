@@ -113,7 +113,7 @@ public:
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, Pieces newPiece);
     void undoLastMove();
-    Colors getLegalMoves(std::list<std::string> &legalMoves); // function will be called A LOT, should look into how to get read only access to the list of player moves. Because I don't want to allow the function to accidentally modify the list, and I don't want to keep copying the entire string of moves to playerMoves list
+    const std::list<std::string>& const getLegalMoves(); // function will be called A LOT. I have defined it as const return and const func because this makes it so people can't modify the return reference value, and it specifies the function won't modify value
     bool isWinner(Colors winnerColor); // Reports if white or black is the winner when asked
 
     

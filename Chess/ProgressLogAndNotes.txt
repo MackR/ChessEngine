@@ -1,0 +1,74 @@
+//
+//  ProgressLogAndNotes.txt
+//  ChessText
+//
+//  Created by Mack Ragland on 11/15/22.
+//  Copyright © 2022 KattisPracticeProblems. All rights reserved.
+//
+
+October 12th - 7 - on the plane
+October 14th - 7 - Friday
+Logged hours in chess program: October 17th - 7 - Early Sunday morning & afternoon Monday
+October 18th - 3am - 8am
+October 19th - 1:30pm - 6:40pm - learned about many many facets of programming, including:
+- Anonymous objects, placing anonymous objects inside other data structures,
+- Declaring a pointer to an array of pointers ex: int (* array)[10] is a pointer to an array of ints, int* (* array)[10] is a pointer to an array of int pointers
+- That we should avoid memory leaks with smart pointers, specifically unique and shared pointers.  They are very useful. Or by being super careful with new and delete
+    - We may also get memory leaks from inheritance if the child constructor isn’t correctly called. Need to look into more.
+- Inheritance: virtual keywords are used to make sure that the correct functions are called in a class, along with the correct destructors perhaps?  Very important for memory
+- Two’s complement: You can get the two’s complement of a number by inverting the bits and adding 1.  A number with a 1 on the far left is a negative number.
+- Signed vs unsigned variables. They abide by two’s complement, and you should always try to use signed variables because of bad behavior from unsigned.
+- Continue keyword: Used to finish current loop iteration and start next
+- Break keyword: Exit the current looping or conditional structure
+- Switch statements: Need the “break” keyword at the end of each case(), otherwise they will finish one case and move onto the next and evaluate that one.
+- inline functions, use them to decrease stack size and function call overhead. Best for super small functions and the compiler may choose to ignore them for many reasons including non-void return type(?) - weird
+- passing by reference vs passing by pointer, very confusing. Generally best to pass by reference.
+- lvalues and rvalues. Lvalue is when an expression evaluates to an address
+
+Notes for October 21st, 2022:  += 5.5hr
+Making complex arrays and array pointers just so you can compress multiple for loops into one for loop that correctly substitutes arrays is too complicated. Better way to perform is to have a small for loop that substitutes values on it’s own using if statements, and then runs the same code after all the variables have been customized by the small if statements at beginning of for loop. There might be even better way to perform.
+
+Questions for October 21st, 2022:
+
+How to determine what a member function is, and best practices for naming/capitalization of such functions?
+
+Allowed return types for a c++ function, and can you define a return method for a new type?
+
+Benefits of list over vector, and vice versa. Also method functions of each.
+
+Does array indexing work so that in array[4][4], you can type array[1][5] and it returns first element of second row?  If so, this is a problem I need to fix. Is array[3][4] the same are array [4][3]?  There’s some commutative property of arrays like 3[array] = array[3]
+
+Need to learn about throwing exceptions and when I can do it, and when I should try doing it. Why is try and catch different from if-then statements?
+
+
+Notes for October 22, 2022: += 2hr train to Normandy, += 2hr
+
+October 24th, 2022: += 4hr
+Questions:
+- What type of programming model is the best setup for a chess game?  Factory model? It’s probably best to have one where the player manipulates/sends commands to a board, and the board decides for each of them what is valid.
+- Can enums be accessed by index?
+
+Notes for November 15th, 2022 += 6hr
+
+Lessons:
+C style casts always perform exactly what you want them to, however, it is really easy to mess up when casting.
+Static_cast<type> checks at compile time if you are doing a valid cast and alerts the programmer if there is an issue
+Dynamic_cast<type> only casts with pointers and references, and returns null at runtime if the cast fails.
+Reinterpret_cast<type> forces the conversion of one type to another, including pointers. Only use when you’re doing weird stuff
+const_cast<type> is used for removing the const control on a variable, but still may result in runtime errors. Generally never use.
+
+Questions:
+- How to make it so that one cannot modify a reference’s value, returned from a functions?
+    - Answer: Function should return a const reference to the object. This prevents modification of reference’s values.
+-
+
+Modifications to be made after chess engine completion:
+- Figure out where and how to use const within all the functions and when appropriate
+- Figure out where and when to use unique pointers and shared pointers
+- Fix up the namespace declarations
+- Determine the best programming model for a chess game. Factory? Instance?
+- Implement static counters for how many times a function is called. Use this information to determine my best use of resources to speed up program operation
+- Implement static timers for each time a function is called and keep running average of return times
+- Get rid of ALL the memory leaks and learn more about them.
+- rename the functions based on m_ g_ and other naming best practices
+- Need to figure out how to address not finding a king on the board for the computer player and possibly use a special kind of cast for this case.
