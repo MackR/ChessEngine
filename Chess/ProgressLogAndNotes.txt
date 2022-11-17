@@ -62,6 +62,15 @@ Questions:
     - Answer: Function should return a const reference to the object. This prevents modification of reference’s values.
 -
 
+
+Notes for November 16th, 2022 += 5hrs
+
+Lessons:
+If you setup the right structure in your program, you can easily cut down on calculations.
+Calculations done at the appropriate time makes your program so much more understandable and intuitive to write.
+EXAMPLE:  When I make a move on the board, instead of waiting for an external call to the calculate player moves function. I immediately call  calculateMoves() function at the end of makeMove() because makeMove knows who just made the move and it allows clean calling of the function and no external calls ever.
+Sometimes, information is in an easy interpretation form, it might be better to use it sooner than later to setup some variable for later in the program
+
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate
 - Figure out where and when to use unique pointers and shared pointers
@@ -72,3 +81,4 @@ Modifications to be made after chess engine completion:
 - Get rid of ALL the memory leaks and learn more about them.
 - rename the functions based on m_ g_ and other naming best practices
 - Need to figure out how to address not finding a king on the board for the computer player and possibly use a special kind of cast for this case.
+- Should I use a special header file for holding all constants that I will use throughout the program?

@@ -83,8 +83,8 @@
             timestampString = "598629751.49272"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "310"
-            endingLineNumber = "310"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
             landmarkName = "Player::achievedCheckmateOnEnemy(board)"
             landmarkType = "7">
          </BreakpointContent>
@@ -100,27 +100,10 @@
             timestampString = "597647271.2892489"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "109"
-            endingLineNumber = "109"
-            landmarkName = "makeMove(board)"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
+            landmarkName = "takeTurn(board)"
             landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "C7A9DA4D-C1F4-493E-89DD-E3F892A68C45"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Chess/Player.cpp"
-            timestampString = "598922167.08125"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "172"
-            endingLineNumber = "172"
-            landmarkName = "Player::modifyBoardWithMove(board, move)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -134,8 +117,8 @@
             timestampString = "619065587.838728"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "786"
-            endingLineNumber = "786"
+            startingLineNumber = "635"
+            endingLineNumber = "635"
             landmarkName = "Player::computerMinimizer(board, currentDepth, stopDepth, pMoves)"
             landmarkType = "7">
          </BreakpointContent>
@@ -168,8 +151,8 @@
             timestampString = "619065587.838728"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "771"
-            endingLineNumber = "771"
+            startingLineNumber = "620"
+            endingLineNumber = "620"
             landmarkName = "Player::computerMinimizer(board, currentDepth, stopDepth, pMoves)"
             landmarkType = "7">
          </BreakpointContent>
@@ -185,8 +168,8 @@
             timestampString = "619065587.838728"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "361"
-            endingLineNumber = "361"
+            startingLineNumber = "213"
+            endingLineNumber = "213"
             landmarkName = "Player::achievedCheckmateOnEnemy(board)"
             landmarkType = "7">
          </BreakpointContent>
@@ -202,8 +185,8 @@
             timestampString = "619065587.838728"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "354"
-            endingLineNumber = "354"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
             landmarkName = "Player::achievedCheckmateOnEnemy(board)"
             landmarkType = "7">
          </BreakpointContent>

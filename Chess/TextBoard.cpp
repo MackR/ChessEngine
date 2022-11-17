@@ -55,6 +55,7 @@ TextBoard(){
     m_includeEnpassant = false;
     
     findPlayerPieces();
+    calcPlayerMovesetV2(WHITE, true); // At the start of every game, calculate all white's moves. 
     
 }
 ~TextBoard(){
@@ -1522,7 +1523,9 @@ static void getSquaresBetweenSquares(string move, list<string>* returnVectorPoin
     
 }
 
-void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoveset){
+
+
+void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
     
     //This function is called recursively, so we need to clear it when we first start calculation, but not on recursive calls.
     if(validateMoveset){
@@ -1806,11 +1809,16 @@ void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoves
 const Pieces (&board)[8][8] getBoardState(){
     return m_board;
 }
-bool makeMove(std::string move){
-    
-}
-bool editBoard(int file, int rank, Pieces newPiece){};
-void undoLastMove(){};
+bool editBoard(int file, int rank, Pieces newPiece){
+    m_board[rank][file] = newPiece;
+    return true;
+};
+void undoLastMove(){
+    m_boardHistory.pop();
+    m_moveHistory.pop();
+    m_board = m_boardHistory->top();
+    return;
+};
 const std::list<std::string>& getLegalMoves(Color color) const{
     switch (color){
         case WHITE:
@@ -1824,7 +1832,7 @@ const std::list<std::string>& getLegalMoves(Color color) const{
 }
 bool isWinner(Colors winnerColor){
     //If current players moveset is empty. Report winner is the opposing player!
-}; // Reports if white or black is the winner when asked
+} // Reports if white or black is the winner when asked
 bool makeMove(std::string move){
 
     int prevFile = 0;
@@ -1842,9 +1850,9 @@ bool makeMove(std::string move){
     int prevRookIndex = 0;
     int newRookIndex = 0;
     
-    if ((move.size() != 5)||(move.size() != 6) {
+    if (!(move.size() == 5 || move.size() == 6)) {
         cout << "Function passed bad move" << endl;
-        return;
+        return false;
     }
     
     if (!(move == "O-O" || move == "O-O-O")) { // If it's a normal move and not castling
@@ -1869,26 +1877,58 @@ bool makeMove(std::string move){
         if (pieceType == 'P' && abs(newFile-prevFile) == 1) { // If a pawn is capturing
             if(getPieceColor(newFile, newRank) == EMPTY){ // Check for enpassant
                 m_Board[prevRank][newFile] = EMPTY; // Enpassant initiated and pawn deleted
+                if(pieceColor == WHITE){
+                    
+                    auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank)); // Find the captured enpassant pawn's index
+                    *it.erase(); // Remove the piece
+                    
+                } // Update black pieces
+                else if (pieceColor == BLACK){
+                    auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank));// Find the captured enpassant pawn's index
+                    *it.erase(); // Remove the piece
+                }
             }
         }
-        
+        Colors capturedPieceColor = EMPTY;
         if (!promotePawn) { // If we are not promoting a pawn
+            capturedPieceColor = getPieceColor(newFile, newRank);
             m_Board[newRank][newFile] = m_Board[prevRank][prevFile];
+            if(!m_whiteKingHasMoved || !m_blackKingHasMoved){
+                if(pieceColor == WHITE){
+                    if (pieceType == 'K'){
+                        m_whiteKingHasMoved = true;
+                    }
+                    else if (pieceType == 'R'){
+                        if(!m_whiteHRookHasMoved || !m_whiteARookHasMoved){
+                            if(prevFile = 0){whiteARookHasMoved = true;}
+                            if(prevFile = 7){whiteHRookHasMoved = true;}
+                        }
+                    }
+                }
+                else if(pieceColor == BLACK){
+                    if (pieceType == 'K'){
+                        m_blackKingHasMoved = true;
+                    }
+                    else if (pieceType == 'R'){
+                        if(!m_blackHRookHasMoved || !m_blackARookHasMoved){
+                            if(prevFile = 0){blackARookHasMoved = true;}
+                            if(prevFile = 7){blackHRookHasMoved = true;}
+                        }
+                    }
+                }
+            }
         }
         else {
             if (pieceColor == WHITE){
                 switch(promotionChoice){ // Check the pieces from most commonly moved to least common
-                    case 'P':
-                        m_Board[newRank][newFile] = WPAWN;
+                    case 'Q':
+                        m_Board[newRank][newFile] = WQUEEN;
                         break;
                     case 'N':
                         m_Board[newRank][newFile] = WKNIGHT;
                         break;
                     case 'B':
                         m_Board[newRank][newFile] = WBISHOP;
-                        break;
-                    case 'Q':
-                        m_Board[newRank][newFile] = WQUEEN;
                         break;
                     case 'R':
                         m_Board[newRank][newFile] = WROOK;
@@ -1900,17 +1940,14 @@ bool makeMove(std::string move){
             }
             else if (pieceColor == BLACK){
                 switch(promotionChoice){ // Check the pieces from most commonly moved to least common
-                    case 'P':
-                        m_Board[newRank][newFile] = BPAWN;
+                    case 'Q':
+                        m_Board[newRank][newFile] = BQUEEN;
                         break;
                     case 'N':
                         m_Board[newRank][newFile] = BKNIGHT;
                         break;
                     case 'B':
                         m_Board[newRank][newFile] = BBISHOP;
-                        break;
-                    case 'Q':
-                        m_Board[newRank][newFile] = BQUEEN;
                         break;
                     case 'R':
                         m_Board[newRank][newFile] = BROOK;
@@ -1920,62 +1957,106 @@ bool makeMove(std::string move){
                         return false;
                 }
             
+            }
         }
+        m_Board[prevRank][prevFile] = EMPTY; // Wherever the piece was before is now empty
+        
+        //Update the white black pieces index with the new position of moved piece
+        if(pieceColor == WHITE){
+            auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),convertCoordinateToBoardIndex(prevFile, prevRank));
+            *it = convertCoordinateToBoardIndex(newFile, newRank);
+            if(capturedPieceColor == BLACK){
+                auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(newFile, newRank));
+                itB.erase();
+            }
         }
-        m_Board[prevRank][prevFile] = EMPTY;
+        else if (pieceColor == BLACK){
+            auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(prevFile, prevRank));
+            *it = convertCoordinateToBoardIndex(newFile, newRank);
+            if(capturedPieceColor == WHITE){
+                auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),convertCoordinateToBoardIndex(newFile, newRank));
+                itW.erase();
+            }
+        }
+        else {
+            std::cout << "ERROR, invalid piece location given in makeMove() board" << std::endl;
+            return false;
+        }
+        // We take the original index and check if it was in white pieceIndices, if it is not, check in the black indicies and replace.
+        // Go to the finalIndex location and check in the opposite color if the index was there. If it is, delete it.
+        
+        // If white, update white, If black, update black
         
     }
     else if (move == "O-O"){
         
         // finds the king on the board
-        auto kingPiece = *board->findKing(m_player_color);
-        
+        prevKingIndex = findKingIndex(m_player_color);
+        newKingIndex = kingIndex+2;
         // makes the move the player chose on this hypothetical board
-        prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
-        newKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()+2, kingPiece.getRank());
-        prevRookIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()+3, kingPiece.getRank());
-        newRookIndex = newKingIndex-1;
+        m_board[0][newKingIndex] = m_board[0][prevKingIndex]; // Kings new square now contains a king
+        m_board[0][prevKingIndex] = EMPTY; // The king's old position is now empty
+        prevRookIndex = kingIndex+3;
+        newRookIndex = kingIndex+1; // The rooks new position is one index greater than then king's original position
+        m_board[0][newRookIndex] = m_board[0][prevRookIndex]; // The rook's new square becomes filled with a rook
+        m_board[0][prevRookIndex] = EMPTY; // The rook's original square becomes empty
         
-        boardState[newKingIndex].setColor(boardState[prevKingIndex].getColor());
-        boardState[newKingIndex].setType(boardState[prevKingIndex].getType());
-        boardState[prevKingIndex].setColor("Empty");
-        boardState[prevKingIndex].setType('E');
-        boardState[prevKingIndex].Moved();
-        
-        boardState[newRookIndex].setColor(boardState[prevRookIndex].getColor());
-        boardState[newRookIndex].setType(boardState[prevRookIndex].getType());
-        boardState[prevRookIndex].setColor("Empty");
-        boardState[prevRookIndex].setType('E');
-        boardState[prevRookIndex].Moved();
+        if(pieceColor == WHITE){
+            auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevKingIndex); // Find the previous king index
+            *it = newKingIndex; // Update it to the new king index
+            it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevRookIndex); // Find previous rook index
+            *it = newRookIndex; // Update it to the new rook index
+            
+        }
+        else if (pieceColor == BLACK){
+            auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevKingIndex); // Find the previous king index
+            *it = newKingIndex; // Update it to the new king index
+            it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevRookIndex); // Find previous rook index
+            *it = newRookIndex; // Update it to the new rook index
+            
+        }
         
     }
     else if (move == "O-O-O"){
-        // Check conditions for the player to castle Queenside
         
         // finds the king on the board
-        auto kingPiece = *board->findKing(m_player_color);
+        prevKingIndex = findKingIndex(m_player_color);
+        newKingIndex = prevKingIndex-2;
+        prevRookIndex = prevKingIndex-4; // The rooks original position is 4 indices lesser
+        newRookIndex = prevKingIndex-1; // The rooks new position is one index less than then king's original position
         
         // makes the move the player chose on this hypothetical board
-        prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
-        newKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()-2, kingPiece.getRank());
-        prevRookIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()-4, kingPiece.getRank());
-        newRookIndex = newKingIndex+1;
+        m_board[0][newKingIndex] = m_board[0][prevKingIndex]; // Kings new square now contains a king
+        m_board[0][prevKingIndex] = EMPTY; // The king's old position is now empty
+
+        m_board[0][newRookIndex] = m_board[0][prevRookIndex]; // The rook's new square becomes filled with a rook
+        m_board[0][prevRookIndex] = EMPTY; // The rook's original square becomes empty
         
-        boardState[newKingIndex].setColor(boardState[prevKingIndex].getColor());
-        boardState[newKingIndex].setType(boardState[prevKingIndex].getType());
-        boardState[prevKingIndex].setColor("Empty");
-        boardState[prevKingIndex].setType('E');
-        boardState[prevKingIndex].Moved();
         
-        boardState[newRookIndex].setColor(boardState[prevRookIndex].getColor());
-        boardState[newRookIndex].setType(boardState[prevRookIndex].getType());
-        boardState[prevRookIndex].setColor("Empty");
-        boardState[prevRookIndex].setType('E');
-        boardState[prevRookIndex].Moved();
+        if(pieceColor == WHITE){
+            auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevKingIndex); // Find the previous king index
+            *it = newKingIndex; // Update it to the new king index
+            it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevRookIndex); // Find previous rook index
+            *it = newRookIndex; // Update it to the new rook index
+            
+        }
+        else if (pieceColor == BLACK){
+            auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevKingIndex); // Find the previous king index
+            *it = newKingIndex; // Update it to the new king index
+            it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevRookIndex); // Find previous rook index
+            *it = newRookIndex; // Update it to the new rook index
+            
+        }
         
     }
     
-    board->findPlayerPieces(); // after making the move, update the lists containing the locations of all player pieces
+    // Need to update the move history for the move
+        m_boardHistory.push(m_board);
+        m_moveHistory.push(move);
+        calcPlayerMovesetV2(!pieceColor, true); // Update the potential moves lists for proper color
+        
+        return true;
+        
     
 }
 

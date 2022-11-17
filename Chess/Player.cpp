@@ -36,7 +36,7 @@ namespace Player{
     }
     
     
-    string askPlayerForValidMove(vector<string>* validMoveset){
+    string askPlayerForValidMove(){
         
         string input;
         std::cout << "What move would you like to make? ";
@@ -64,34 +64,26 @@ namespace Player{
     }
     
     
-    bool makeMove(chess::Board* board){
-        
-        //cout << "Real board moveset calculation" << endl;
-        
-        // Calculate player's possible moves and assign movesets for each player to variables
-
-
-        
+    bool takeTurn(chess::Board* board){
+        // We already should have moves calculated and prepared in the board member variables
         // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
         
         string move;
         string enemyColor;
         cout << "It is " << m_player_color << "'s turn" << endl; // announce who's turn it is
         if (humanPlayer == true){
-            
-            //board->calcValidatedPlayerMoveset(m_player_color, turnCounter, true);  // calculates player moves
-            board->calcPlayerMovesetV2(m_player_color, turnCounter, true);  // calculates player moves
+           
             
             if (m_player_color == "White") {
-                m_completeMoveset = *board->getWhiteMoves();
+                m_completeMoveset = board->getLegalMoves(WHITE);
             }
             else if (m_player_color == "Black"){
-                m_completeMoveset = *board->getBlackMoves();
+                m_completeMoveset = board->getLegalMoves(BLACK);
             }
             else {
                 cout << "Player doesn't have a valid color" << endl;
             }
-            move = askPlayerForValidMove(&m_completeMoveset);
+            move = askPlayerForValidMove();
         }
         else {
             // time check of evaluate board function
@@ -111,161 +103,21 @@ namespace Player{
         }
         
         // Modifies the a given board with a move, function will do invalid moves, so only give it valid ones
-        modifyBoardWithMove(board, move);
+        board->makeMove(move);
         
+        if (board->getLegalMoves(enemyColor).size() == 0) {
+            return true; // Checkmate!
+        }
+        return false; // Not checkmate
+        
+    }
+    
+    
 
-        
-        if (m_player_color == "White") {
-            
-            enemyColor = "Black";
-            //board->calcValidatedPlayerMoveset("White", turnCounter+1, true);
-            //board->calcValidatedPlayerMoveset("Black", turnCounter, true);
-            board->calcPlayerMovesetV2("White", turnCounter+1, true);  // can decrease number of calls here
-            board->calcPlayerMovesetV2("Black", turnCounter, true);
-            m_completeMoveset = *board->getWhiteMoves();
-            
-        }
-        else if (m_player_color == "Black"){
-            
-            enemyColor = "White";
-            //board->calcValidatedPlayerMoveset("White", turnCounter+1, true);
-            //board->calcValidatedPlayerMoveset("Black", turnCounter+1, true);
-            board->calcPlayerMovesetV2("White", turnCounter, true);
-            board->calcPlayerMovesetV2("Black", turnCounter, true);
-            m_completeMoveset = *board->getBlackMoves();
-        }
-        
-        auto kingPiece = board->findKing(enemyColor);
-        if (kingPiece == NULL) {
-            return true;
-        }
-        int numAttackers = kingPiece->countNumAttackers(m_completeMoveset, kingPiece->getFile(), kingPiece->getRank());
-        if(numAttackers != 0){
-            return achievedCheckmateOnEnemy(board);
-        }
-        
-        incrementTurn(); // Increase turn counter
-        return false;
-        
-    }
-    
-    
-    
-    void Player::modifyBoardWithMove(chess::Board* board, string move){
-        
-        auto boardState = board->getBoardstate();
-        
-        int prevFile = 0;
-        int prevRank = 0;
-        int newFile = 0;
-        int newRank = 0;
-        int prevIndex = 0;
-        int newIndex = 0;
-        char promotionChoice = 'P';
-        bool promotePawn = false;
-        int prevKingIndex = 0;
-        int newKingIndex = 0;
-        int prevRookIndex = 0;
-        int newRookIndex = 0;
-        
-        if (move == "") {
-            cout << "Function passed bad move" << endl;
-            return;
-        }
-        
-        if (!(move == "O-O" || move == "O-O-O")) {
-            
-            prevFile = Piece::cFileToIndex(move[1]);
-            prevRank = move[2] - '0'-1;
-            newFile = Piece::cFileToIndex(move[3]);
-            newRank = move[4] -'0'-1;    // Convert string to int
-            if (move.size() == 6) {
-                promotionChoice = move[5];
-                promotePawn = true;
-            }
-            
-            // ################### modifies the board with the move the player chose #########################
-            prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
-            newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
-            
-            if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
-                int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-                boardState[enPassantedPieceIndex].setColor("Empty");
-                boardState[enPassantedPieceIndex].setType('E');
-            }
-            
-            boardState[newIndex].setColor(boardState[prevIndex].getColor());
-            if (!promotePawn) {
-                boardState[newIndex].setType(boardState[prevIndex].getType());
-            }
-            else {
-                boardState[newIndex].setType(promotionChoice);
-            }
-            boardState[prevIndex].setColor("Empty");
-            boardState[prevIndex].setType('E');
-            // SETTING ENPASSANT FLAG HERE
-            if (boardState[newIndex].getType() == 'P' && (abs(newRank - prevRank) == 2)) {
-                boardState[newIndex].setDoubleJumpTurn(turnCounter);
-            }
-            
-            boardState[prevIndex].Moved();
-            
-        }
-        else if (move == "O-O"){
-            
-            // finds the king on the board
-            auto kingPiece = *board->findKing(m_player_color);
-            
-            // makes the move the player chose on this hypothetical board
-            prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
-            newKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()+2, kingPiece.getRank());
-            prevRookIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()+3, kingPiece.getRank());
-            newRookIndex = newKingIndex-1;
-            
-            boardState[newKingIndex].setColor(boardState[prevKingIndex].getColor());
-            boardState[newKingIndex].setType(boardState[prevKingIndex].getType());
-            boardState[prevKingIndex].setColor("Empty");
-            boardState[prevKingIndex].setType('E');
-            boardState[prevKingIndex].Moved();
-            
-            boardState[newRookIndex].setColor(boardState[prevRookIndex].getColor());
-            boardState[newRookIndex].setType(boardState[prevRookIndex].getType());
-            boardState[prevRookIndex].setColor("Empty");
-            boardState[prevRookIndex].setType('E');
-            boardState[prevRookIndex].Moved();
-            
-        }
-        else if (move == "O-O-O"){
-            // Check conditions for the player to castle Queenside
-            
-            // finds the king on the board
-            auto kingPiece = *board->findKing(m_player_color);
-            
-            // makes the move the player chose on this hypothetical board
-            prevKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile(), kingPiece.getRank());
-            newKingIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()-2, kingPiece.getRank());
-            prevRookIndex = Piece::convertCoordinateToBoardIndex(kingPiece.getFile()-4, kingPiece.getRank());
-            newRookIndex = newKingIndex+1;
-            
-            boardState[newKingIndex].setColor(boardState[prevKingIndex].getColor());
-            boardState[newKingIndex].setType(boardState[prevKingIndex].getType());
-            boardState[prevKingIndex].setColor("Empty");
-            boardState[prevKingIndex].setType('E');
-            boardState[prevKingIndex].Moved();
-            
-            boardState[newRookIndex].setColor(boardState[prevRookIndex].getColor());
-            boardState[newRookIndex].setType(boardState[prevRookIndex].getType());
-            boardState[prevRookIndex].setColor("Empty");
-            boardState[prevRookIndex].setType('E');
-            boardState[prevRookIndex].Moved();
-            
-        }
-        
-        board->findPlayerPieces(); // after making the move, update the lists containing the locations of all player pieces
-        
-    }
-    
-    bool Player::achievedCheckmateOnEnemy(chess::Board* board){
+
+
+
+bool Player::achievedCheckmateOnEnemy(chess::Board* board){ // Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
         
         auto checkmateBoard = *board; // make a copy of current board
         Piece enemyKing;
@@ -368,10 +220,7 @@ namespace Player{
         return false;
         
     }
-    
-    void Player::incrementTurn(){
-        turnCounter += 1;
-    }
+
     
     string Player::computerBeginThinking(chess::Board *board){
         
@@ -395,26 +244,26 @@ namespace Player{
         
         
         // time check of calc moveset function
-         start = std::chrono::system_clock::now();
-        simulationBoard.calcPlayerMovesetV2(m_player_color, turnCounter, true);
-         end = std::chrono::system_clock::now();
+//         start = std::chrono::system_clock::now();
+        // Thing to be timed here
+//         end = std::chrono::system_clock::now();
         
-        elapsed_seconds = end-start;
-        end_time = std::chrono::system_clock::to_time_t(end);
+//        elapsed_seconds = end-start;
+//        end_time = std::chrono::system_clock::to_time_t(end);
         
-        std::cout << "move calc computation elapsed time" << elapsed_seconds.count() << "s\n";
-        const double OVERHEADCOMPENSATION = 1.06875;
-        long double maxMoveTime = 0.00021*pow((simulationBoard.getWhiteMoves()->size()+simulationBoard.getBlackMoves()->size())/2, maxStopDepth)*1.5;
-        
-        cout << "Max possible move time calculation: " << maxMoveTime << " seconds" << endl;;
-        
-        
-        
+//        std::cout << "move calc computation elapsed time" << elapsed_seconds.count() << "s\n";
+//        const double OVERHEADCOMPENSATION = 1.06875;
+//        long double maxMoveTime = 0.00021*pow((simulationBoard.getWhiteMoves()->size()+simulationBoard.getBlackMoves()->size())/2, maxStopDepth)*1.5;
+//
+//        cout << "Max possible move time calculation: " << maxMoveTime << " seconds" << endl;;
+//
+//
+//
         map<string, float> moveScores;
         auto holderBoard = simulationBoard;
         string move;
         if (m_player_color == "White") {
-            simMoveset = *simulationBoard.getWhiteMoves();
+            simMoveset = *simulationBoard.getLegalMoves(WHITE);
             
             for (auto it = simMoveset.begin(); it != simMoveset.end(); it++) {
                 string move = *it;
@@ -423,12 +272,12 @@ namespace Player{
                 }
                 
                 // time check of modify board function
-                start = std::chrono::system_clock::now();
-                modifyBoardWithMove(&simulationBoard, move);
-                end = std::chrono::system_clock::now();
-                
-                elapsed_seconds = end-start;
-                end_time = std::chrono::system_clock::to_time_t(end);
+//                start = std::chrono::system_clock::now();
+                modifyBoardWithMove(&simulationBoard, move); // Need to substitute this with something like "makeMove"
+//                end = std::chrono::system_clock::now();
+//
+//                elapsed_seconds = end-start;
+//                end_time = std::chrono::system_clock::to_time_t(end);
                 
                 //std::cout << "finished modify board with move calc computation at " << std::ctime(&end_time)
                 //<< "elapsed time: " << elapsed_seconds.count() << "s\n";

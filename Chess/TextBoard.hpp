@@ -61,6 +61,7 @@ private:
     Pieces m_Board[8][8];
     u_int8_t m_turnNum;
     std::stack<std::string> m_moveHistory;
+    std::stack<Pieces[8][8]> m_boardHistory;
     std::stack<std::string[8][8]> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;
     std::list<std::int8_t> m_blackPieceIndices;
@@ -79,6 +80,7 @@ private:
     inline bool isEmpty(int8_t piece);
     char getPieceType(int nFile, int rank, Pieces board[8][8] = m_board);
     int getPieceColor(int file, int row, Pieces board[8][8] = m_board);
+    int8_t findKingIndex(Colors color);
     std::string buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew);
     int checkSquareStatus(int playerColor, int nFile, int rank);
     static int cFileToIndex(char cFile);
@@ -103,17 +105,17 @@ private:
     static void getAttackingMoves(list<string> playerMoves, int forFile, int forRank, list<string>* attackingMoves);
     static void makeColinearSquaresVector(std::string pieceMove, std::list<std::string>* pColinearSquaresResultVector);
     static bool squareIsBetweenSquares(string move, int testSquareFile, int testSquareRank);
-    void calcPlayerMovesetV2(Colors playerColor, int currentTurn, bool validateMoveset);
+    void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset);
     void getSquaresBetweenSquares(string move, vector<string>* returnVectorPointer); // Fix me!!!
     
 public:
     void TextBoard();
     void ~TextBoard();
     void getBoardState(Pieces (&board)[8][8]);
+    const std::list<std::string>& getLegalMoves(Color color) const;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, Pieces newPiece);
     void undoLastMove();
-    const std::list<std::string>& const getLegalMoves(); // function will be called A LOT. I have defined it as const return and const func because this makes it so people can't modify the return reference value, and it specifies the function won't modify value
     bool isWinner(Colors winnerColor); // Reports if white or black is the winner when asked
 
     
