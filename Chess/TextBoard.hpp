@@ -9,6 +9,7 @@
 #ifndef TextBoard_hpp
 #define TextBoard_hpp
 
+#include "ChessConstants.h"
 #include <stdio.h>
 #include <stack>
 #include <list>
@@ -18,45 +19,12 @@
 
 // Could possibly encode the color and number into a single number using ENUMS, and then create a decode function
 
-
+namespace TextBoard{
 
 class TextBoard{
     
 private:
     
-    typedef enum {
-        A1,B1,C1,D1,E1,F1,G1,H1,
-        A2,B2,C2,D2,E2,F2,G2,H2,
-        A3,B3,C3,D3,E3,F3,G3,H3,
-        A4,B4,C4,D4,E4,F4,G4,H4,
-        A5,B5,C5,D5,E5,F5,G5,H5,
-        A6,B6,C6,D6,E6,F6,G6,H6,
-        A7,B7,C7,D7,E7,F7,G7,H7,
-        A8,B8,C8,D8,E8,F8,G8,H8
-    } Squares;
-    
-    typedef enum {
-        EMPTY = 0,
-        BPAWN,
-        BROOK,
-        BKNIGHT,
-        BBISHOP,
-        BQUEEN,
-        BKING,
-        WPAWN,
-        WROOK,
-        WKNIGHT,
-        WBISHOP,
-        WQUEEN,
-        WKING
-        
-    } Pieces; // Black pieces 1-6, White pieces 7-12
-    
-    typedef enum {
-        BLACK,
-        WHITE,
-        EMPTY = -1
-    } Colors;
     
     Pieces m_Board[8][8];
     u_int8_t m_turnNum;
@@ -70,7 +38,7 @@ private:
     std::list<std::string> m_whiteMoves;
     std::list<std::string> m_blackMoves;
     
-    bool m_whitesTurn;
+    bool m_playerTurn;
     bool m_blackKingMoved, m_whiteKingMoved;
     bool m_whiteARookMoved,m_whiteHRookMoved, m_blackARookMoved, m_blackHRookMoved;
     
@@ -78,8 +46,6 @@ private:
     inline bool isWhite(int8_t piece);
     inline bool isBlack(int8_t piece);
     inline bool isEmpty(int8_t piece);
-    char getPieceType(int nFile, int rank, Pieces board[8][8] = m_board);
-    int getPieceColor(int file, int row, Pieces board[8][8] = m_board);
     int8_t findKingIndex(Colors color);
     std::string buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew);
     int checkSquareStatus(int playerColor, int nFile, int rank);
@@ -87,6 +53,7 @@ private:
     static char indexTo_cFile(int nFile);
     static int convertCoordinateToBoardIndex(int nFile, int rank);
     static void parseMove( string move, char& pieceType, char& prevFile, int& prevRank, char& newFile, int& newRank);
+    static void parseMove( string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank);
     void calcPawnMoves(int file, int rank, std::list<std::string> &movesResults);
     void calcRookMoves(int file, int rank, std::list<std::string> &movesResults);
     void calcKnightMoves(int file, int rank, std::list<std::string> &moveResults);
@@ -107,11 +74,14 @@ private:
     static bool squareIsBetweenSquares(string move, int testSquareFile, int testSquareRank);
     void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset);
     void getSquaresBetweenSquares(string move, vector<string>* returnVectorPointer); // Fix me!!!
+    bool updatePiecesArray(std::string move, CONSTANTS::Pieces capturedPiece); // Archived function
     
 public:
     void TextBoard();
     void ~TextBoard();
-    void getBoardState(Pieces (&board)[8][8]);
+    char getPieceType(int nFile, int rank, Pieces board[8][8] = m_board);
+    int getPieceColor(int file, int row, Pieces board[8][8] = m_board);
+    const (&Pieces)[8][8] getBoardState(Pieces board[8][8]) const; // returns a const pointer to a board array containing pieces(enums)
     const std::list<std::string>& getLegalMoves(Color color) const;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, Pieces newPiece);
@@ -122,6 +92,8 @@ public:
     
     
     
+}
+
 }
 
 #endif /* TextBoard_hpp */

@@ -13,8 +13,8 @@
 #include <sstream>
 #include <iostream>
 #include <string>
-#include "Piece.hpp"
 #include "TextBoard.hpp"
+#include "ChessConstants.h"
 #include <Algorithm>
 #include <Map>
 #include <List>
@@ -27,32 +27,30 @@ namespace Player {
 
 class Player {
 private:
-    string m_player_color;
+    CONSTANTS::Colors m_player_color;
     bool check = false;
-    int turnCounter = 1;
+    
+    string askPlayerForValidMove(vector<string>* validMoveset);
+    
+    //CPU Functions
+    float computerMaximizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float computerMinimizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float computerEvaluateBoard(chess::Board* board, string playerTurn);
 
 public:
-    vector<Piece*> m_pieces; // pointer to a vector containing pointers to pieces, should look at the board state and init once only and have it's ranks and files updated each time a move is made
     bool humanPlayer = true;
     std::list<std::string>& m_completeMoveset; // initialize me after finding all your pieces on the board, needs a pointer to the boardstate
     float currentTurnBoardScore;
     
 public:
-    Player(string color);
-    string getPlayerColor();
-    void init(chess::Board* board);
-    string askPlayerForValidMove(vector<string>* validMoveset);
-    bool takeTurn(chess::Board* board);
-    void modifyBoardWithMove(chess::Board* board, string move);
-    bool achievedCheckmateOnEnemy(chess::Board* board);
-    void incrementTurn();
+    Player(Colors color);
+    bool takeTurn(TextBoard::TextBoard* board);
+    bool achievedCheckmateOnEnemy(TextBoard::TextBoard* board);
     
     //CPU Functions
-    string computerBeginThinking(chess::Board* board);
-    float computerEvaluateBoard(chess::Board* board, string playerTurn);
-    float computerMaximizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
-    float computerMinimizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
-    float MiniMaxCalc(chess::Board* board, int maxDepth, vector<string>* pMoves = nullptr); // not used
+    string computerBeginThinking(TextBoard::TextBoard* board);
+    
+
     
 
     

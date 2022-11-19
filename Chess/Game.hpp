@@ -12,14 +12,15 @@
 #include <stdio.h>
 #include <iostream>
 #include "Player.hpp"
-#include "Board.hpp"
+//#include "TextBoard.hpp" // Should just only have to include Player and it should include TextBoard.hpp
+#include "ChessConstants.h"
 using namespace std;
 
 namespace ChessGame {
 class Game {
     
 public:
-    chess::Board m_board;
+    TextBoard::TextBoard m_board;
     Player::Player m_white;
     Player::Player m_black;
     bool checkmateOnWhite = false;

@@ -13,28 +13,6 @@ namespace Player{
     Player(string color){
         m_player_color = color;
     }
-    void init(chess::Board* board){
-        
-        Piece* boardState = board->getBoardstate();
-        
-        if (m_player_color == "White") {
-            for (int i = 0; i< 16; i++) {
-                m_pieces.push_back(&boardState[i]);
-            }
-        }
-        else if (m_player_color == "Black"){
-            for (int i = 48; i< 64; i++) {
-                m_pieces.push_back(&boardState[i]);
-            }
-        }
-        else{
-            std::cout << "Player init() function detected an invalid color" << endl;
-        }
-        
-        std::cout << "Player pieces have been initialized for " << m_player_color << endl << endl;
-        
-    }
-    
     
     string askPlayerForValidMove(){
         
@@ -64,21 +42,21 @@ namespace Player{
     }
     
     
-    bool takeTurn(chess::Board* board){
+    bool takeTurn(chess::TextBoard* board){
         // We already should have moves calculated and prepared in the board member variables
         // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
         
-        string move;
-        string enemyColor;
+        std::string move;
+        CONSTANTS::Colors enemyColor;
         cout << "It is " << m_player_color << "'s turn" << endl; // announce who's turn it is
         if (humanPlayer == true){
            
             
-            if (m_player_color == "White") {
-                m_completeMoveset = board->getLegalMoves(WHITE);
+            if (m_player_color == CONSTANTS::WHITE) {
+                m_completeMoveset = board->getLegalMoves(CONSTANTS::WHITE);
             }
-            else if (m_player_color == "Black"){
-                m_completeMoveset = board->getLegalMoves(BLACK);
+            else if (m_player_color == CONSTANTS::BLACK){
+                m_completeMoveset = board->getLegalMoves(CONSTANTS::BLACK);
             }
             else {
                 cout << "Player doesn't have a valid color" << endl;
@@ -105,7 +83,7 @@ namespace Player{
         // Modifies the a given board with a move, function will do invalid moves, so only give it valid ones
         board->makeMove(move);
         
-        if (board->getLegalMoves(enemyColor).size() == 0) {
+        if (achievedCheckmate(board)) {
             return true; // Checkmate!
         }
         return false; // Not checkmate
@@ -113,11 +91,25 @@ namespace Player{
     }
     
     
+bool Player::achievedCheckmate(chess::TextBoard* board){ // Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
+    const std::list<std::string>& nextPlayerMoves = 0;
+        
+        if (m_player_color == CONSTANTS::WHITE) { // if player is white, calculate all possible moves for them
+            nextPlayerMoves = TextBoard->getLegalMoves(CONSTANTS::BLACK);
+            if (nextPlayerMoves.size() == 0){std::cout << "White wins!" << std::endl; return true;}
+        }
+        else if (m_player_color == CONSTANTS::BLACK) {
+            nextPlayerMoves = TextBoard->getLegalMoves(CONSTANTS::WHITE);
+            if (nextPlayerMoves.size() == 0){std::cout << "Black wins!" << std::endl; return true;}
+            
+        }
+        else {std::cout << "ERROR: Player color invalid in achievedCheckmate()" << std::endl; return false; }
+        
+    }
 
 
 
-
-bool Player::achievedCheckmateOnEnemy(chess::Board* board){ // Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
+bool Player::OLDachievedCheckmateOnEnemy(chess::Board* board){ // Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
         
         auto checkmateBoard = *board; // make a copy of current board
         Piece enemyKing;

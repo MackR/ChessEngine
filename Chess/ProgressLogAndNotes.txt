@@ -71,6 +71,17 @@ Calculations done at the appropriate time makes your program so much more unders
 EXAMPLE:  When I make a move on the board, instead of waiting for an external call to the calculate player moves function. I immediately call  calculateMoves() function at the end of makeMove() because makeMove knows who just made the move and it allows clean calling of the function and no external calls ever.
 Sometimes, information is in an easy interpretation form, it might be better to use it sooner than later to setup some variable for later in the program
 
+
+Notes for November 18th, 2022 += 5hr
+
+Lessons/Thoughts:
+- Metafunctions aka Templates, are much more powerful than I originally thought. They allow the generation of multiple acceptable function type combinations, but they also allow calculation of constants and having mathematical outputs at compile time.
+- I was trying to make a file for all the constants that I wanted to use throughout the chess program, like ENUMs for Colors, Squares, and Pieces, but using the #include directive will cause multiple definitions of the constants whenever I include them in a new file. So, as of C++ 17, the inline declaration not only says to take small functions and direct copy paste them into places where they are used, but inline also tells the compiler to be aware of multiple declaration, and only take a single declaration. This still forces recompiling every file that contains the constants if the constants are changed, but there are alternative ways to get around it if compilation times are too long.
+- Constexpr is another keyword that tells the compiler to evaluate the variable at compile time and that it can be used in other constexpr's.
+- I've been going through my old chess engine more and it is more and more obvious why it didn't perform at the level I hoped. The code is a mess. But I've learned so much since then and have been able to refactor it substantially.
+- The interface a user has with code is extremely important. The simpler it is at the base level, the less issues cascade to the upper levels.
+- I'm sure my code could be simplified in many ways even after all I have learned, but I'll just have to go back after I've learned even more.
+
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate
 - Figure out where and when to use unique pointers and shared pointers

@@ -9,14 +9,13 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include "Screen.hpp"
-#include "Board.hpp"
+#include "TextBoard.hpp"
 #include "Player.hpp"
 #include "Game.hpp"
 #include "Rect.hpp"
 #include "GraphicsHandler.hpp"
 using namespace std;
 using namespace SDLScreen;
-using namespace chess;
 using namespace Graphics;
 
 
@@ -53,7 +52,7 @@ int main(int argc, const char * argv[]) {
     //SDL_Delay(500);
     
     game.m_white.humanPlayer = true;  // tells game it's a comp player
-    game.m_black.humanPlayer = false;  // tells game it's a comp player
+    game.m_black.humanPlayer = true;  // tells game it's a comp player
     
     
     
@@ -62,7 +61,7 @@ int main(int argc, const char * argv[]) {
         //board.drawBoard(screen.getRenderer());
         //screen.update();
         //SDL_Delay(500);
-        game.checkmateOnBlack = game.m_white.makeMove(&game.m_board);
+        game.checkmateOnBlack = ;
         
         GFX.drawBoard(game.m_board.getBoardstate());
         screen.update();

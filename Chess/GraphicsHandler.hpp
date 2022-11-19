@@ -14,7 +14,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
 #include "Screen.hpp"
-#include "Piece.hpp"
+#include "ChessConstants.h"
+#include "TextBoard.hpp"
 #include "Rect.hpp"
 
 
@@ -22,7 +23,7 @@ namespace Graphics {
     class GraphicsHandler{
         
     private:
-        Piece* m_pBoardstate;
+        TextBoard::TextBoard* m_pBoardstate;
         
     public:
         static const int BOARD_SQUARES = 64;
@@ -43,7 +44,7 @@ namespace Graphics {
         ~GraphicsHandler();
         void boardGraphicsInit();
         void calcCoordinate(int index, int &xResult, int &yResult); // give the index you want to calculate coordinates for and variables where you want to store results
-        void drawBoard(Piece* m_pBoardState);
+        void drawBoard(TextBoard::TextBoard* m_pBoardState);
         void destroyBoard();
         int  calcPieceYPosition(int m_rank);
         int  calcPieceXPosition(int m_file);

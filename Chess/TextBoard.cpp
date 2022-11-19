@@ -7,7 +7,6 @@
 //
 
 #include "TextBoard.hpp"
-#include <stdio.h>
 
 
 namespace TextBoard{
@@ -43,6 +42,7 @@ TextBoard(){
     m_boardHistory.append(m_Board);
     
     //Init the supporting variables
+    m_playerTurn = CONSTANTS::WHITE;
     m_turnNum = 1;
     std::stack<std::string> m_moveHistory;
     m_whitesTurn = true;
@@ -155,6 +155,13 @@ static void parseMove( string move, char& pieceType, char& prevFile, int& prevRa
     prevFile = move[1];
     prevRank = move[2] - '0'-1;
     newFile = move[3];
+    newRank = move[4] -'0'-1;    // Convert string to int
+}
+static void parseMove( string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank){
+    pieceType = move[0];
+    prevFile = move[1] - 'A';
+    prevRank = move[2] - '0'-1;
+    newFile = move[3] - 'A';
     newRank = move[4] -'0'-1;    // Convert string to int
 }
 
@@ -1855,7 +1862,7 @@ bool makeMove(std::string move){
         return false;
     }
     
-    if (!(move == "O-O" || move == "O-O-O")) { // If it's a normal move and not castling
+    if (!(move == "O-O" || move == "O-O-O")) { // If we are not castling
         
         TextBoard::parseMove( move, pieceType, prevFile, prevRank, newFile, newRank); // parse the move
         pieceColor = getPieceColor(prevFile, prevRank);
@@ -1876,23 +1883,25 @@ bool makeMove(std::string move){
         */
         if (pieceType == 'P' && abs(newFile-prevFile) == 1) { // If a pawn is capturing
             if(getPieceColor(newFile, newRank) == EMPTY){ // Check for enpassant
-                m_Board[prevRank][newFile] = EMPTY; // Enpassant initiated and pawn deleted
-                if(pieceColor == WHITE){
+                m_Board[prevRank][newFile] = EMPTY; // Enpassant confirmed, delete the enemy pawn
+                if(pieceColor == WHITE){ // If player is white, delete the black pawn from indexes
                     
                     auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank)); // Find the captured enpassant pawn's index
                     *it.erase(); // Remove the piece
                     
                 } // Update black pieces
-                else if (pieceColor == BLACK){
+                else if (pieceColor == BLACK){ // If player is black, delete the white pawn from indexes
                     auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank));// Find the captured enpassant pawn's index
                     *it.erase(); // Remove the piece
                 }
             }
         }
-        Colors capturedPieceColor = EMPTY;
+        
+        CONSTANTS::Colors capturedPieceColor = getPieceColor(newFile, newRank);
+        
         if (!promotePawn) { // If we are not promoting a pawn
-            capturedPieceColor = getPieceColor(newFile, newRank);
-            m_Board[newRank][newFile] = m_Board[prevRank][prevFile];
+            
+            m_Board[newRank][newFile] = m_Board[prevRank][prevFile]; // Move the piece to the new location
             if(!m_whiteKingHasMoved || !m_blackKingHasMoved){
                 if(pieceColor == WHITE){
                     if (pieceType == 'K'){
@@ -1918,9 +1927,9 @@ bool makeMove(std::string move){
                 }
             }
         }
-        else {
+        else { // If we are promoting a pawn
             if (pieceColor == WHITE){
-                switch(promotionChoice){ // Check the pieces from most commonly moved to least common
+                switch(promotionChoice){ // Check the pieces from most commonly moved to least common and assign the piece
                     case 'Q':
                         m_Board[newRank][newFile] = WQUEEN;
                         break;
@@ -2055,6 +2064,7 @@ bool makeMove(std::string move){
         m_moveHistory.push(move);
         calcPlayerMovesetV2(!pieceColor, true); // Update the potential moves lists for proper color
         
+        m_playerTurn != m_playerTurn;
         return true;
         
     
@@ -2062,6 +2072,56 @@ bool makeMove(std::string move){
 
 
 
-
+//Archived Function:
+bool updatePiecesArray(std::string move, bool performedCapture = false, int capturedFile = -1, int capturedRank = -1){ // The updating process of the indexes is just too simplified in some cases and complex in others to warrant an effective function that can handle all conditions. It could be done, but is impractical. 
+    
+    char pieceType;
+    int prevRank, newRank, prevFile, newFile;
+    
+    int capturedIndex = -1;
+    CONSTANTS::Colors capturedPieceColor = -1;
+    
+    
+    parseMove(move, &pieceType,  &prevFile, &prevRank, &newFile, &newRank);
+    
+    int prevPieceIndex = convertCoordinateToBoardIndex(prevFile, prevRank);
+    int newPieceIndex = convertCoordinateToBoardIndex(newFile, newRank)
+    CONSTANTS::Colors pieceColor = getPieceColor(newFile, newRank);
+    
+    
+    if(performedCapture){
+    capturedIndex = convertCoordinateToBoardIndex(capturedFile, capturedRank);
+    capturedPieceColor = getPieceColor(capturedFile,capturedRank);
+    }
+    
+    if(pieceColor == WHITE){
+        auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevPieceIndex);
+        *it = newPieceIndex; // Once we find the pointer to the old index, point to the new index
+        if(performedCapture){
+            auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),capturedIndex);
+            //if(itB != m_blackPiecesIndicies.end()){
+                itB.erase();
+            //}
+        }
+    }
+    else if (pieceColor == BLACK){
+        auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevPieceIndex);
+        *it = newPieceIndex;
+        if(performedCapture){
+            auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),capturedIndex);
+            //if(itW != m_whitePiecesIndicies.end()){ // It's okay to comment this out because I told it that it would be there
+                itW.erase();
+            //}
+            
+        }
+    }
+    else {
+        std::cout << "ERROR, invalid piece location (EMPTY color) given in updatePiecesArray() board" << std::endl;
+        return false;
+    }
+    
+    return true; // Successfully updated both array of piece indexes
+    
+}
 
 }

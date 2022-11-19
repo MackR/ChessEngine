@@ -36,6 +36,7 @@
 		644A30CF28F77F2100614BF9 /* TextBoard.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextBoard.hpp; sourceTree = "<group>"; };
 		644A30D82924321F00614BF9 /* ChessEngine.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ChessEngine.xcodeproj; path = ChessEngine/ChessEngine.xcodeproj; sourceTree = "<group>"; };
 		644A30DD2924B2BC00614BF9 /* ProgressLogAndNotes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ProgressLogAndNotes.txt; sourceTree = "<group>"; };
+		644A30DE29282B4D00614BF9 /* ChessConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
 		64D6CBFA235BC6400046E52C /* Chess */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chess; sourceTree = BUILT_PRODUCTS_DIR; };
 		64D6CBFD235BC6400046E52C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		64D6CC04235BC8600046E52C /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -112,6 +113,7 @@
 				64D6CC27236616F40046E52C /* Game.cpp */,
 				64D6CC28236616F40046E52C /* Game.hpp */,
 				644A30DD2924B2BC00614BF9 /* ProgressLogAndNotes.txt */,
+				644A30DE29282B4D00614BF9 /* ChessConstants.h */,
 			);
 			path = Chess;
 			sourceTree = "<group>";
