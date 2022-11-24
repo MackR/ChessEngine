@@ -29,7 +29,6 @@ public:
 public:
     Game();
     ~Game();
-    void init();
     
 private:
 

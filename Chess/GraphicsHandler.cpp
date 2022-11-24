@@ -62,7 +62,7 @@ GraphicsHandler::GraphicsHandler(SDL_Renderer *renderer): darkSquares(NULL),ligh
         
     }
     
-    void GraphicsHandler::drawBoard(TextBoard::TextBoard* m_pBoardState){
+    void GraphicsHandler::drawBoard(TextBoard::TextBoard& m_pBoardState){
         SDL_RenderClear(m_renderer);
         for (int i = 0; i<32; i++) {
             // 32 dark and 32 light squares
@@ -73,8 +73,8 @@ GraphicsHandler::GraphicsHandler(SDL_Renderer *renderer): darkSquares(NULL),ligh
         for (int squareNum = 0; squareNum < 64; squareNum++) {
             int file = squareNum % 8;
             int rank = squareNum / 8;
-            CONSTANTS::Colors color = m_pBoardState->getPieceColor(file, rank);
-            char type = m_pBoardState->getPieceType(file,rank);
+            CONSTANTS::Colors color = m_pBoardState.getPieceColor(file, rank);
+            char type = m_pBoardState.getPieceType(file,rank);
             string fileName, fileNameColor, fileNameType;
             if (color == CONSTANTS::WHITE) {
                 fileNameColor = "White";

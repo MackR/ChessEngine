@@ -11,7 +11,7 @@
 
 namespace CONSTANTS {
 
-inline constexpr typedef enum {
+typedef enum{
     A1,B1,C1,D1,E1,F1,G1,H1,
     A2,B2,C2,D2,E2,F2,G2,H2,
     A3,B3,C3,D3,E3,F3,G3,H3,
@@ -20,9 +20,11 @@ inline constexpr typedef enum {
     A6,B6,C6,D6,E6,F6,G6,H6,
     A7,B7,C7,D7,E7,F7,G7,H7,
     A8,B8,C8,D8,E8,F8,G8,H8
-} Squares;
+}Square;
 
-inline constexpr typedef enum {
+
+
+enum class Piece {
     EMPTY = 0,
     BPAWN,
     BROOK,
@@ -37,13 +39,21 @@ inline constexpr typedef enum {
     WQUEEN,
     WKING
     
-} Pieces; // Black pieces 1-6, White pieces 7-12
+}; // Black pieces 1-6, White pieces 7-12
 
-inline constexpr typedef enum {
+enum class Color {
+    EMPTY = -1,
     BLACK,
     WHITE,
-    EMPTY = -1
-} Colors;
+    INVALID = -2
+};
+
+enum class Status {
+        INVALID = -2,
+        ENEMY = -1,
+        EMPTY = 0,
+        FRIENDLY = 1
+};
 
 }
 

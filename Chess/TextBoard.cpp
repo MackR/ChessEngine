@@ -10,41 +10,40 @@
 
 
 namespace TextBoard{
-TextBoard(){
+TextBoard::TextBoard(){
     // Init the board itself
-    m_Board[A1] = WROOK;
-    m_Board[B1] = WKNIGHT;
-    m_Board[C1] = WBISHOP;
-    m_Board[D1] = WKING;
-    m_Board[E1] = WQUEEN;
-    m_Board[F1] = WBISHOP;
-    m_Board[G1] = WKNIGHT;
-    m_Board[H1] = WROOK;
+    m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
+    m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
+    m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
+    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
+    m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
+    m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
+    m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
+    m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
     for(int i = 8; i <16; ++i){
-        m_Board[i] = WPAWN;
+        m_board[0][i] = CONSTANTS::Piece::WPAWN;
     }
     for(int i = 16; i <48; ++i){
-        m_Board[i] = EMPTY;
+        m_board[0][i] = CONSTANTS::Piece::EMPTY;
     }
     for(int i = 48; i <56; ++i){
-        m_Board[i] = BPAWN;
+        m_board[0][i] = CONSTANTS::Piece::BPAWN;
     }
-    m_Board[A8] = BROOK;
-    m_Board[B8] = BKNIGHT;
-    m_Board[C8] = BBISHOP;
-    m_Board[D8] = BKING;
-    m_Board[E8] = BQUEEN;
-    m_Board[F8] = BBISHOP;
-    m_Board[G8] = BKNIGHT;
-    m_Board[H8] = BROOK;
+    m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
+    m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
+    m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
+    m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
+    m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
+    m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
     
     //Create the first board state in the m_boardHistory stack
-    m_boardHistory.append(m_Board);
+    m_boardHistory.push(m_board);
     
     //Init the supporting variables
-    m_playerTurn = CONSTANTS::WHITE;
+    m_playerTurn = CONSTANTS::Color::WHITE;
     m_turnNum = 1;
-    std::stack<std::string> m_moveHistory;
     m_whitesTurn = true;
     m_blackKingMoved = false;
     m_whiteKingMoved = false;
@@ -52,374 +51,380 @@ TextBoard(){
     m_whiteHRookMoved = false;
     m_blackARookMoved = false;
     m_blackHRookMoved = false;
-    m_includeEnpassant = false;
     
     findPlayerPieces();
-    calcPlayerMovesetV2(WHITE, true); // At the start of every game, calculate all white's moves. 
+    calcPlayerMovesetV2(CONSTANTS::Color::WHITE, true); // At the start of every game, calculate all white's moves.
     
 }
-~TextBoard(){
+TextBoard::~TextBoard(){}
+
+inline bool TextBoard::isWhite(CONSTANTS::Piece piece) {return (piece >= CONSTANTS::Piece::WPAWN && piece <= CONSTANTS::Piece::WKING);}
+inline bool TextBoard::isBlack(CONSTANTS::Piece piece) {return (piece >= CONSTANTS::Piece::BPAWN && piece <= CONSTANTS::Piece::BKING);}
+inline bool TextBoard::isEmpty(CONSTANTS::Piece piece) {return (static_cast<int>(piece) == static_cast<int>(CONSTANTS::Color::EMPTY));}
+
+char TextBoard::getPieceType(int nFile, int rank){
+    if (nFile <0 || nFile > 7 || rank < 0 || rank > 7) {std::cout << "Error, invalid row or file input" << std::endl; return 'E';}
     
-}
-
-inline bool isWhite(int8_t piece){return (piece >= WPAWN && piece <= WKING);}
-inline bool isBlack(int8_t piece){return (piece >= BPAWN && piece <= BKING);}
-inline bool isEmpty(int8_t piece){return (piece == 0);}
-
-char getPieceType(int nFile, int rank, Pieces board[8][8] = m_board){
-    if (file <0 || file > 7 || row < 0 || row > 7) {std::cout << "Error, invalid row or file input" << std::endl; return 'E';}
-    int piece = board[rank][nFile];
+    CONSTANTS::Piece piece = m_board[rank][nFile];
     switch(piece){
-        case BPAWN || WPAWN: return 'P';
+        case CONSTANTS::Piece::WPAWN: return 'P';
             break;
-        case BROOK || WROOK: return 'R';
+        case CONSTANTS::Piece::BPAWN: return 'P';
             break;
-        case BKNIGHT || WKNIGHT: return 'N';
+        case CONSTANTS::Piece::WROOK: return 'R';
             break;
-        case BBISHOP || WBISHOP: return 'B';
+        case CONSTANTS::Piece::BROOK: return 'R';
             break;
-        case BQUEEN || WQUEEN: return 'Q';
+        case CONSTANTS::Piece::WKNIGHT: return 'N';
             break;
-        case BKING || WKING: return 'K';
+        case CONSTANTS::Piece::BKNIGHT: return 'N';
             break;
-        case EMPTY: std::cout << "Error, passed empty square to getPieceType()" << std::endl;
+        case CONSTANTS::Piece::WBISHOP: return 'B';
+            break;
+        case CONSTANTS::Piece::BBISHOP: return 'B';
+            break;
+        case CONSTANTS::Piece::WQUEEN: return 'Q';
+            break;
+        case CONSTANTS::Piece::BQUEEN: return 'Q';
+            break;
+        case CONSTANTS::Piece::WKING: return 'K';
+            break;
+        case CONSTANTS::Piece::BKING: return 'K';
+            break;
+        case CONSTANTS::Piece::EMPTY: std::cout << "Error, passed empty square to getPieceType()" << std::endl;
             return 'E';
             break;
     }
 }
 
-int getPieceColor(int file, int row, Pieces board[8][8] = m_board){
-    if (file <0 || file > 7 || row < 0 || row > 7) {std::cout << "Error, invalid row or file input" << std::endl; return -2;}
+CONSTANTS::Color TextBoard::getPieceColor(int file, int rank){
+    if (file <0 || file > 7 || rank < 0 || rank > 7) {
+        std::cout << "Error, invalid row or file input" << std::endl;
+        return CONSTANTS::Color::INVALID;
+        
+    }
     
-    uint8_t piece = board[rank][file];
-    if (isEmpty(piece)) return -1
-    else if (isWhite(piece)) return 1;
-    else if(isBlack(piece)) return 0;
-    else std::cout << "Error, piece/ piece color invalid" << std::endl; return -2
+    CONSTANTS::Piece piece = m_board[rank][file];
+    if (isEmpty(piece)) return CONSTANTS::Color::EMPTY;
+    else if (isWhite(piece)) return CONSTANTS::Color::WHITE;
+    else return CONSTANTS::Color::BLACK;
+
     
 }
 
-std::string buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew){
-    string sFilePrev (1,cFileOld);
-    int nFileOld = cFileToIndex(cFileOld);
-    int nFileNew = cFileToIndex(cFileNew);
-    string sFileNew (1,cFileNew);
-    string sRankOld = to_string(rankOld+1);
-    string sRankNew = to_string(rankNew+1);
-    string type = getPieceType(nFileOld, rankOld);
-    string moveString = type + sFilePrev + sRankOld + sFileNew + sRankNew;
-    //cout << "Building position from (char, int): " << moveString << endl;
+std::string TextBoard::buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew){
+    std::string sFilePrev (1,cFileOld);
+    std::string sFileNew (1,cFileNew);
+    std::string sRankOld = std::to_string(rankOld+1);
+    std::string sRankNew = std::to_string(rankNew+1);
+    int nFileOld = cFileOld - 'A';
+    char type = getPieceType(nFileOld, rankOld);
+    std::string moveString = type + sFilePrev + sRankOld + sFileNew + sRankNew;
+    //cout << "Building position from (char, int): " << moveString << std::endl;
     return moveString;
 }
 
-int checkSquareStatus(int playerColor, int nFile, int rank){
-    if (nFile < 0 || nFile > 7 || rank < 0 || rank > 7) { cout << "Warning, illegal rank and file numbers" << endl; return -2;}
-    if (playerColor != 1 && playerColor != 0) {
-        std::cout << "ERROR: returning -3, invalid playerColor input: checkSquareStatus() Color: " << playerColor << std::endl; return -3;}
+    std::string TextBoard::buildMoveString(int nFilePrev, int rankPrev, int nFileNew, int rankNew){
     
-    int squareContentsColor = getPieceColor(nFile, rank);
-    if (squareContentsColor == -1){
-        //  cout << "Square " << indexTo_cFile(nFile) << rank+1 << " is empty" << endl;
+    std::string sFilePrev (1,static_cast<char>(nFilePrev+'A'));
+    std::string sFileNew (1,static_cast<char>(nFileNew+'A'));
+    std::string sRankPrev = std::to_string(rankPrev+1);
+    std::string sRankNew = std::to_string(rankNew+1);
+    char type = getPieceType(nFilePrev, rankPrev);
+    std::string moveString = type + sFilePrev + sRankPrev + sFileNew + sRankNew;
+    //cout << "Building position from (char, int): " << moveString << std::endl;
+    return moveString;
+}
+
+int TextBoard::checkSquareStatus(CONSTANTS::Color playerColor, int nFile, int rank){
+    if (nFile < 0 || nFile > 7 || rank < 0 || rank > 7) { std::cout << "Warning, illegal rank and file numbers" << std::endl; return -2;}
+    if (playerColor != CONSTANTS::Color::WHITE && playerColor != CONSTANTS::Color::BLACK) {
+        std::cout << "ERROR: returning -2, invalid playerColor input: checkSquareStatus() Color: " << static_cast<int>(playerColor) << std::endl; return -2;}
+    
+    CONSTANTS::Color squareContentsColor = getPieceColor(nFile, rank);
+    if (squareContentsColor == CONSTANTS::Color::EMPTY){
+        //  std::cout << "Square " << indexTo_cFile(nFile) << rank+1 << " is empty" << std::endl;
         return 0;
     }
     else if (squareContentsColor == playerColor){
-        //  cout << "Friendly piece on square " << indexTo_cFile(nFile) << rank << endl;
+        //  std::cout << "Friendly piece on square " << indexTo_cFile(nFile) << rank << std::endl;
         return 1;
     }
     else {
-        //  cout << "Enemy piece on square " << indexTo_cFile(nFile) << rank << endl;
+        //  std::cout << "Enemy piece on square " << indexTo_cFile(nFile) << rank << std::endl;
         return -1;
     }
 }
 
-static int cFileToIndex(char cFile){
+int TextBoard::cFileToIndex(char cFile){
     return cFile-'A';
 }
-static char indexTo_cFile(int nFile){
+ char TextBoard::indexTo_cFile(int nFile){
     return static_cast<char>(nFile + 'A');
 }
 
-static int convertCoordinateToBoardIndex(int nFile, int rank){
+ int TextBoard::convertCoordinateToBoardIndex(int nFile, int rank){
     
     if (nFile >= 0 && nFile <= 7 && rank >= 0 && rank <= 7) {
         return rank*8 + nFile;
     }
-    //cout << "Warning, illegal rank and file numbers" << endl;
+    //cout << "Warning, illegal rank and file numbers" << std::endl;
     
     return -1;
     
 }
 
-static void parseMove( string move, char& pieceType, char& prevFile, int& prevRank, char& newFile, int& newRank){
+void TextBoard::parseMove( std::string move, char& pieceType, char& prevFile, int& prevRank, char& newFile, int& newRank){
     pieceType = move[0];
     prevFile = move[1];
     prevRank = move[2] - '0'-1;
     newFile = move[3];
-    newRank = move[4] -'0'-1;    // Convert string to int
+    newRank = move[4] -'0'-1;    // Convert std::string to int
 }
-static void parseMove( string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank){
+void TextBoard::parseMove( std::string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank){
     pieceType = move[0];
     prevFile = move[1] - 'A';
     prevRank = move[2] - '0'-1;
     newFile = move[3] - 'A';
-    newRank = move[4] -'0'-1;    // Convert string to int
+    newRank = move[4] -'0'-1;    // Convert std::string to int
 }
 
-void calcPawnMoves(int file, int rank, std::list<string> &movesResults){
-    typedef enum { NA = -1, BLACK = 0, WHITE = 1} Color;
-    int inFrontPawnRank = -1;
-    int piece = m_board[rank][file];
-    int pieceColor = getPieceColor(file,rank);
-    int doubleJumpPawnRank = -1;
-    int doubleJumpPawnFile = -1;
-    int enemyDoubleJumpPawnRank = -1;
-    int enemyDoubleJumpPawnFile = -1;
-    int pawnLeftDiagonalRank = -1;
-    int pawnLeftDiagonalFile = -1;
-    int pawnRightDiagonalRank = -1;
-    int pawnRightDiagonalFile = -1;
-    int singleJumpSquareStatus = -1;
+void TextBoard::calcPawnMoves(int file, int rank, std::list<std::string> &movesResults){
+    // Init variables and flags for calculation
+    CONSTANTS::Piece piece = m_board[rank][file];
+    char pieceType = getPieceType(file, rank);
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
+    CONSTANTS::Color enemyColor = CONSTANTS::Color::EMPTY;
+    CONSTANTS::Color leftDiagonalColor = CONSTANTS::Color::EMPTY;
+    CONSTANTS::Color rightDiagonalColor = CONSTANTS::Color::EMPTY;
+    int leftFile = -1;
+    int rightFile = -1;
+    int forwardRank = -1;
+    int doubleJumpRank = -1;
+    int friendlyPawnStartingRank = -1;
+    int enemyPawnStartingRank = -1;
+    int enPassantFile = -1;
+    int enPassantRank = -1;
     int prePromotionRank = -1;
-    bool enPassantValidLeft = false;
-    bool enPassantValidRight = false;
-    Piece leftPiece;
-    Piece rightPiece;
     
-    bool findEnpassant = false;
-    if ((moveHistory.top[0] == "P") && (abs(moveHistory.top[2]-moveHistory.top[4]) > 1)){
-        
-        findEnpassant = true;
-        enemyDoubleJumpPawnRank = m_moveHistory.top[4]-'0'; // Convert from char to int
-        enemyDoubleJumpPawnFile = m_moveHistory.top[3]-'A'; // Convert from char to int
-        
+    // Set flag for if we should check for enpassant
+    bool findEnPassant = false;
+    if ((m_moveHistory.top()[0] == 'P') && (abs(m_moveHistory.top()[2]-m_moveHistory.top()[4]) > 1)){
+        findEnPassant = true;
+        enPassantFile = m_moveHistory.top()[3]-'A'; // Convert from char to int
+        enPassantRank = m_moveHistory.top()[4]-'0'; // Convert from char to int
     }
     
-    //Build the possible moves depending on the location of the pawn
-    if (pieceColor == WHITE) {
+    //Configure variables for moving depending on the location and color of pawn
+    // White pieces
+    if (pieceColor == CONSTANTS::Color::WHITE) {
+        enemyColor = CONSTANTS::Color::BLACK;
+        friendlyPawnStartingRank = 1;
+        enemyPawnStartingRank = 6;
         prePromotionRank = 6;
         if (rank != 7) {
-            inFrontPawnRank = rank+1;
+            forwardRank = rank+1;
         }
-        if(file != 0 && (rank != 0 || rank != 7)) {
-            pawnLeftDiagonalRank = rank+1;
-            pawnLeftDiagonalFile = file-1;
+        if(file != 0 && rank != 7) {
+            leftFile = file-1;
+            leftDiagonalColor = getPieceColor(leftFile, forwardRank);
         }
-        if(file != 7 && (rank != 0 || rank != 7)){
-            pawnRightDiagonalRank = rank+1;
-            pawnRightDiagonalFile = file+1;
+        if(file != 7 && rank != 7){
+            rightFile = file+1;
+            rightDiagonalColor = getPieceColor(rightFile, forwardRank);
         }
-        if (rank == 1 ) { // Pawn hasn't moved, enable double jump
-            doubleJumpPawnRank = rank+2;
-            singleJumpSquareStatus = checkSquareStatus(WHITE, file, rank+1); // Returns ILLEGAL, ENEMY, EMPTY, FRIENDLY enums
+        if (rank == friendlyPawnStartingRank ) { // Pawn hasn't moved, enable double jump
+            doubleJumpRank = rank+2;
             
         }
-        if(findEnpassant){
-            if (rank == 4) { // En passant
-                
-                if (file != 0) {
-                    leftPiece = m_board[rank][file-1];
-                    bool isBlack = (leftPiece >= BPAWN && leftPiece <=BKING);
-                    bool enPassentLeft = false;
-                    if (rank == enemyDoubleJumpRank && file-1 == enemyDoubleJumpFile) enPassentLeft = true; // if the pawns are on same rank and doubleJumper is adjacent the pawn, then enable enPassent
-                    if (isBlack && enPassentLeft){
-                        movesResults.push_back(buildMoveString(file, rank, enemyDoubleJumpPawnFile, rank-1));
-                    }
-                }
-                if (file != 7){
-                    rightPiece = m_board[rank][file+1];
-                    bool isBlack = (rightPiece >=BPAWN && rightPiece <=BKING)
-                    bool enPassentRight = false;
-                    if (rank == enemyDoubleJumpPawnRank && file+1 == enemyDoubleJumpPawnFile) enPassentRight = true;
-                    if (isBlack && enPassentRight){
-                        movesResults.push_back(buildMoveString(file, rank, enemyDoubleJumpPawnFile, rank+1));
-                    }
-                }
-            }
-        }
     }
-    else if (pieceColor == BLACK){
+    // Black Pieces
+    else if (pieceColor == CONSTANTS::Color::BLACK) {
+        enemyColor = CONSTANTS::Color::WHITE;
+        friendlyPawnStartingRank = 6;
+        enemyPawnStartingRank = 1;
         prePromotionRank = 1;
         if (rank != 0) {
-            inFrontPawnRank = rank-1;
+            forwardRank = rank-1;
         }
-        if (file != 0 && (rank != 0 || rank != 7)) {
-            pawnLeftDiagonalRank = rank-1;
-            pawnLeftDiagonalFile = file-1;
+        if(file != 0 && rank != 0) {
+            leftFile = file-1;
+            leftDiagonalColor = getPieceColor(leftFile, forwardRank);
         }
-        if(file != 7 && (rank != 0 || rank != 8)){
-            pawnRightDiagonalRank = rank-1;
-            pawnRightDiagonalFile = file+1;
+        if(file != 7 && rank != 0){
+            rightFile = file+1;
+            rightDiagonalColor = getPieceColor(rightFile, forwardRank);
         }
-        if (rank == 6 ) { // black side double jump
-            doubleJumpPawnRank = rank-2;
-            singleJumpSquareStatus = checkSquareStatus( file, rank-1);
-        }
-        if (findEnpassant){
-            if (rank == 3) { // En passant
-                
-                if (file != 0) {
-                    leftPiece = m_board[rank][file-1];
-                    bool isWhite = (leftPiece >= WPAWN && leftPiece <=WKING);
-                    bool enPassentLeft = false;
-                    if (rank == enemyDoubleJumpPawnRank && file-1 == enemyDoubleJumpPawnFile) enPassentLeft = true;
-                    if (isWhite && enPassentLeft){
-                        movesResults.push_back(buildMoveString(file, rank, enemyDoubleJumpPawnFile, rank-1));
-                    }
-                }
-                if (file != 7){
-                    rightPiece = m_board[rank][file+1];
-                    bool isWhite = (rightPiece >=WPAWN && rightPiece <=WKING)
-                    bool enPassentRight = false;
-                    if (rank == enemyDoubleJumpPawnRank && file+1 == enemyDoubleJumpPawnFile) enPassentRight = true;
-                    if (isWhite && enPassentRight){
-                        movesResults.push_back(buildMoveString(file, rank, enemyDoubleJumpPawnFile, rank+1));
-                    }
-                }
-            }
+        if (rank == friendlyPawnStartingRank ) { // Pawn hasn't moved, enable double jump
+            doubleJumpRank = rank-2;
+            
         }
     }
+    // Empty squares.  Should never reach this condition
     else{
         std::cout << "No piece at location pawnMoves( int " << file << ", int " << rank << ")" << std::endl;
     }
     
+    // All flags and variables have been set, time to do the calculations
+    
+    // Search for enpassant and add moves
+    if(findEnPassant){
+        if (rank == enPassantRank) { // En passant possible on this rank, caused by black (opponent) performing double jump
+                
+                bool enPassantLeft = false;
+            
+                if (file != 0) {
+                    
+                    if (leftFile == enPassantFile) {
+                        enPassantLeft = true; // set flag that we added the enPassant move for this pawn
+                        movesResults.push_back(buildMoveString(file, rank, enPassantFile, forwardRank));
+                    }
+                }
+            
+            if (file != 7 && enPassantLeft == false){ // If we're not on the far right, and enpassant wasn't already added, check right
+                    
+                    if (rightFile == enPassantFile){
+                        movesResults.push_back(buildMoveString(file, rank, enPassantFile, forwardRank));
+                    }
+                }
+            }
+        }
     
     
-    //Add the possible moves to the index depending if there is no piece, a friendly piece, or enemy piece on the coordinate
-    if (inFrontPawnRank != -1) {
+    
+    
+    
+    //Add the possible moves for going forward, including promotion if appropriate
+    if (forwardRank != -1) {
         
-        if (m_board[inFrontPawnRank][file] == EMPTY) {
+        if (m_board[forwardRank][file] == CONSTANTS::Piece::EMPTY) {
             if (rank != prePromotionRank) {
-                movesResults->push_back(buildPosition(inFrontPawnIndex));
+                movesResults.push_back(buildMoveString(file, rank, file, forwardRank));
             }
             else { // Pawn promotion by going straight
-                movesResults->push_back(buildPosition(inFrontPawnIndex)+"R");
-                movesResults->push_back(buildPosition(inFrontPawnIndex)+"N");
-                movesResults->push_back(buildPosition(inFrontPawnIndex)+"B");
-                movesResults->push_back(buildPosition(inFrontPawnIndex)+"Q");
+                movesResults.push_back(buildMoveString(file, rank, file, forwardRank)+"R");
+                movesResults.push_back(buildMoveString(file, rank, file, forwardRank)+"N");
+                movesResults.push_back(buildMoveString(file, rank, file, forwardRank)+"B");
+                movesResults.push_back(buildMoveString(file, rank, file, forwardRank)+"Q");
             }
             
         }
         
     }
-    if (doubleJumpPawnRank != -1) {
-        if (m_board[doubleJumpPawnRank][file] == EMPTY && singleJumpSquareStatus == EMPTY) {
-            movesResults.push_back(buildMoveString(file, rank, file, doubleJumpPawnRank));
+    // Add double jump moves if appropriate
+    if (doubleJumpRank != -1) {
+        if (m_board[doubleJumpRank][file] == CONSTANTS::Piece::EMPTY && m_board[forwardRank][file] == CONSTANTS::Piece::EMPTY) {
+            movesResults.push_back(buildMoveString(file, rank, file, doubleJumpRank));
         }
     }
-    if (pawnLeftDiagonalIndex != -1) {
-        bool isWhite = (leftPiece >= WPAWN && leftPiece <=WKING);
-        if ((boardState[pawnLeftDiagonalIndex].getColor() != m_color && boardState[pawnLeftDiagonalIndex].getColor() != EMPTY) || enPassantValidLeft) {
+    // Calculate capture moves for the left diagonal including promotion
+    if (leftDiagonalColor == enemyColor) {
             if (rank != prePromotionRank) {
-                movesResults.push_back(buildPosition(pawnLeftDiagonalIndex));
+                movesResults.push_back(buildMoveString(file, rank, leftFile, forwardRank));
             }
-            else { // Pawn promotion left diagonal capture
-                movesResults.push_back(buildPosition(pawnLeftDiagonalIndex)+"R");
-                movesResults.push_back(buildPosition(pawnLeftDiagonalIndex)+"N");
-                movesResults.push_back(buildPosition(pawnLeftDiagonalIndex)+"B");
-                movesResults.push_back(buildPosition(pawnLeftDiagonalIndex)+"Q");
+            else { // Pawn promotion Left diagonal capture
+                movesResults.push_back(buildMoveString(file, rank, leftFile, forwardRank)+"R");
+                movesResults.push_back(buildMoveString(file, rank, leftFile, forwardRank)+"N");
+                movesResults.push_back(buildMoveString(file, rank, leftFile, forwardRank)+"B");
+                movesResults.push_back(buildMoveString(file, rank, leftFile, forwardRank)+"Q");
             }
-            
         }
-    }
-    if (pawnRightDiagonalIndex != -1) {
-        int pawnRightDiagonal = m_board[pawnRightDiagonalRank][pawnRightDiagonalFile];
-        int pawnRightDiagonalColor = -2;
-        
-        if (pawnRightDiagonal >= WPAWN && pawnRightDiagonal <= WKING) pawnRightDiagonalColor = 1;
-        else if (pawnRightDiagonal >= BPAWN && pawnRightDiagonal <= BKING) pawnRightDiagonalColor = 0;
-        else pawnRightDiagonalColor = -1;
-        
-        if (pawnRightDiagonalColor != m_color && pawnRightDiagonalColor != EMPTY) {
+    
+    // Calculate capture moves for the right diagonal including promotion
+    if (rightDiagonalColor == enemyColor) {
+        if (rank != prePromotionRank) {
+            movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank));
+        }
             if (rank != prePromotionRank) {
-                movesResults.push_back(buildMoveString(file, rank, pawnRightDiagonalFile, pawnRightDiagonalRank));
+                movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank));
             }
             else { // Pawn promotion right diagonal capture
-                movesResults.push_back(buildMoveString(file, rank, pawnRightDiagonalFile, pawnRightDiagonalRank)+"R");
-                movesResults.push_back(buildMoveString(file, rank, pawnRightDiagonalFile, pawnRightDiagonalRank)+"N");
-                movesResults.push_back(buildMoveString(file, rank, pawnRightDiagonalFile, pawnRightDiagonalRank)+"B");
-                movesResults.push_back(buildMoveString(file, rank, pawnRightDiagonalFile, pawnRightDiagonalRank)+"Q");
+                movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank)+"R");
+                movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank)+"N");
+                movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank)+"B");
+                movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank)+"Q");
             }
         }
-    }
     
-    // return one space infront of pawn, two if on its first move
     
     return;
     
 }
-void calcRookMoves(int file, int rank, std::list<string> &movesResults){
+void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesResults){
     
-    int pieceColor = getPieceColor(file,rank);
-    bool stopFlag[4] = false;
+    
+    
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
+    bool stopFlag[4] = {false,false,false,false};
     
     for ( int i = 1; i < 8; i++) {
         
         
         if (stopFlag[0] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file +i, rank);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file +i, rank);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 movesResults.push_back(buildMoveString(file, rank, file +i, rank));
                 stopFlag[0] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 movesResults.push_back(buildMoveString(file, rank, file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 movesResults.push_back(buildMoveString(file, rank, file -i, rank));
                 stopFlag[1] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 movesResults.push_back(buildMoveString(file, rank, file -i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 movesResults.push_back(buildMoveString(file, rank, file, rank +i));
                 stopFlag[2] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 movesResults.push_back(buildMoveString(file, rank, file, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank-i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank-i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 movesResults.push_back(buildMoveString(file, rank, file, rank-i));
                 stopFlag[3] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 movesResults.push_back(buildMoveString(file, rank, file, rank-i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
         }
@@ -428,31 +433,26 @@ void calcRookMoves(int file, int rank, std::list<string> &movesResults){
     
     return;
 }
-void calcKnightMoves(int file, int rank, std::list<string> &moveResults){
+void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &moveResults){
     
-    typedef enum {
-        ILLEGAL = -2,
-        ENEMY = -1,
-        EMPTY = 0,
-        FRIENDLY = 1
-    } Status;
-    int pieceColor = getPieceColor(file,rank);
     
-    std::List<std::Pair<int, int>> legalSquares;
-    legalSquares.push_back(std::Pair<int,int>(nFile+2, nRank+1));
-    legalSquares.push_back(std::Pair<int,int>(nFile+2, nRank-1));
-    legalSquares.push_back(std::Pair<int,int>(nFile-2, nRank+1));
-    legalSquares.push_back(std::Pair<int,int>(nFile-2, nRank-1));
-    legalSquares.push_back(std::Pair<int,int>(nFile+1, nRank+2));
-    legalSquares.push_back(std::Pair<int,int>(nFile+1, nRank-2));
-    legalSquares.push_back(std::Pair<int,int>(nFile-1, nRank+2));
-    legalSquares.push_back(std::Pair<int,int>(nFile-1, nRank-2));
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
+    
+    std::list<std::pair<int, int>> legalSquares;
+    legalSquares.push_back(std::pair<int,int>(file+2, rank+1));
+    legalSquares.push_back(std::pair<int,int>(file+2, rank-1));
+    legalSquares.push_back(std::pair<int,int>(file-2, rank+1));
+    legalSquares.push_back(std::pair<int,int>(file-2, rank-1));
+    legalSquares.push_back(std::pair<int,int>(file+1, rank+2));
+    legalSquares.push_back(std::pair<int,int>(file+1, rank-2));
+    legalSquares.push_back(std::pair<int,int>(file-1, rank+2));
+    legalSquares.push_back(std::pair<int,int>(file-1, rank-2));
     
     for (auto squarePair: legalSquares){
-        int squareStatus = checkSquareStatus(pieceColor, squarePair.first, squarePair.second);
+        CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, squarePair.first, squarePair.second);
         
-        if (squareStatus != FRIENDLY && squareStatus != ILLEGAL) {
-            movesResults->push_back(buildMoveString(file, rank, squarePair.first, squarePair.second));
+        if (squareStatus != CONSTANTS::Status::FRIENDLY && squareStatus != CONSTANTS::Status::INVALID) {
+            moveResults.push_back(buildMoveString(file, rank, squarePair.first, squarePair.second));
         }
         
     }
@@ -461,7 +461,7 @@ void calcKnightMoves(int file, int rank, std::list<string> &moveResults){
     
     return;
 }
-void calcBishopMoves(int file, int rank, std::list<string> &moveResults){
+void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &moveResults){
     
     typedef enum {
         INVALID = -2,
@@ -470,75 +470,75 @@ void calcBishopMoves(int file, int rank, std::list<string> &moveResults){
         FRIENDLY = 1
     } Status;
     
-    int pieceColor = getPieceColor(file,rank);
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
     bool stopFlag[4] = {false, false, false, false};
     
     for ( int i = 1; i < 8; i++) {
         if (stopFlag[0] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file + i, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 moveResults.push_back(buildMoveString(file, rank, file +i, rank +i));
                 stopFlag[0] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 moveResults.push_back(buildMoveString(file, rank, file +i, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file + i, rank -i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank -i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 moveResults.push_back(buildMoveString(file, rank, file +i, rank -i));
                 stopFlag[1] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 moveResults.push_back(buildMoveString(file, rank, file +i, rank -i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 moveResults.push_back(buildMoveString(file, rank, file -i, rank+i));
                 stopFlag[2] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 moveResults.push_back(buildMoveString(file, rank, file -i, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file -i, rank -i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file -i, rank -i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 moveResults.push_back(buildMoveString(file, rank, file -i, rank -i));
                 stopFlag[3] = true;
             }
-            else if (squareStatus == EMPTY){
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
                 moveResults.push_back(buildMoveString(file, rank, file -i, rank -i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
         }
@@ -546,146 +546,146 @@ void calcBishopMoves(int file, int rank, std::list<string> &moveResults){
     
     return;
 }
-void calcQueenMoves(int file, int rank, std::list<string> &moveResults){
+void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveResults){
     
-    int pieceColor = getPieceColor(file,rank);
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
     
     bool stopFlag[8] = false;
     
     for ( int i = 1; i < 8; i++) {
         if (stopFlag[0] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file + i, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank +i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank +i));
                 stopFlag[0] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank +i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
         }
         if (stopFlag[1] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file + i, rank -i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file + i, rank -i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[1] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank -i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank -i));
                 stopFlag[1] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank -i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank -i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[1] = true;
             }
         }
         if (stopFlag[2] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file -i, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file -i, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank +i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank +i));
                 stopFlag[2] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank +i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
         }
         if (stopFlag[3] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file -i, rank -i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file -i, rank -i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank -i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank -i));
                 stopFlag[3] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank -i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank -i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
         }
         if (stopFlag[4] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file + i, rank);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file + i, rank);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[4] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank));
                 stopFlag[4] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file +i, rank));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[4] = true;
             }
         }
         if (stopFlag[5] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file -i, rank);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file -i, rank);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[5] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank));
                 stopFlag[5] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file -i, rank));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file -i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[5] = true;
             }
         }
         if (stopFlag[6] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file, rank + i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file, rank + i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[6] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file, rank +i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file, rank +i));
                 stopFlag[6] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file, rank +i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file, rank +i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[6] = true;
             }
         }
         if (stopFlag[7] == false) {
             
-            int squareStatus = checkSquareStatus(pieceColor,file, rank -i);
-            if (squareStatus == INVALID) {
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor,file, rank -i);
+            if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[7] = true;
             }
-            else if (squareStatus == ENEMY){
-                moves -> push_back(buildMoveString(file, rank, file, rank -i));
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
+                moveResults.push_back(buildMoveString(file, rank, file, rank -i));
                 stopFlag[7] = true;
             }
-            else if (squareStatus == EMPTY){
-                moves -> push_back(buildMoveString(file, rank, file, rank -i));
+            else if (squareStatus == CONSTANTS::Status::EMPTY){
+                moveResults.push_back(buildMoveString(file, rank, file, rank -i));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[7] = true;
             }
         }
@@ -693,15 +693,17 @@ void calcQueenMoves(int file, int rank, std::list<string> &moveResults){
     
     return;
 }
-void calcKingMoves(int file, int rank, std::list<std::string> &moveResults){
-    int pieceColor = getPieceColor(file, rank);
+void TextBoard::calcKingMoves(int file, int rank, std::list<std::string> &moveResults){
+    CONSTANTS::Color pieceColor = getPieceColor(file, rank);
     for (int row = -1; row <=1; ++row){
         for (int col = -1; col <= 1; ++col){
-            int squareStatus = -2;
+            CONSTANTS::Status squareStatus = -2;
             if (row == 0 && col == 0) continue; // Skip the position the king is already sitting in
-            else {checkSquareStatus(pieceColor, file+col, rank+row);}
-            if (squareStatus == 0 || squareStatus == -1) {
-                moveResults.push_back(buildPositionString(file+1, rank+1));
+            else {
+                squareStatus = checkSquareStatus(pieceColor, file+col, rank+row);
+                if (squareStatus == CONSTANTS::Status::EMPTY || squareStatus == CONSTANTS::Status::ENEMY) {
+                    moveResults.push_back(buildMoveString(file, rank, file+col, rank+row));
+            }
             }
         }
     }
@@ -709,9 +711,9 @@ void calcKingMoves(int file, int rank, std::list<std::string> &moveResults){
     
 }
 
-void calcPieceMoves(int file, int rank, std::list<std::string> &resultsList){
+void TextBoard::calcPieceMoves(int file, int rank, std::list<std::string> &resultsList){
     char pieceType = getPieceType(file, rank);
-    int pieceColor = getPieceColor(file, row);
+    int pieceColor = getPieceColor(file, rank);
     switch(pieceType){
         case 'P': calcPawnMoves(file, rank, resultsList);
             break;
@@ -731,60 +733,48 @@ void calcPieceMoves(int file, int rank, std::list<std::string> &resultsList){
     return;
 }
 
-void findPlayerPieces(){  // Function should only be used once on init, then other functions should keep piece lists updated
-//    int8_t whiteCounter = 0;
-//    int8_t blackCounter = 0;
+void TextBoard::findPlayerPieces(){  // Function should only be used once on init, then other functions should keep piece lists updated
+
     
     
-    for (int i = 0; i < 16; ++i){ // does this work for increasing vector size? or do I need other method
-        m_whitePieceIndices[i] = i;
-        m_blackPieceIndices[i] = i+48;
+    for (int i = 0; i < 16; ++i){ // Populating the list with all initial indexes of pieces it owns
+        m_whitePieceIndices.push_back(i);
+        m_blackPieceIndices.push_back(i+48);
     }
     
-    //This section finds the pieces' locations on the board, but since I know where they all are in the beginning, I don't need it
-//    for (int square = 0; square < 64; ++square){
-//        uint8_t squareContents = m_board[square];
-//        if (isEmpty(squareContents)) break;
-//        else if (isWhite(squareContents)){
-//            m_whitePieceIndices[whiteCounter] = square
-//            ++whiteCounter;
-//        }
-//        else if (isBlack(squareContents)){
-//            m_blackPieceIndices[blackCounter] = square
-//            ++blackCounter;
-//        }
-//        else std::cout << "Error! squareContents are not black, white, or empty" << std::endl;
-//    }
     return;
 }
 
-int8_t findKingIndex(Colors color){ // this function is only needed for kings // such as myself :D
+int8_t TextBoard::findKingIndex(CONSTANTS::Color color){ // this function is only needed for kings // such as myself :D
     int8_t (*pieceListIndexes)[16] = nullptr;
-    if (color == WHITE) {
+    if (color == CONSTANTS::Color::WHITE) {
         pieceListIndexes = m_whitePieceIndices; // Set my array pointer to point to the first row of m_whitePieceIndices
     }
-    else if(color == BLACK){
+    else if(color == CONSTANTS::Color::BLACK){
         pieceListIndexes = m_blackPieceIndices; // Set my array pointer to point to the first row of m_blackPieceIndices
     }
     else {
-        cout << "Invalid player color, returning -1" << endl;
+        std::cout << "Invalid player color, returning -1" << std::endl;
         return -1;
     }
-    for (int i = 0; i<16; i++) {
+    for (int i = 0; i<16; i++) { // need to convert this to a iterator that looks through the list
         int8_t testPieceIndex = pieceListIndexes[i]
         if (getPieceType(testPieceIndex%8, testPieceIndex/8) == 'K'){
             return testPieceIndex;
         }
     }
     
-    cout << "King not found (captured/non-present), returning -1" << endl;
+    std::cout << "King not found (captured/non-present), returning -1" << std::endl;
     return -1;
     
 }
 
-void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
-    resultsList.clear()
-    int pieceColor = getPieceColor(file, row);
+void TextBoard::rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
+    resultsList.clear();
+    
+    
+    
+    CONSTANTS::Color pieceColor = getPieceColor(file, rank);
 
     
     bool stopFlag[4] = {false, false, false, false}; // tells the pieces when to stop adding additional distance to their possible move direction (4 for rook)
@@ -794,18 +784,18 @@ void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         
         if (!stopFlag[0]) { // if we can keep adding move distance to the right of a piece
             
-            int squareStatus = checkSquareStatus(pieceColor, file +i, rank); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file +i, rank); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -819,12 +809,12 @@ void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[1]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){} // if the space is empty then do nothing
-            else if (squareStatus == FRIENDLY){stopFlag[1] = true;} // Stop checking for screen moves
-            else if (squareStatus == INVALID) {stopFlag[1] = true;} // You're looking off the board. Stop adding moves to the right
-            else if (squareStatus == ENEMY){
+            if (squareStatus == CONSTANTS::Status::EMPTY){} // if the space is empty then do nothing
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){stopFlag[1] = true;} // Stop checking for screen moves
+            else if (squareStatus == CONSTANTS::Status::INVALID) {stopFlag[1] = true;} // You're looking off the board. Stop adding moves to the right
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -838,18 +828,18 @@ void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[2]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -863,18 +853,18 @@ void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[3]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -891,9 +881,12 @@ void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList){
     return;
 }
   
-void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
+void TextBoard::bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
     resultsList.clear();
-    int pieceColor = getPieceColor(file, row);
+    
+    
+    
+    CONSTANTS::Color pieceColor = getPieceColor(file, row);
 
     
     bool stopFlag[4] = {false, false, false, false}; // tells the pieces when to stop adding additional distance to their possible move direction (4 for bishop)
@@ -903,18 +896,18 @@ void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         
         if (!stopFlag[0]) { // if we can keep adding move distance to the right of a piece
             
-            int squareStatus = checkSquareStatus(pieceColor, file +i, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file +i, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -928,18 +921,18 @@ void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[1]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[1] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[1] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -953,18 +946,18 @@ void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[2]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file+i, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file+i, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -978,18 +971,18 @@ void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
         }
         if (!stopFlag[3]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file-i, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file-i, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1006,10 +999,12 @@ void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList){
     return;
 }
 
-void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
+void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
     movesHolder.clear(); // Make sure to give a vector you don't care about
     
-    int pieceColor = getPieceColor(file,rank);
+    
+    
+    CONSTANTS::Color pieceColor = getPieceColor(file,rank);
     
     bool stopFlag[8] = {false, false, false, false, false, false, false, false};
     int screenNum[8] = {0,0,0,0,0,0,0,0};
@@ -1017,18 +1012,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
     for ( int i = 1; i < 8; i++) {
         if (!stopFlag[0]) { // if we can keep adding move distance to the right of a piece
             
-            int squareStatus = checkSquareStatus(pieceColor, file +i, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file +i, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[0] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[0] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1042,18 +1037,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[1]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[1] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[1] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1067,18 +1062,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[2]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file+i, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file+i, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[2] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[2] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1092,18 +1087,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[3]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file-i, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file-i, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[3] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[3] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1117,18 +1112,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[4]) { // if we can keep adding move distance to the right of a piece
             
-            int squareStatus = checkSquareStatus(pieceColor, file +i, rank); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file +i, rank); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[4] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[4] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[4]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[4] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1142,18 +1137,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[5]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file -i, rank); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file -i, rank); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[5] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[5] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[5]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[5] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1167,18 +1162,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[6]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank+i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank+i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[6] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[6] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[6]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[6] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1192,18 +1187,18 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
         }
         if (!stopFlag[7]) {
             
-            int squareStatus = checkSquareStatus(pieceColor, file, rank-i); // check the space i squares to the right of the piece
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank-i); // check the space i squares to the right of the piece
             
-            if (squareStatus == EMPTY){ // if the space is empty then do nothing
+            if (squareStatus == CONSTANTS::Status::EMPTY){ // if the space is empty then do nothing
                 //moves -> push_back(buildPositionString(file +i, rank));
             }
-            else if (squareStatus == FRIENDLY){
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY){
                 stopFlag[7] = true;
             }
-            else if (squareStatus == INVALID) {
+            else if (squareStatus == CONSTANTS::Status::INVALID) {
                 stopFlag[7] = true; // Stop adding moves to the right
             }
-            else if (squareStatus == ENEMY){
+            else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[7]; // Add one to the count of attackers in the way of the piece
                 if (screenNum[7] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
@@ -1220,7 +1215,7 @@ void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder){
     return;
 }
 
-void getScreenMoves(int pieceFile, int pieceRank, std::list<std::string>& resultsList){
+void TextBoard::getScreenMoves(int pieceFile, int pieceRank, std::list<std::string>& resultsList){
     
     char pieceType = getPieceType(pieceFile, pieceRank);
     
@@ -1232,16 +1227,16 @@ void getScreenMoves(int pieceFile, int pieceRank, std::list<std::string>& result
         case 'N': return;
         case 'K': return;
         case 'E': return;
-        default: cout << "Passed bad piece type to function getScreenMoves()"; return;
+        default: std::cout << "Passed bad piece type to function getScreenMoves()"; return;
             
     }
     
 }
 
 
-void calcScreenMovesets(){ // The pointers in this are very obscure, but I might have done them right, fingers crossed
+void TextBoard::calcScreenMovesets(){ // The pointers in this are very obscure, but I might have done them right, fingers crossed
     
-    //cout << "Calculating moveset for player: " << playerColor << endl;
+    //cout << "Calculating moveset for player: " << playerColor << std::endl;
     
     // Piece kingPiece = *findPiece(playerColor, 'K');  // commented this out because think i dont need it
     
@@ -1251,12 +1246,12 @@ void calcScreenMovesets(){ // The pointers in this are very obscure, but I might
     std::list<int8_t> *pieceIndicesList;
     std::list<std::string> *pieceScreenMoveHolder;
 
-    for (int color = BLACK; color <WHITE+1; color++){
-        if (color == BLACK){
+    for (int color = CONSTANTS::Color::BLACK; color <WHITE+1; color++){
+        if (color == CONSTANTS::Color::BLACK){
             pieceIndicesList = m_blackPieceIndices;
             pieceScreenMoveHolder = m_blackScreenMoves;
         }
-        else if (color == WHITE){
+        else if (color == CONSTANTS::Color::WHITE){
             pieceIndicesList = m_whitePieceIndices;
             pieceScreenMoveHolder = m_whiteScreenMoves;
         }
@@ -1289,12 +1284,12 @@ void calcScreenMovesets(){ // The pointers in this are very obscure, but I might
     
 }
 
-static int countNumAttackers(list<string> playerMoveset, int forFile, int forRank){
+static int TextBoard::countNumAttackers(std::list<std::string> playerMoveset, int forFile, int forRank){
     int attackerCount = 0;
     for (auto it = playerMoveset.begin(); it != playerMoveset.end(); it++) {
-        string move = *it;
+        std::string move = *it;
         int file = Piece::cFileToIndex(move[3]);
-        int rank = move[4] - '0'-1; // converts from one char within a string to an int, and decrements from rank number to array index num
+        int rank = move[4] - '0'-1; // converts from one char within a std::string to an int, and decrements from rank number to array index num
         
         if (file == forFile && rank == forRank) {
             attackerCount++;
@@ -1303,9 +1298,9 @@ static int countNumAttackers(list<string> playerMoveset, int forFile, int forRan
     return attackerCount;
 }
 
-static void getAttackingMoves(list<string> playerMoves, int forFile, int forRank, list<string>* attackingMoves){
+static void TextBoard::getAttackingMoves(list<std::string> playerMoves, int forFile, int forRank, list<std::string>* attackingMoves){
     for (auto it = playerMoves.begin(); it != playerMoves.end(); it++) {
-        string simple = it->c_str();
+        std::string simple = it->c_str();
         int file = Piece::cFileToIndex(simple[3]);
         int rank = simple[4] - '0'-1;
         
@@ -1315,7 +1310,7 @@ static void getAttackingMoves(list<string> playerMoves, int forFile, int forRank
     }
 }
 
-static void makeColinearSquaresVector(std::string pieceMove, std::list<std::string>* pColinearSquaresResultVector){
+static void TextBoard::makeColinearSquaresVector(std::string pieceMove, std::list<std::string>* pColinearSquaresResultVector){
     pColinearSquaresResultVector->clear();
     char pieceType;
     char cPrevFile;
@@ -1326,7 +1321,7 @@ static void makeColinearSquaresVector(std::string pieceMove, std::list<std::stri
     parseMove(pieceMove, pieceType, cPrevFile, prevRank, cNewFile, newRank);
     
     if (pieceType == 'N') {
-        cout << "Cannot make colinear squares vector from knight moves" << endl;
+        std::cout << "Cannot make colinear squares vector from knight moves" << std::endl;
         return;
     }
     
@@ -1353,19 +1348,19 @@ static void makeColinearSquaresVector(std::string pieceMove, std::list<std::stri
         char colinearSquareFile = static_cast<char>(cPrevFile + i*fileDirection);
         int colinearSquareRank = prevRank + i*rankDirection;
         
-        string sColinearSquareFile (1,colinearSquareFile);
-        string sColinearSquareRank = to_string(colinearSquareRank);
+        std::string sColinearSquareFile (1,colinearSquareFile);
+        std::string sColinearSquareRank = std::to_string(colinearSquareRank);
         
         pColinearSquaresResultVector->push_back(sColinearSquareFile+sColinearSquareRank);
         
         
     }
     
-    cout << "Colinear squares created" << endl;
+    std::cout << "Colinear squares created" << std::endl;
     
 } // Not as useful when you just use squareIsBetweenSquares in order to check for getting between two pieces. Still, using this might be faster with storage.
 
-static bool squareIsBetweenSquares(string move, int testSquareFile, int testSquareRank){
+static bool TextBoard::squareIsBetweenSquares (std::string move, int testSquareFile, int testSquareRank){
     
     char pieceType, prevFile, newFile;
     int prevRank, newRank;
@@ -1449,7 +1444,7 @@ static bool squareIsBetweenSquares(string move, int testSquareFile, int testSqua
     
 }
 
-static void getSquaresBetweenSquares(string move, list<string>* returnVectorPointer){
+static void TextBoard::getSquaresBetweenSquares (std::string move, list<std::string>* returnVectorPointer){
     
     char pieceType, prevFile, newFile;
     int prevRank, newRank;
@@ -1490,8 +1485,8 @@ static void getSquaresBetweenSquares(string move, list<string>* returnVectorPoin
             char y, x;
             y = static_cast<char>(y1+i);
             x = static_cast<char>(x1);
-            string sX(1, x);
-            string sY(1,y);
+            std::string sX(1, x);
+            std::string sY(1,y);
             
             returnVectorPointer->push_back(sX+sY); // Dereference the data storage location of variable and add a square to the list
         }
@@ -1503,8 +1498,8 @@ static void getSquaresBetweenSquares(string move, list<string>* returnVectorPoin
             char y, x;
             y = static_cast<char>(y1);
             x = static_cast<char>(x1+i);
-            string sX(1, x);
-            string sY(1,y);
+            std::string sX(1, x);
+            std::string sY(1,y);
             
             returnVectorPointer->push_back(sX+sY);
         }
@@ -1514,15 +1509,15 @@ static void getSquaresBetweenSquares(string move, list<string>* returnVectorPoin
     float slope = (y2-y1)/(x2-x1); // calculate slope of line  (the only valid slope is 1 or -1)
     //test the slope
     if (abs(slope) != 1) {
-        std::cout << "two non linear squares given, invalid inputs" << endl;
+        std::cout << "two non linear squares given, invalid inputs" << std::endl;
     }
     
     for (int i = 0; i < x2-x1; i++) {
         char y, x;
         y = static_cast<char>(y1+i);
         x = static_cast<char>(x1+i);
-        string sX(1, x);
-        string sY(1,y);
+        std::string sX(1, x);
+        std::string sY(1,y);
         
         returnVectorPointer->push_back(sX+sY);
     }
@@ -1532,7 +1527,7 @@ static void getSquaresBetweenSquares(string move, list<string>* returnVectorPoin
 
 
 
-void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
+void TextBoard::calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
     
     //This function is called recursively, so we need to clear it when we first start calculation, but not on recursive calls.
     if(validateMoveset){
@@ -1544,27 +1539,27 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
     std::list<std::string>* completePlayerMoveset;
     std::list<std::string>* enemyMoveset;
     std::list<std::string>* enemyScreenMoveset;
-    string enemyColor;
+    std::string enemyColor;
     bool kingHasMoved;
     bool aRookHasMoved;
     bool hRookHasMoved;
     bool addCastling = false;
     
-    if (playerColor == WHITE) {
+    if (playerColor == CONSTANTS::Color::WHITE) {
         completePlayerMoveset = &m_whiteMoves;
         enemyMoveset = &m_blackMoves;
         enemyScreenMoveset = &m_blackScreenMoves;
-        enemyColor = BLACK;
+        enemyColor = CONSTANTS::Color::BLACK;
         kingHasMoved = m_whiteKingMoved
         aRookHasMoved = m_whiteARookMoved;
         hRookHasMoved = m_whiteHRookMoved;
         
     }
-    else if (playerColor == BLACK){
+    else if (playerColor == CONSTANTS::Color::BLACK){
         completePlayerMoveset = &m_blackMoves;
         enemyMoveset = &m_whiteMoves;
         enemyScreenMoveset = &m_whiteScreenMoves;
-        enemyColor = WHITE;
+        enemyColor = CONSTANTS::Color::WHITE;
         kingHasMoved = m_blackKingMoved
         aRookHasMoved = m_blackARookMoved;
         hRookHasMoved = m_blackHRookMoved;
@@ -1585,12 +1580,12 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
         return;
     }
     
-    vector<string> attackingKingMoves;
-    vector<string> apparentScreenAttackingKingMoves;
-    vector<string> screenAttackingKingMoves;
-    vector<string> kingUnfilteredMoveset;
-    vector<string> kingFilteredMoveset;
-    vector<string> castlingMoveset;
+    vector<std::string> attackingKingMoves;
+    vector<std::string> apparentScreenAttackingKingMoves;
+    vector<std::string> screenAttackingKingMoves;
+    vector<std::string> kingUnfilteredMoveset;
+    vector<std::string> kingFilteredMoveset;
+    vector<std::string> castlingMoveset;
     int checksOnKing = 0;
     
     if (!validateMoveset) { // if we don't need to apply normal move rules with regards to the king then just get all the unabridged moves
@@ -1622,7 +1617,7 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
         std::list<std::string> kingUnfilteredMoveset;
         calcKingMoves(kingFile, kingRank, &kingUnfilteredMoveset);
         for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();) {
-            string move = *it;
+            std::string move = *it;
             
             char pieceType, prevFile, newFile;
             int prevRank, newRank;
@@ -1656,7 +1651,7 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
                 calcPieceMoves(tempFile, tempRank, &partialMoveset);
                 
                 for (auto it = screenAttackingKingMoves.begin(); it != screenAttackingKingMoves.end();) { // for each of the pinning moves
-                    string move = *it;
+                    std::string move = *it;
                     
                     if (squareIsBetweenSquares(move, tempPiece.getFile(), tempPiece.getRank())) { // if the piece is the one being pinned (in front of king)
                         for (auto it1 = partialMoveset->begin(); it1 != partialMoveset->end();) { // for each of the moves in the single piece's moveset
@@ -1685,14 +1680,14 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
                 calcPieceMoves(tempFile, tempRank, &partialMoveset);
                 completePlayerMoveset->insert(completePlayerMoveset->end(), partialMoveset->begin(),partialMoveset->end());
                 
-                //cout << endl;
+                //cout << std::endl;
             }
         }
         else if (tempPieceType == 'K') { // add king's viable moves depending on what would put it in check
             std::list<std::string> kingUnfilteredMoveset;
             calcPieceMoves(tempFile, tempRank, &kingUnfilteredMoveset);;
             for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();) {
-                string move = *it;
+                std::string move = *it;
                 
                 char pieceType, prevFile, newFile;
                 int prevRank, newRank;
@@ -1747,12 +1742,12 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
                     
                     castlingMoveset.push_back("O-O");
                     addCastling = true;
-                    //std::cout << "Player may castle king-side" << endl;
+                    //std::cout << "Player may castle king-side" << std::endl;
                 }
                 if (notInCheck && dSquareAdjacentKingIsEmpty && cSquareAdjacentKingIsEmpty && bSquareAdjacentKingIsEmpty && !kingHasMoved && !aRookHasMoved && !dSquareAdjacentKingUnderAttack && !cSquareAdjacentKingUnderAttack) {
                     castlingMoveset.push_back("O-O-O");
                     addCastling = true;
-                    //std::cout << "Player may castle queen-side" << endl;
+                    //std::cout << "Player may castle queen-side" << std::endl;
                 }
             } // add castling if viable
             
@@ -1762,7 +1757,7 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
     if (checksOnKing == 1) { // if there is only one attacker on the king then
         
         for (auto pMove = completePlayerMoveset->begin(); pMove != completePlayerMoveset->end();) {
-            string move = *pMove;
+            std::string move = *pMove;
             char pieceType = move[0];
             int moveEndFile = move[3] - 'A';
             int moveEndRank = move[4] - '1';
@@ -1771,7 +1766,7 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
                 ++pMove; // this move is fine, move on to the next move in the list
             }
             else if (pieceAttackingKingType == 'N') { // if the attacker is a knight
-                int knightAttackingKingFile = attackingKingMoves->begin()[1]-'A'; // attackingKingMoves is a string vector of moves
+                int knightAttackingKingFile = attackingKingMoves->begin()[1]-'A'; // attackingKingMoves is a std::string vector of moves
                 int knightAttackingKingRank = attackingKingMoves->begin()[2]-'1';
                 if (moveEndRank == knightAttackingKingRank && moveEndFile == knightAttackingKingFile) { // if we can capture the knight
                     ++pMove; // then keep the move as valid move, because we are removing the knight threat
@@ -1794,11 +1789,11 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
         
     }
     // Writes out list of moves:
-    //cout << "Moveset List for " << playerColor << endl;
+    //cout << "Moveset List for " << playerColor << std::endl;
     //for (auto it = completePlayerMoveset->begin(); it != completePlayerMoveset->end(); it++) {
-    //    cout << *it << ", ";
+    //    std::cout << *it << ", ";
     //}
-    //cout << endl;
+    //cout << std::endl;
     
     if (addCastling) {
         completePlayerMoveset->insert(completePlayerMoveset->end(), castlingMoveset.begin(),castlingMoveset.end()); // add filtered moveset to complete moveset
@@ -1813,34 +1808,34 @@ void calcPlayerMovesetV2(Colors playerColor, bool validateMoveset){
 
 
 // Public functions excluding constructor and destructor
-const Pieces (&board)[8][8] getBoardState(){
+const Pieces (&board)[8][8] TextBoard::getBoardState(){
     return m_board;
 }
-bool editBoard(int file, int rank, Pieces newPiece){
+bool TextBoard::editBoard(int file, int rank, Pieces newPiece){
     m_board[rank][file] = newPiece;
     return true;
 };
-void undoLastMove(){
+void TextBoard::undoLastMove(){
     m_boardHistory.pop();
     m_moveHistory.pop();
     m_board = m_boardHistory->top();
     return;
 };
-const std::list<std::string>& getLegalMoves(Color color) const{
+const std::list<std::string>& TextBoard::getLegalMoves(Color color) const{
     switch (color){
-        case WHITE:
+        case CONSTANTS::Color::WHITE:
             return m_whiteMoves;
-        case BLACK:
+        case CONSTANTS::Color::BLACK:
             return m_blackMoves;
         default:
             std::cout << "ERROR: Invalid color give to function getLegalMoves(color)" << std::endl;
             return nullptr;
     }
 }
-bool isWinner(Colors winnerColor){
+bool TextBoard::isWinner(Colors winnerColor){
     //If current players moveset is empty. Report winner is the opposing player!
 } // Reports if white or black is the winner when asked
-bool makeMove(std::string move){
+bool TextBoard::makeMove(std::string move){
 
     int prevFile = 0;
     int prevRank = 0;
@@ -1849,7 +1844,7 @@ bool makeMove(std::string move){
     char pieceType;
     int prevIndex = 0;
     int newIndex = 0;
-    Color pieceColor = -1;
+    CONSTANTS::Color pieceColor = -1;
     char promotionChoice = 'P';
     bool promotePawn = false;
     int prevKingIndex = 0;
@@ -1858,7 +1853,7 @@ bool makeMove(std::string move){
     int newRookIndex = 0;
     
     if (!(move.size() == 5 || move.size() == 6)) {
-        cout << "Function passed bad move" << endl;
+        std::cout << "Function passed bad move" << std::endl;
         return false;
     }
     
@@ -1883,27 +1878,27 @@ bool makeMove(std::string move){
         */
         if (pieceType == 'P' && abs(newFile-prevFile) == 1) { // If a pawn is capturing
             if(getPieceColor(newFile, newRank) == EMPTY){ // Check for enpassant
-                m_Board[prevRank][newFile] = EMPTY; // Enpassant confirmed, delete the enemy pawn
-                if(pieceColor == WHITE){ // If player is white, delete the black pawn from indexes
+                m_board[prevRank][newFile] = EMPTY; // Enpassant confirmed, delete the enemy pawn
+                if(pieceColor == CONSTANTS::Color::WHITE){ // If player is white, delete the black pawn from indexes
                     
                     auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank)); // Find the captured enpassant pawn's index
                     *it.erase(); // Remove the piece
                     
                 } // Update black pieces
-                else if (pieceColor == BLACK){ // If player is black, delete the white pawn from indexes
+                else if (pieceColor == CONSTANTS::Color::BLACK){ // If player is black, delete the white pawn from indexes
                     auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),convertCoordinateToBoardIndex(newFile, prevRank));// Find the captured enpassant pawn's index
                     *it.erase(); // Remove the piece
                 }
             }
         }
         
-        CONSTANTS::Colors capturedPieceColor = getPieceColor(newFile, newRank);
+        CONSTANTS::Color capturedPieceColor = getPieceColor(newFile, newRank);
         
         if (!promotePawn) { // If we are not promoting a pawn
             
-            m_Board[newRank][newFile] = m_Board[prevRank][prevFile]; // Move the piece to the new location
+            m_board[newRank][newFile] = m_board[prevRank][prevFile]; // Move the piece to the new location
             if(!m_whiteKingHasMoved || !m_blackKingHasMoved){
-                if(pieceColor == WHITE){
+                if(pieceColor == CONSTANTS::Color::WHITE){
                     if (pieceType == 'K'){
                         m_whiteKingHasMoved = true;
                     }
@@ -1914,7 +1909,7 @@ bool makeMove(std::string move){
                         }
                     }
                 }
-                else if(pieceColor == BLACK){
+                else if(pieceColor == CONSTANTS::Color::BLACK){
                     if (pieceType == 'K'){
                         m_blackKingHasMoved = true;
                     }
@@ -1928,38 +1923,38 @@ bool makeMove(std::string move){
             }
         }
         else { // If we are promoting a pawn
-            if (pieceColor == WHITE){
+            if (pieceColor == CONSTANTS::Color::WHITE){
                 switch(promotionChoice){ // Check the pieces from most commonly moved to least common and assign the piece
                     case 'Q':
-                        m_Board[newRank][newFile] = WQUEEN;
+                        m_board[newRank][newFile] = WQUEEN;
                         break;
                     case 'N':
-                        m_Board[newRank][newFile] = WKNIGHT;
+                        m_board[newRank][newFile] = WKNIGHT;
                         break;
                     case 'B':
-                        m_Board[newRank][newFile] = WBISHOP;
+                        m_board[newRank][newFile] = WBISHOP;
                         break;
                     case 'R':
-                        m_Board[newRank][newFile] = WROOK;
+                        m_board[newRank][newFile] = WROOK;
                         break;
                     default:
                         std::cout << "ERROR: Attempting to assign invalid piece type to square" << std::endl;
                         return false;
                 }
             }
-            else if (pieceColor == BLACK){
+            else if (pieceColor == CONSTANTS::Color::BLACK){
                 switch(promotionChoice){ // Check the pieces from most commonly moved to least common
                     case 'Q':
-                        m_Board[newRank][newFile] = BQUEEN;
+                        m_board[newRank][newFile] = BQUEEN;
                         break;
                     case 'N':
-                        m_Board[newRank][newFile] = BKNIGHT;
+                        m_board[newRank][newFile] = BKNIGHT;
                         break;
                     case 'B':
-                        m_Board[newRank][newFile] = BBISHOP;
+                        m_board[newRank][newFile] = BBISHOP;
                         break;
                     case 'R':
-                        m_Board[newRank][newFile] = BROOK;
+                        m_board[newRank][newFile] = BROOK;
                         break;
                     default:
                         std::cout << "ERROR: Attempting to assign invalid piece type to square" << std::endl;
@@ -1968,21 +1963,21 @@ bool makeMove(std::string move){
             
             }
         }
-        m_Board[prevRank][prevFile] = EMPTY; // Wherever the piece was before is now empty
+        m_board[prevRank][prevFile] = EMPTY; // Wherever the piece was before is now empty
         
         //Update the white black pieces index with the new position of moved piece
-        if(pieceColor == WHITE){
+        if(pieceColor == CONSTANTS::Color::WHITE){
             auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),convertCoordinateToBoardIndex(prevFile, prevRank));
             *it = convertCoordinateToBoardIndex(newFile, newRank);
-            if(capturedPieceColor == BLACK){
+            if(capturedPieceColor == CONSTANTS::Color::BLACK){
                 auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(newFile, newRank));
                 itB.erase();
             }
         }
-        else if (pieceColor == BLACK){
+        else if (pieceColor == CONSTANTS::Color::BLACK){
             auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),convertCoordinateToBoardIndex(prevFile, prevRank));
             *it = convertCoordinateToBoardIndex(newFile, newRank);
-            if(capturedPieceColor == WHITE){
+            if(capturedPieceColor == CONSTANTS::Color::WHITE){
                 auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),convertCoordinateToBoardIndex(newFile, newRank));
                 itW.erase();
             }
@@ -2010,14 +2005,14 @@ bool makeMove(std::string move){
         m_board[0][newRookIndex] = m_board[0][prevRookIndex]; // The rook's new square becomes filled with a rook
         m_board[0][prevRookIndex] = EMPTY; // The rook's original square becomes empty
         
-        if(pieceColor == WHITE){
+        if(pieceColor == CONSTANTS::Color::WHITE){
             auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevKingIndex); // Find the previous king index
             *it = newKingIndex; // Update it to the new king index
             it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevRookIndex); // Find previous rook index
             *it = newRookIndex; // Update it to the new rook index
             
         }
-        else if (pieceColor == BLACK){
+        else if (pieceColor == CONSTANTS::Color::BLACK){
             auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevKingIndex); // Find the previous king index
             *it = newKingIndex; // Update it to the new king index
             it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevRookIndex); // Find previous rook index
@@ -2042,14 +2037,14 @@ bool makeMove(std::string move){
         m_board[0][prevRookIndex] = EMPTY; // The rook's original square becomes empty
         
         
-        if(pieceColor == WHITE){
+        if(pieceColor == CONSTANTS::Color::WHITE){
             auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevKingIndex); // Find the previous king index
             *it = newKingIndex; // Update it to the new king index
             it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevRookIndex); // Find previous rook index
             *it = newRookIndex; // Update it to the new rook index
             
         }
-        else if (pieceColor == BLACK){
+        else if (pieceColor == CONSTANTS::Color::BLACK){
             auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevKingIndex); // Find the previous king index
             *it = newKingIndex; // Update it to the new king index
             it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevRookIndex); // Find previous rook index
@@ -2072,56 +2067,56 @@ bool makeMove(std::string move){
 
 
 
-//Archived Function:
-bool updatePiecesArray(std::string move, bool performedCapture = false, int capturedFile = -1, int capturedRank = -1){ // The updating process of the indexes is just too simplified in some cases and complex in others to warrant an effective function that can handle all conditions. It could be done, but is impractical. 
-    
-    char pieceType;
-    int prevRank, newRank, prevFile, newFile;
-    
-    int capturedIndex = -1;
-    CONSTANTS::Colors capturedPieceColor = -1;
-    
-    
-    parseMove(move, &pieceType,  &prevFile, &prevRank, &newFile, &newRank);
-    
-    int prevPieceIndex = convertCoordinateToBoardIndex(prevFile, prevRank);
-    int newPieceIndex = convertCoordinateToBoardIndex(newFile, newRank)
-    CONSTANTS::Colors pieceColor = getPieceColor(newFile, newRank);
-    
-    
-    if(performedCapture){
-    capturedIndex = convertCoordinateToBoardIndex(capturedFile, capturedRank);
-    capturedPieceColor = getPieceColor(capturedFile,capturedRank);
-    }
-    
-    if(pieceColor == WHITE){
-        auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevPieceIndex);
-        *it = newPieceIndex; // Once we find the pointer to the old index, point to the new index
-        if(performedCapture){
-            auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),capturedIndex);
-            //if(itB != m_blackPiecesIndicies.end()){
-                itB.erase();
-            //}
-        }
-    }
-    else if (pieceColor == BLACK){
-        auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevPieceIndex);
-        *it = newPieceIndex;
-        if(performedCapture){
-            auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),capturedIndex);
-            //if(itW != m_whitePiecesIndicies.end()){ // It's okay to comment this out because I told it that it would be there
-                itW.erase();
-            //}
-            
-        }
-    }
-    else {
-        std::cout << "ERROR, invalid piece location (EMPTY color) given in updatePiecesArray() board" << std::endl;
-        return false;
-    }
-    
-    return true; // Successfully updated both array of piece indexes
-    
-}
+////Archived Function:
+//bool updatePiecesArray(std::string move, bool performedCapture = false, int capturedFile = -1, int capturedRank = -1){ // The updating process of the indexes is just too simplified in some cases and complex in others to warrant an effective function that can handle all conditions. It could be done, but is impractical.
+//
+//    char pieceType;
+//    int prevRank, newRank, prevFile, newFile;
+//
+//    int capturedIndex = -1;
+//    CONSTANTS::Color capturedPieceColor = -1;
+//
+//
+//    parseMove(move, &pieceType,  &prevFile, &prevRank, &newFile, &newRank);
+//
+//    int prevPieceIndex = convertCoordinateToBoardIndex(prevFile, prevRank);
+//    int newPieceIndex = convertCoordinateToBoardIndex(newFile, newRank)
+//    CONSTANTS::Color pieceColor = getPieceColor(newFile, newRank);
+//
+//
+//    if(performedCapture){
+//    capturedIndex = convertCoordinateToBoardIndex(capturedFile, capturedRank);
+//    capturedPieceColor = getPieceColor(capturedFile,capturedRank);
+//    }
+//
+//    if(pieceColor == CONSTANTS::Color::WHITE){
+//        auto it = std::find(m_whitePieceIndices.begin(), m_whitePieceIndices.end(),prevPieceIndex);
+//        *it = newPieceIndex; // Once we find the pointer to the old index, point to the new index
+//        if(performedCapture){
+//            auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),capturedIndex);
+//            //if(itB != m_blackPiecesIndicies.end()){
+//                itB.erase();
+//            //}
+//        }
+//    }
+//    else if (pieceColor == CONSTANTS::Color::BLACK){
+//        auto it = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),prevPieceIndex);
+//        *it = newPieceIndex;
+//        if(performedCapture){
+//            auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),capturedIndex);
+//            //if(itW != m_whitePiecesIndicies.end()){ // It's okay to comment this out because I told it that it would be there
+//                itW.erase();
+//            //}
+//
+//        }
+//    }
+//    else {
+//        std::cout << "ERROR, invalid piece location (EMPTY color) given in updatePiecesArray() board" << std::endl;
+//        return false;
+//    }
+//
+//    return true; // Successfully updated both array of piece indexes
+//
+//}
 
 }

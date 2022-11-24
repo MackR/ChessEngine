@@ -23,27 +23,26 @@
 
 using namespace std;
 
-namespace Player {
 
 class Player {
 private:
     CONSTANTS::Colors m_player_color;
     bool check = false;
     
-    string askPlayerForValidMove(vector<string>* validMoveset);
+    string askPlayerForValidMove(); // Only used within takeTurn()
     
     //CPU Functions
-    float computerMaximizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
-    float computerMinimizer(chess::Board* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
-    float computerEvaluateBoard(chess::Board* board, string playerTurn);
+    float computerMaximizer(TextBoard::TextBoard* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float computerMinimizer(TextBoard::TextBoard* board, int currentDepth, int stopDepth, vector<string>* pMoves = nullptr);
+    float computerEvaluateBoard(TextBoard::TextBoard* board, string playerTurn);
 
 public:
     bool humanPlayer = true;
-    std::list<std::string>& m_completeMoveset; // initialize me after finding all your pieces on the board, needs a pointer to the boardstate
+//    std::list<std::string>& m_completeMoveset; // initialize me after finding all your pieces on the board, needs a pointer to the boardstate
     float currentTurnBoardScore;
     
 public:
-    Player(Colors color);
+    Player(CONSTANTS::Colors color);
     bool takeTurn(TextBoard::TextBoard* board);
     bool achievedCheckmateOnEnemy(TextBoard::TextBoard* board);
     
@@ -55,8 +54,7 @@ public:
 
     
 };
-    
-}
+
 #endif /* Player_hpp */
 
 /*

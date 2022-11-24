@@ -44,7 +44,7 @@ namespace Graphics {
         ~GraphicsHandler();
         void boardGraphicsInit();
         void calcCoordinate(int index, int &xResult, int &yResult); // give the index you want to calculate coordinates for and variables where you want to store results
-        void drawBoard(TextBoard::TextBoard* m_pBoardState);
+        void drawBoard(TextBoard::TextBoard& m_pBoardState);
         void destroyBoard();
         int  calcPieceYPosition(int m_rank);
         int  calcPieceXPosition(int m_file);

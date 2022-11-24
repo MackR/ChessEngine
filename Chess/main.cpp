@@ -51,8 +51,8 @@ int main(int argc, const char * argv[]) {
     screen.update();
     //SDL_Delay(500);
     
-    game.m_white.humanPlayer = true;  // tells game it's a comp player
-    game.m_black.humanPlayer = true;  // tells game it's a comp player
+    //game.m_white.humanPlayer = true;  // tells game it's a comp player
+    //game.m_black.humanPlayer = true;  // tells game it's a comp player
     
     
     
@@ -61,16 +61,16 @@ int main(int argc, const char * argv[]) {
         //board.drawBoard(screen.getRenderer());
         //screen.update();
         //SDL_Delay(500);
-        game.checkmateOnBlack = ;
         
-        GFX.drawBoard(game.m_board.getBoardstate());
+        GFX.drawBoard(&game.m_board);
         screen.update();
+        game.checkmateOnBlack = game.m_white.takeTurn(&game.m_board);
         if (game.checkmateOnBlack == true) {
             cout << "Checkmate!  White wins!" << endl;
             break;
         }
-        game.checkmateOnWhite = game.m_black.makeMove(&game.m_board);
-        GFX.drawBoard(game.m_board.getBoardstate());
+        game.checkmateOnWhite = game.m_black.takeTurn(&game.m_board);
+        GFX.drawBoard(&game.m_board);
         screen.update();
         if (game.checkmateOnWhite == true){
             cout << "Checkmate!  Black wins!" << endl;
