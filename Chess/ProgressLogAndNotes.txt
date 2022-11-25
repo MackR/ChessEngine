@@ -13,7 +13,7 @@ Logged hours in chess program: October 17th - 54hr += 7 - Early Sunday morning &
 October 18th - 3am - 8am - 61hr += 5 - Couldn't sleep due to jetlag
 October 19th - 1:30pm - 6:40pm - 66hr += 5 - learned about many many facets of programming, including:
 - Anonymous objects, placing anonymous objects inside other data structures,
-- Declaring a pointer to an array of pointers ex: int (* array)[10] is a pointer to an array of ints, int* (* array)[10] is a pointer to an array of int pointers
+- Declaring a pointer to an array of pointers ex: int (* array)[10] is a pointer to an array of ints. int* (* array)[10] is a pointer to an array of int pointers
 - That we should avoid memory leaks with smart pointers, specifically unique and shared pointers.  They are very useful. Or by being super careful with new and delete
     - We may also get memory leaks from inheritance if the child constructor isn’t correctly called. Need to look into more.
 - Inheritance: virtual keywords are used to make sure that the correct functions are called in a class, along with the correct destructors perhaps?  Very important for memory
@@ -124,6 +124,14 @@ Notes for November 23rd, 2022 107hr += 8hr
 - In the implementation file I forgot to specify the functions belonged to the TextBoard class, although I put them in the TextBoard namespace.
 - The use of ENUMs through my variables has required me to cascade populate them through the rest of the program. It's clean coding I suppose, but annoying. Probably saving me from dealing with many bugs though.
 
+Notes for November 24th, 2022 115hr += 12:40 - 2:50,
+- Continuing updating code now that the compiler is turned on. Performing many easy small changes.
+- RELEARNED: Arrays cannot be initialized uniformly to a value, each value must be individually set. In my case, I use the {bool,bool,...} constructor
+- RELEARNED: Using the .begin() and .end() functions with a dynamic datatype returns an iterator pointing to the beginning element and one element after the last element.
+- LEARNED: Static can only be declared in the header file
+- REMINDER: The dereference operator goes before the pointer object.
+- LEARNED: Arrays are not assignable, only the elements within them. Up until this point I had only ever assigned std::vectors, lists, etc... I didn't realize C++ doesn't have an operator for equating one array to another and changing all the values.
+- LEARNED: When using the erase function of the std::list, it is to be used in the form of list.erase(pointer/iterator to element).  Earlier, I was doing iterator.erase(), which doesn't make sense
 
 
 
@@ -138,3 +146,4 @@ Modifications to be made after chess engine completion:
 - rename the functions based on m_ g_ and other naming best practices
 - Need to figure out how to address not finding a king on the board for the computer player and possibly use a special kind of cast for this case.
 - Should I use a special header file for holding all constants that I will use throughout the program?
+- Go back through and rename the functions and variables according to their scope,

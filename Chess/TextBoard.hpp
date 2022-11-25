@@ -24,13 +24,15 @@ namespace TextBoard{
 
 class TextBoard{
     
+    typedef CONSTANTS::Piece board[8][8]; // see getBoardState()
+    
 private:
     
     bool m_whitesTurn;
-    CONSTANTS::Piece m_board[8][8];
+    board m_board;
     u_int8_t m_turnNum;
     std::stack<std::string> m_moveHistory;
-    std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
+    std::stack<board> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;
     std::list<std::int8_t> m_blackPieceIndices;
     std::list<std::string> m_whiteScreenMoves;
@@ -49,8 +51,8 @@ private:
     std::string buildMoveString(int nFilePrev, int rankPrev, int nFileNew, int rankNew);
     std::string buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew);
     CONSTANTS::Status checkSquareStatus(CONSTANTS::Color playerColor, int nFile, int rank);
-    static int cFileToIndex(char cFile);
-    static char indexTo_cFile(int nFile);
+    static inline int cFileToIndex(char cFile);
+    static inline char indexTo_cFile(int nFile);
     static int convertCoordinateToBoardIndex(int nFile, int rank);
     static void parseMove( std::string move, char& pieceType, char& prevFile, int& prevRank, char& newFile, int& newRank);
     static void parseMove( std::string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank);
@@ -73,7 +75,7 @@ private:
     static void makeColinearSquaresVector(std::string pieceMove, std::list<std::string>* pColinearSquaresResultVector);
     static bool squareIsBetweenSquares(std::string move, int testSquareFile, int testSquareRank);
     void calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateMoveset);
-    void getSquaresBetweenSquares(std::string move, std::vector<std::string>* returnVectorPointer); // Fix me!!!
+    static void getSquaresBetweenSquares (std::string move, std::list<std::string>* returnVectorPointer);
     bool updatePiecesArray(std::string move, CONSTANTS::Piece capturedPiece); // Archived function
     
 public:
@@ -81,9 +83,8 @@ public:
     ~TextBoard();
     char getPieceType(int nFile, int rank);
     CONSTANTS::Color getPieceColor(int file, int rank);
-    typedef CONSTANTS::Piece (&board)[8][8]; // see below
-    board getBoardState(CONSTANTS::Piece board[8][8]) const; // returns a const pointer to a board array containing pieces(enums)
-    const std::list<std::string>& getLegalMoves(CONSTANTS::Color color) const;
+    const board* getBoardState(); // returns a const pointer to a board array containing pieces(enums)
+    const std::list<std::string>* getLegalMoves(CONSTANTS::Color color) const;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, CONSTANTS::Piece newPiece);
     void undoLastMove();

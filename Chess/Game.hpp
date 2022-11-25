@@ -21,8 +21,8 @@ class Game {
     
 public:
     TextBoard::TextBoard m_board;
-    Player::Player m_white;
-    Player::Player m_black;
+    Player m_white;
+    Player m_black;
     bool checkmateOnWhite = false;
     bool checkmateOnBlack = false;
 

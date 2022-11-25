@@ -15,9 +15,9 @@
 #include <string>
 #include "TextBoard.hpp"
 #include "ChessConstants.h"
-#include <Algorithm>
-#include <Map>
-#include <List>
+#include <algorithm>
+#include <map>
+#include <list>
 #include <chrono>
 #include <ctime>
 
@@ -26,7 +26,8 @@ using namespace std;
 
 class Player {
 private:
-    CONSTANTS::Colors m_player_color;
+    CONSTANTS::Color m_player_color;
+    std::list<std::string> *m_pCompleteMoveset;
     bool check = false;
     
     string askPlayerForValidMove(); // Only used within takeTurn()
@@ -42,7 +43,7 @@ public:
     float currentTurnBoardScore;
     
 public:
-    Player(CONSTANTS::Colors color);
+    Player(CONSTANTS::Color color);
     bool takeTurn(TextBoard::TextBoard* board);
     bool achievedCheckmateOnEnemy(TextBoard::TextBoard* board);
     

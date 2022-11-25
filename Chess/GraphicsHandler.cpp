@@ -73,13 +73,13 @@ GraphicsHandler::GraphicsHandler(SDL_Renderer *renderer): darkSquares(NULL),ligh
         for (int squareNum = 0; squareNum < 64; squareNum++) {
             int file = squareNum % 8;
             int rank = squareNum / 8;
-            CONSTANTS::Colors color = m_pBoardState.getPieceColor(file, rank);
+            CONSTANTS::Color color = m_pBoardState.getPieceColor(file, rank);
             char type = m_pBoardState.getPieceType(file,rank);
-            string fileName, fileNameColor, fileNameType;
-            if (color == CONSTANTS::WHITE) {
+            std::string fileName, fileNameColor, fileNameType;
+            if (color == CONSTANTS::Color::WHITE) {
                 fileNameColor = "White";
             }
-            else if (color == CONSTANTS::BLACK){
+            else if (color == CONSTANTS::Color::BLACK){
                 fileNameColor = "Black";
             }
             switch (type) {

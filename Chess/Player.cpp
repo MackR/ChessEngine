@@ -9,12 +9,12 @@
 #include "Player.hpp"
 
     
-Player::Player(CONSTANTS::Colors color){
+Player::Player(CONSTANTS::Color color){
         m_player_color = color;
-        m_completeMoveset;
+        m_pCompleteMoveset = nullptr;
     }
     
-    string askPlayerForValidMove(){
+    string Player::askPlayerForValidMove(){
         
         string input;
         std::cout << "What move would you like to make? ";
@@ -22,7 +22,7 @@ Player::Player(CONSTANTS::Colors color){
         std::cout << endl << endl;
         while (1) {
             
-            for (auto it = m_completeMoveset.begin(); it != m_completeMoveset.end(); it++) {
+            for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); it++) {
                 if (input == *it) {
                     //std::cout << "Valid move" << endl;
                     return input;
@@ -43,16 +43,18 @@ Player::Player(CONSTANTS::Colors color){
 bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
     const std::list<std::string>* nextPlayerMoves;
         
-        if (m_player_color == CONSTANTS::WHITE) { // if player is white, calculate all possible moves for them
-            nextPlayerMoves = &board->getLegalMoves(CONSTANTS::BLACK);
+        if (m_player_color == CONSTANTS::Color::WHITE) { // if player is white, calculate all possible moves for them
+            nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::BLACK);
             if (nextPlayerMoves->size() == 0){std::cout << "White wins!" << std::endl; return true;}
         }
-        else if (m_player_color == CONSTANTS::BLACK) {
-            nextPlayerMoves = &board->getLegalMoves(CONSTANTS::WHITE);
+        else if (m_player_color == CONSTANTS::Color::BLACK) {
+            nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::WHITE);
             if (nextPlayerMoves->size() == 0){std::cout << "Black wins!" << std::endl; return true;}
             
         }
         else {std::cout << "ERROR: Player color invalid in achievedCheckmate()" << std::endl; return false; }
+    
+    return false;
         
     }
     
@@ -63,16 +65,15 @@ bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have
         
         std::string move;
         const std::list<std::string>* m_completeMoveset;
-        CONSTANTS::Colors enemyColor;
-        cout << "It is " << m_player_color << "'s turn" << endl; // announce who's turn it is
+        cout << "It is " << (int)m_player_color+1 << "'s turn" << endl; // announce who's turn it is
         if (humanPlayer == true){
            
             
-            if (m_player_color == CONSTANTS::WHITE) {
-                m_completeMoveset = &board->getLegalMoves(CONSTANTS::WHITE);
+            if (m_player_color == CONSTANTS::Color::WHITE) {
+                m_completeMoveset = board->getLegalMoves(CONSTANTS::Color::WHITE);
             }
-            else if (m_player_color == CONSTANTS::BLACK){
-                m_completeMoveset = &board->getLegalMoves(CONSTANTS::BLACK);
+            else if (m_player_color == CONSTANTS::Color::BLACK){
+                m_completeMoveset = board->getLegalMoves(CONSTANTS::Color::BLACK);
             }
             else {
                 cout << "Player doesn't have a valid color" << endl;
@@ -92,7 +93,7 @@ bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have
             
             
             if (move == "") {
-                SDL_Delay(1); // passed a bad move
+                std::cout << "Error: Computer function is passing a blank move" << std::endl; // passed a bad move
             }
         }
         

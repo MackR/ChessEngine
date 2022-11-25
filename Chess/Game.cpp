@@ -9,7 +9,7 @@
 #include "Game.hpp"
 
 namespace ChessGame {
-    Game::Game():m_white(CONSTANTS::WHITE), m_black(CONSTANTS::BLACK)  {};
+    Game::Game():m_white(CONSTANTS::Color::WHITE), m_black(CONSTANTS::Color::BLACK)  {};
     Game::~Game() {};
 
 }
