@@ -12,7 +12,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2_image/SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include "Screen.hpp"
 #include "ChessConstants.h"
 #include "TextBoard.hpp"

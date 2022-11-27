@@ -3,7 +3,7 @@ BUILD_DIR = build/debug
 CC = g++
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_NAME = playChess
-INCLUDE_PATHS = -Iinclude
+INCLUDE_PATHS = -Iinclude/
 LIBRARY_PATHS = -Llib
 COMPILER_FLAGS = -std=c++17 -Wall -DB -g
 LINKER_FLAGS = -lsdl2

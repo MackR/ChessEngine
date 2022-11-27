@@ -151,7 +151,24 @@ Notes for November 25th, 2022 120hr += 4
   times you do not want them to see those details. So you can split your classes up into private sections and public sections
   that allow people to compile the parts they need and simply use the tools they need from your precompiled class. 
   
-
+Notes for November 26th, 2022 124hr += 8 
+- I dove into the deep end of setting up an environment today. Learning all about compiling commands and
+  managing the include directories and how the VSCode workspace is setup using all the different file types.
+  It is SOOO CONFUSING.  A very frustrating process and even now that I got everything fixed in the include
+  folders, the cmath section is declaring that it doesn't recognize it's own functions. I'm frustrated.
+  Everything seems so close to working now. 
+- Relearned how to setup an access token with github and learned that there is a config folder in the
+  git folder in our projects that directs the repository how to behave. When I was trying to push my code
+  to the repository, it was continuing to ask for my credentials, and I had to go into the config file
+  and change it to look at the ssh link for the repo. It then started working.
+- It's been a long day of difficult coding. I know if I work on any problem long enough a solution will
+  appear. It's just a matter of perseverence. If all this SDL config setup fails, I can always redownload
+  Xcode and try setting up that environment again, where I've had SDL working before. Maybe the c++
+  libraries there just needed updating, idk. 
+- LEARNED: About simlinks and how they can help point towards your include files. Where to find header files
+  in a linux filesystem and macbook file system. 
+- The #include directive is just a way of saying copy the contents of X file into the location of this line
+- Next on my big questions, what is refactoring?  It seems to encompass a lot of concepts. 
 
 
 Modifications to be made after chess engine completion:
@@ -166,3 +183,4 @@ Modifications to be made after chess engine completion:
 - Need to figure out how to address not finding a king on the board for the computer player and possibly use a special kind of cast for this case.
 - Should I use a special header file for holding all constants that I will use throughout the program?
 - Go back through and rename the functions and variables according to their scope,
+- Use #pragma once throughout the include files. 

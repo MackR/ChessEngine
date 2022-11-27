@@ -6,15 +6,14 @@
 //  Copyright © 2019 KattisPracticeProblems. All rights reserved.
 //
 
-#ifndef Screen_hpp
-#define Screen_hpp
+#pragma once
 
 
 namespace SDLScreen {
     
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2_Image/SDL_Image.h>
+#include <SDL2/SDL_image.h>
     
     class Screen {
     public:
@@ -50,4 +49,3 @@ namespace SDLScreen {
 
 
 
-#endif /* Screen_hpp */

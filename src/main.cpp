@@ -15,14 +15,12 @@
 #include "Rect.hpp"
 #include "GraphicsHandler.hpp"
 using namespace std;
-using namespace SDLScreen;
-using namespace Graphics;
 
 
 
 int main(int argc, const char * argv[]) {
     
-    Screen screen;
+    SDLScreen::Screen screen;
     screen.init();
 
     ChessGame::Game game;
@@ -44,7 +42,7 @@ int main(int argc, const char * argv[]) {
     
     
     //my_rect.draw();
-    GraphicsHandler GFX(screen.getRenderer());
+    Graphics::GraphicsHandler GFX(screen.getRenderer());
     GFX.boardGraphicsInit();
     GFX.drawBoard(game.m_board);
     screen.update();

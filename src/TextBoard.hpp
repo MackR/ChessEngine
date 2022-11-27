@@ -14,6 +14,8 @@
 #include <iostream>
 #include <stack>
 #include <list>
+#include <algorithm>
+
 
 // In each space we should have text with "(Color)(Piece)" - and an EE if empty
 // Class member variables will be: lastMove (use to calculate enpassant), blackKingMoved, whiteKingMoved, whiteARookMoved, whiteHRookMoved, blackARookMoved, blackHRookMoved, includeEnpassant,

@@ -6,12 +6,11 @@
 //  Copyright © 2019 KattisPracticeProblems. All rights reserved.
 //
 
-#ifndef Rect_hpp
-#define Rect_hpp
+#pragma once
 
 #include <stdio.h>
-#include <sdl2/sdl.h>
-#include <SDL2_Image/SDL_Image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <string>
 #include <iostream>
 #include "Screen.hpp"
@@ -32,4 +31,4 @@ public:
     void setPiecePosition(int rank, int file);
     void draw();
 };
-#endif /* Rect_hpp */
+
