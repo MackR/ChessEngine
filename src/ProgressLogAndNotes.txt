@@ -133,6 +133,25 @@ Notes for November 24th, 2022 115hr += 12:40 - 2:50,
 - LEARNED: Arrays are not assignable, only the elements within them. Up until this point I had only ever assigned std::vectors, lists, etc... I didn't realize C++ doesn't have an operator for equating one array to another and changing all the values.
 - LEARNED: When using the erase function of the std::list, it is to be used in the form of list.erase(pointer/iterator to element).  Earlier, I was doing iterator.erase(), which doesn't make sense
 
+Notes for November 25th, 2022 120hr += 4
+- Started handling the issues with the standard library that xcode was giving. Xcode was a little outdated and it was probably best
+  to migrate to a different platform for programming. I'm typing this from VSCode now. Xcode took up 15gb of memory, way too much
+  for my computer. This setup is much better. 
+- LEARNED: To simlink new libraries into my project folder structure and the purpose of all the different folders in a library 
+    - The src folder has all source files (obviously)
+    - Lib folder contains all the precompiled libraries from your code, this allows you to share the utility of your code  without 
+      sharing the source code and letting others have all your work. In open source projects, people often don't have to do this
+    - The build folder contains all the builds of your project, often segmented into a debug and release folders
+    - The include folder often contains all the header files of the compiled libraries/functions you want to use in your project
+    - The cmake file is a file that tells the compiler how to behave in order to build the projects that you are doing.
+      - It specifies things such as the compiler you want to use, the compile flags used, the C++ version you want to compile,
+        the src directory showing it what files to build, the build directory (where the outputs go)
+        - Timestamp video link: https://youtu.be/Dyz9O7s7B8w?t=426  - EXCELLENT VIDEO
+- LEARNING: It seems that sometimes you want to allow people to see some implementation details of a class, and other
+  times you do not want them to see those details. So you can split your classes up into private sections and public sections
+  that allow people to compile the parts they need and simply use the tools they need from your precompiled class. 
+  
+
 
 
 Modifications to be made after chess engine completion:

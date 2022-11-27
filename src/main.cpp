@@ -26,7 +26,6 @@ int main(int argc, const char * argv[]) {
     screen.init();
 
     ChessGame::Game game;
-    game.init();
     
     
     //auto boardstate = board.getBoardstate()[17];
@@ -47,7 +46,7 @@ int main(int argc, const char * argv[]) {
     //my_rect.draw();
     GraphicsHandler GFX(screen.getRenderer());
     GFX.boardGraphicsInit();
-    GFX.drawBoard(game.m_board.getBoardstate());
+    GFX.drawBoard(game.m_board);
     screen.update();
     //SDL_Delay(500);
     
@@ -62,16 +61,15 @@ int main(int argc, const char * argv[]) {
         //screen.update();
         //SDL_Delay(500);
         
-        GFX.drawBoard(&game.m_board);
-        screen.update();
         game.checkmateOnBlack = game.m_white.takeTurn(&game.m_board);
         if (game.checkmateOnBlack == true) {
             cout << "Checkmate!  White wins!" << endl;
             break;
         }
-        game.checkmateOnWhite = game.m_black.takeTurn(&game.m_board);
-        GFX.drawBoard(&game.m_board);
+        GFX.drawBoard(game.m_board);
         screen.update();
+
+        game.checkmateOnWhite = game.m_black.takeTurn(&game.m_board);
         if (game.checkmateOnWhite == true){
             cout << "Checkmate!  Black wins!" << endl;
             cout << "Press any entry then enter to quit" << endl;
@@ -79,6 +77,8 @@ int main(int argc, const char * argv[]) {
             cin >> quit;
             break;
         }
+        GFX.drawBoard(game.m_board);
+        screen.update();
         
         if(screen.processEvents() == false){
             break;
