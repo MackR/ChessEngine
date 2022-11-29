@@ -16,11 +16,11 @@
 #include "ChessConstants.h"
 using namespace std;
 
-namespace ChessGame {
+
 class Game {
     
 public:
-    TextBoard::TextBoard m_board;
+    TextBoard m_board;
     Player m_white;
     Player m_black;
     bool checkmateOnWhite = false;
@@ -37,5 +37,4 @@ private:
 };
     
 
-}
 #endif /* Game_hpp */

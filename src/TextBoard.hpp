@@ -22,7 +22,7 @@
 
 // Could possibly encode the color and number into a single number using ENUMS, and then create a decode function
 
-namespace TextBoard{
+
 
 class TextBoard{
     
@@ -72,7 +72,7 @@ private:
     void queenScreenMoves(int file, int rank, std::list<std::string>& movesHolder);
     void getScreenMoves(int pieceFile, int pieceRank, std::list<std::string>& resultsList);
     void calcScreenMovesets();
-    static int countNumAttackers(std::list<std::string> playerMoveset, int forFile, int forRank);
+    static int countNumAttackers(std::list<std::string> *pplayerMoveset, int forFile, int forRank);
     static void getAttackingMoves(std::list<std::string> playerMoves, int forFile, int forRank, std::list<std::string>* attackingMoves);
     static void makeColinearSquaresVector(std::string pieceMove, std::list<std::string>* pColinearSquaresResultVector);
     static bool squareIsBetweenSquares(std::string move, int testSquareFile, int testSquareRank);
@@ -86,7 +86,7 @@ public:
     char getPieceType(int nFile, int rank);
     CONSTANTS::Color getPieceColor(int file, int rank);
     const board* getBoardState(); // returns a const pointer to a board array containing pieces(enums)
-    const std::list<std::string>* getLegalMoves(CONSTANTS::Color color) const;
+    std::list<std::string>* getLegalMoves(CONSTANTS::Color color) ;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, CONSTANTS::Piece newPiece);
     void undoLastMove();
@@ -98,7 +98,7 @@ public:
     
 };
 
-}
+
 
 #endif /* TextBoard_hpp */
 

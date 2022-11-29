@@ -9,7 +9,7 @@
 #include "TextBoard.hpp"
 
 
-namespace TextBoard{
+
 TextBoard::TextBoard(){
     // Init the board itself
     m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
@@ -39,7 +39,7 @@ TextBoard::TextBoard(){
     m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
     
     //Create the first board state in the m_boardHistory stack
-    m_boardHistory.push(m_board);
+    //m_boardHistory.push(m_board);
     
     //Init the supporting variables
     m_playerTurn = CONSTANTS::Color::WHITE;
@@ -56,11 +56,24 @@ TextBoard::TextBoard(){
     calcPlayerMovesetV2(CONSTANTS::Color::WHITE, true); // At the start of every game, calculate all white's moves.
     
 }
+
+void TextBoard::findPlayerPieces(){  // Function should only be used once on init, then other functions should keep piece lists updated
+    
+    
+    
+    for (int i = 0; i < 16; ++i){ // Populating the list with all initial indexes of pieces it owns
+        m_whitePieceIndices.push_back(i);
+        m_blackPieceIndices.push_back(i+48);
+    }
+    
+    return;
+}
+
 TextBoard::~TextBoard(){}
 
 inline bool TextBoard::isWhite(CONSTANTS::Piece piece) {return (piece >= CONSTANTS::Piece::WPAWN && piece <= CONSTANTS::Piece::WKING);}
 inline bool TextBoard::isBlack(CONSTANTS::Piece piece) {return (piece >= CONSTANTS::Piece::BPAWN && piece <= CONSTANTS::Piece::BKING);}
-inline bool TextBoard::isEmpty(CONSTANTS::Piece piece) {return (static_cast<int>(piece) == static_cast<int>(CONSTANTS::Color::EMPTY));}
+inline bool TextBoard::isEmpty(CONSTANTS::Piece piece) {return (piece == CONSTANTS::Piece::EMPTY);}
 
 char TextBoard::getPieceType(int nFile, int rank){
     if (nFile <0 || nFile > 7 || rank < 0 || rank > 7) {std::cout << "Error, invalid rank or file input" << std::endl; return 'E';}
@@ -91,10 +104,14 @@ char TextBoard::getPieceType(int nFile, int rank){
             break;
         case CONSTANTS::Piece::BKING: return 'K';
             break;
-        case CONSTANTS::Piece::EMPTY: std::cout << "Error, passed empty square to getPieceType()" << std::endl;
+        case CONSTANTS::Piece::EMPTY: //std::cout << "Error, passed empty square to getPieceType()" << std::endl;
+            return 'E';
+            break;
+        default:
             return 'E';
             break;
     }
+    return 'X';
 }
 
 CONSTANTS::Color TextBoard::getPieceColor(int file, int rank){
@@ -137,7 +154,13 @@ std::string TextBoard::buildMoveString(int nFilePrev, int rankPrev, int nFileNew
 }
 
 CONSTANTS::Status TextBoard::checkSquareStatus(CONSTANTS::Color playerColor, int nFile, int rank){
-    if (nFile < 0 || nFile > 7 || rank < 0 || rank > 7) { std::cout << "Warning, illegal rank and file numbers" << std::endl; return CONSTANTS::Status::INVALID;}
+    if (nFile < 0 || nFile > 7 || rank < 0 || rank > 7) { 
+        //std::cout << "Rank and file out of bounds: nFile - " << nFile << " rank - " << rank << std::endl;
+        if(rank < -1 || rank > 8 || nFile < -1 || nFile > 8){
+            //std::cout << "Houston we have a real problem, or it's just a knight..." << std::endl;
+        } 
+        return CONSTANTS::Status::INVALID;
+        }
     if (playerColor != CONSTANTS::Color::WHITE && playerColor != CONSTANTS::Color::BLACK) {
         std::cout << "ERROR: returning -2, invalid playerColor input: checkSquareStatus() Color: " << static_cast<int>(playerColor) << std::endl; return CONSTANTS::Status::INVALID;}
     
@@ -207,7 +230,7 @@ void TextBoard::calcPawnMoves(int file, int rank, std::list<std::string> &movesR
     
     // Set flag for if we should check for enpassant
     bool findEnPassant = false;
-    if ((m_moveHistory.top()[0] == 'P') && (abs(m_moveHistory.top()[2]-m_moveHistory.top()[4]) > 1)){
+    if (!m_moveHistory.empty() && (m_moveHistory.top()[0] == 'P') && (abs(m_moveHistory.top()[2]-m_moveHistory.top()[4]) > 1)){
         findEnPassant = true;
         enPassantFile = m_moveHistory.top()[3]-'A'; // Convert from char to int
         enPassantRank = m_moveHistory.top()[4]-'0'; // Convert from char to int
@@ -460,13 +483,6 @@ void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &move
     return;
 }
 void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &moveResults){
-    
-    typedef enum {
-        INVALID = -2,
-        ENEMY = -1,
-        EMPTY = 0,
-        FRIENDLY = 1
-    } Status;
     
     CONSTANTS::Color pieceColor = getPieceColor(file,rank);
     bool stopFlag[4] = {false, false, false, false};
@@ -730,17 +746,7 @@ void TextBoard::calcPieceMoves(int file, int rank, std::list<std::string> &resul
     return;
 }
 
-void TextBoard::findPlayerPieces(){  // Function should only be used once on init, then other functions should keep piece lists updated
-    
-    
-    
-    for (int i = 0; i < 16; ++i){ // Populating the list with all initial indexes of pieces it owns
-        m_whitePieceIndices.push_back(i);
-        m_blackPieceIndices.push_back(i+48);
-    }
-    
-    return;
-}
+
 
 int8_t TextBoard::findKingIndex(CONSTANTS::Color color){ // this function is only needed for kings // such as myself :D
     std::list<int8_t>* pieceListIndexes = nullptr;
@@ -795,7 +801,7 @@ void TextBoard::rookScreenMoves(int file, int rank, std::list<std::string>& resu
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[0] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[0] == 2 && getPieceType(file+i, rank) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file, rank, file +i, rank)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[0] = true; // stop looking further for more pieces in the way
@@ -814,7 +820,7 @@ void TextBoard::rookScreenMoves(int file, int rank, std::list<std::string>& resu
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[1] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[1] == 2 && getPieceType(file-i, rank) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file, rank, file-i, rank)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[1] = true; // stop looking further for more pieces in the way
@@ -839,7 +845,7 @@ void TextBoard::rookScreenMoves(int file, int rank, std::list<std::string>& resu
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[2] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[2] == 2 && getPieceType(file, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file, rank, file, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[2] = true; // stop looking further for more pieces in the way
@@ -864,7 +870,7 @@ void TextBoard::rookScreenMoves(int file, int rank, std::list<std::string>& resu
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[3] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[3] == 2 && getPieceType(file, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file, rank, file, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[3] = true; // stop looking further for more pieces in the way
@@ -907,7 +913,7 @@ void TextBoard::bishopScreenMoves(int file, int rank, std::list<std::string>& re
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[0] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[0] == 2 && getPieceType(file+i, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file,rank,file +i, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[0] = true; // stop looking further for more pieces in the way
@@ -932,7 +938,7 @@ void TextBoard::bishopScreenMoves(int file, int rank, std::list<std::string>& re
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[1] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[1] == 2 && getPieceType(file-i, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file,rank,file -i, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[1] = true; // stop looking further for more pieces in the way
@@ -957,7 +963,7 @@ void TextBoard::bishopScreenMoves(int file, int rank, std::list<std::string>& re
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[2] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[2] == 2 && getPieceType(file+i, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file,rank,file+i, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[2] = true; // stop looking further for more pieces in the way
@@ -982,7 +988,7 @@ void TextBoard::bishopScreenMoves(int file, int rank, std::list<std::string>& re
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[3] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[3] == 2 && getPieceType(file-i, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     resultsList.push_back(buildMoveString(file,rank,file-i, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[3] = true; // stop looking further for more pieces in the way
@@ -1023,7 +1029,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[0]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[0] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[0] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[0] == 2 && getPieceType(file+i, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file +i, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[0] = true; // stop looking further for more pieces in the way
@@ -1048,7 +1054,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[1]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[1] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[1] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[1] == 2 && getPieceType(file-i, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file -i, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[1] = true; // stop looking further for more pieces in the way
@@ -1073,7 +1079,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[2]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[2] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[2] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[2] == 2 && getPieceType(file+i, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file+i, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[2] = true; // stop looking further for more pieces in the way
@@ -1098,7 +1104,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[3]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[3] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[3] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[3] == 2 && getPieceType(file-i, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file-i, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[3] = true; // stop looking further for more pieces in the way
@@ -1123,7 +1129,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[4]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[4] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[4] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[4] == 2 && getPieceType(file+i, rank) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file +i, rank)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[4] = true; // stop looking further for more pieces in the way
@@ -1148,7 +1154,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[5]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[5] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[5] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[5] == 2 && getPieceType(file-i, rank) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file -i, rank)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[5] = true; // stop looking further for more pieces in the way
@@ -1173,7 +1179,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[6]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[6] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[6] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[6] == 2 && getPieceType(file, rank+i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file, rank+i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[6] = true; // stop looking further for more pieces in the way
@@ -1198,7 +1204,7 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string>& mov
             else if (squareStatus == CONSTANTS::Status::ENEMY){
                 
                 ++screenNum[7]; // Add one to the count of attackers in the way of the piece
-                if (screenNum[7] == 1) break; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
+                if (screenNum[7] == 1) continue; // Does this break from the local if statement, or the larger stopFlag[0] if statement?
                 else if (screenNum[7] == 2 && getPieceType(file, rank-i) == 'K') { // if there are two attackers being hit, is the second one their king?
                     movesHolder.push_back(buildMoveString(file,rank,file, rank-i)); // It is a king!  so add the "screen" attack to the moves list
                     stopFlag[7] = true; // stop looking further for more pieces in the way
@@ -1254,7 +1260,7 @@ void TextBoard::calcScreenMovesets(){ // The pointers in this are very obscure, 
         }
         else {std::cout<< "Error with for loop or if statement in calcScreenMovesets()" << std::endl; return;}
         
-        for(auto it = pieceIndicesList->begin(); it != pieceIndicesList->end(); it++){ // go through all the white pieces
+        for(auto it = pieceIndicesList->begin(); it != pieceIndicesList->end(); ++it){ // go through all the pieces
             int8_t index = *it;
             int8_t tempRank = index/8;
             int8_t tempFile = index%8;
@@ -1262,6 +1268,9 @@ void TextBoard::calcScreenMovesets(){ // The pointers in this are very obscure, 
             // get the moves for white pieces on the board that are "screen" attacks  (pinning attacks)
             std::list<std::string> partialScreenMoveset;
             getScreenMoves(tempFile, tempRank, partialScreenMoveset);
+            if(!partialScreenMoveset.empty()){
+                std::string();
+            }
             pieceScreenMoveHolder->insert(pieceScreenMoveHolder->end(), partialScreenMoveset.begin(), partialScreenMoveset.end()); // add them all up
         }
     }
@@ -1280,9 +1289,9 @@ void TextBoard::calcScreenMovesets(){ // The pointers in this are very obscure, 
     
 }
 
-int TextBoard::countNumAttackers(std::list<std::string> playerMoveset, int forFile, int forRank){
+int TextBoard::countNumAttackers(std::list<std::string> *pplayerMoveset, int forFile, int forRank){
     int attackerCount = 0;
-    for (auto it = playerMoveset.begin(); it != playerMoveset.end(); it++) {
+    for (auto it = pplayerMoveset->begin(); it != pplayerMoveset->end(); it++) {
         std::string move = *it;
         int file = TextBoard::cFileToIndex(move[3]);
         int rank = move[4] - '0'-1; // converts from one char within a std::string to an int, and decrements from rank number to array index num
@@ -1531,7 +1540,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
         m_blackMoves.clear();
     }
     
-    std::list<int8_t> *pPlayerPieceIndices = &m_whitePieceIndices;
+    std::list<int8_t> *pPlayerPieceIndices;
     std::list<std::string> *pcompletePlayerMoveset;
     std::list<std::string> *penemyMoveset;
     std::list<std::string> *penemyScreenMoveset;
@@ -1542,6 +1551,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
     bool addCastling = false;
     
     if (playerColor == CONSTANTS::Color::WHITE) {
+        pPlayerPieceIndices = &m_whitePieceIndices;
         pcompletePlayerMoveset = &m_whiteMoves;
         penemyMoveset = &m_blackMoves;
         penemyScreenMoveset = &m_blackScreenMoves;
@@ -1552,6 +1562,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
         
     }
     else if (playerColor == CONSTANTS::Color::BLACK){
+        pPlayerPieceIndices = &m_blackPieceIndices;
         pcompletePlayerMoveset = &m_blackMoves;
         penemyMoveset = &m_whiteMoves;
         penemyScreenMoveset = &m_whiteScreenMoves;
@@ -1621,8 +1632,8 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
             
 
-            if (countNumAttackers(*penemyMoveset, newFile, newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE attacking moves and performing comparison to the king moves, as soon as one attacking move hits a king move square, it removes the king move and goes to next. This would be an optimization custom function
-                kingUnfilteredMoveset.erase(it); // The enemy is attacking our observed square.
+            if (countNumAttackers(penemyMoveset, newFile, newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE attacking moves and performing comparison to the king moves, as soon as one attacking move hits a king move square, it removes the king move and goes to next. This would be an optimization custom function
+                it = kingUnfilteredMoveset.erase(it); // The enemy is attacking our observed square.
             }
             else {
                 ++it;
@@ -1655,13 +1666,13 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                             int testFile = possibleMove[3]-'A';
                             int testRank = possibleMove[4]-'1';
                             if (!squareIsBetweenSquares(move, testFile, testRank)) { // if the move is not between the king and the attacker
-                                partialMoveset.erase(it1); // erase the possible move from the vector as invalid
+                                it1 = partialMoveset.erase(it1); // erase the possible move from the vector as invalid
                             }
                             else {
                                 ++it1;
                             }
                         }
-                        screenAttackingKingMoves.erase(it); // erase the pinning move from the pinning move moveset because we've found the piece being pinned and have modified its moveset to account for being pinned
+                        it = screenAttackingKingMoves.erase(it); // erase the pinning move from the pinning move moveset because we've found the piece being pinned and have modified its moveset to account for being pinned
                     }
                     else {
                         ++it;
@@ -1681,20 +1692,20 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
         }
         else if (tempPieceType == 'K') { // add king's viable moves depending on what would put it in check
             std::list<std::string> kingUnfilteredMoveset;
-            calcPieceMoves(tempFile, tempRank, kingUnfilteredMoveset);;
-            for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();) {
-                std::string move = *it;
+            calcPieceMoves(tempFile, tempRank, kingUnfilteredMoveset);
+            for (std::list<std::string>::iterator it2 = kingUnfilteredMoveset.begin(); it2 != kingUnfilteredMoveset.end();) {
+                std::string move = *it2;
                 
                 char pieceType, prevFile, newFile;
                 int prevRank, newRank;
                 
                 parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
                 
-                if (countNumAttackers(*penemyMoveset, static_cast<int>(newFile-'A'), newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
-                    kingUnfilteredMoveset.erase(it);
+                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile-'A'), newRank) != 0) {// CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
+                    it2 = kingUnfilteredMoveset.erase(it2);
                 }
                 else {
-                    ++it;
+                    ++it2;
                 }
                 
             }
@@ -1707,7 +1718,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             if (tempPieceType == 'K' && kingHasMoved == false) { // if the king hasn't moved
                 bool check = false;
                 castlingMoveset.clear();
-                int attackerNum = countNumAttackers(*penemyMoveset, tempFile, tempRank);
+                int attackerNum = countNumAttackers(penemyMoveset, tempFile, tempRank);
                 if (attackerNum != 0) {check = true;}
                 
                 //All conditions for castling
@@ -1721,16 +1732,16 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                 hRookHasMoved;
                 const bool fSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile+1, tempRank) == CONSTANTS::Status::EMPTY;
                 const bool gSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile+2, tempRank) == CONSTANTS::Status::EMPTY;
-                const bool fSquareAdjacentKingUnderAttack = countNumAttackers(*penemyMoveset, tempFile+1, tempRank) > 0;
-                const bool gSquareAdjacentKingUnderAttack = countNumAttackers(*penemyMoveset, tempFile+2, tempRank) > 0;
+                const bool fSquareAdjacentKingUnderAttack = countNumAttackers(penemyMoveset, tempFile+1, tempRank) > 0;
+                const bool gSquareAdjacentKingUnderAttack = countNumAttackers(penemyMoveset, tempFile+2, tempRank) > 0;
                 
                 // Queenside:
                 aRookHasMoved;
                 const bool dSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-1, tempRank) == CONSTANTS::Status::EMPTY;
                 const bool cSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-2, tempRank) == CONSTANTS::Status::EMPTY;
                 const bool bSquareAdjacentKingIsEmpty = checkSquareStatus(playerColor, tempFile-3, tempRank) == CONSTANTS::Status::EMPTY;
-                const bool dSquareAdjacentKingUnderAttack = countNumAttackers(*penemyMoveset, tempFile-1, tempRank) > 0;
-                const bool cSquareAdjacentKingUnderAttack = countNumAttackers(*penemyMoveset, tempFile-2, tempRank) > 0;
+                const bool dSquareAdjacentKingUnderAttack = countNumAttackers(penemyMoveset, tempFile-1, tempRank) > 0;
+                const bool cSquareAdjacentKingUnderAttack = countNumAttackers(penemyMoveset, tempFile-2, tempRank) > 0;
                 
                 
                 
@@ -1768,11 +1779,11 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     ++pMove; // then keep the move as valid move, because we are removing the knight threat
                 }
                 else{ // if we can't capture the knight
-                    pcompletePlayerMoveset->erase(pMove); // the move won't get us out of check. Erase it.
+                    pMove = pcompletePlayerMoveset->erase(pMove); // the move won't get us out of check. Erase it.
                 }
             }
             else if (!squareIsBetweenSquares(*attackingKingMoves.begin(), moveEndFile, moveEndRank)) { // if the piece is not a knight and your possible move cannot get between the attacker or capture it
-                pcompletePlayerMoveset->erase(pMove); // throw out the move
+                pMove = pcompletePlayerMoveset->erase(pMove); // throw out the move
             }
             else {
                 ++pMove; // The move goes between king and the attacking piece, blocking the check. So leave it in the moveset
@@ -1816,17 +1827,17 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece){
     m_board[rank][file] = newPiece;
     return true;
 };
-void TextBoard::undoLastMove(){
-    m_boardHistory.pop();
-    m_moveHistory.pop();
-    for(int rank = 0; rank <8; ++rank){
-        for (int file = 0; file <8; ++file){
-            m_board[rank][file] = m_boardHistory.top()[rank][file];
-        }
-    }
-    return;
-};
-const std::list<std::string>* TextBoard::getLegalMoves(CONSTANTS::Color color) const{
+// void TextBoard::undoLastMove(){
+//     m_boardHistory.pop();
+//     m_moveHistory.pop();
+//     for(int rank = 0; rank <8; ++rank){
+//         for (int file = 0; file <8; ++file){
+//             m_board[rank][file] = m_boardHistory.top()[rank][file];
+//         }
+//     }
+//     return;
+// };
+std::list<std::string>* TextBoard::getLegalMoves(CONSTANTS::Color color) {
     switch (color){
         case CONSTANTS::Color::WHITE:
             return &m_whiteMoves;
@@ -2059,7 +2070,7 @@ bool TextBoard::makeMove(std::string move){
     else nextPlayer = CONSTANTS::Color::WHITE;
     
     // Need to update the move history for the move
-    m_boardHistory.push(m_board);
+    // m_boardHistory.push(m_board);
     m_moveHistory.push(move);
     calcPlayerMovesetV2(nextPlayer, true); // Update the potential moves lists for proper color
     
@@ -2068,7 +2079,6 @@ bool TextBoard::makeMove(std::string move){
     
     
 }
-
 
 
 ////Archived Function:
@@ -2099,7 +2109,7 @@ bool TextBoard::makeMove(std::string move){
 //        if(performedCapture){
 //            auto itB = std::find(m_blackPieceIndices.begin(), m_blackPieceIndices.end(),capturedIndex);
 //            //if(itB != m_blackPiecesIndicies.end()){
-//                itB.erase();
+//                itB.erase(); THIS HAS TO BE FIXED TO itB = list.erase(itB)
 //            //}
 //        }
 //    }
@@ -2109,7 +2119,7 @@ bool TextBoard::makeMove(std::string move){
 //        if(performedCapture){
 //            auto itW = std::find(m_whitePieceIndicies.begin(), m_whitePieceIndicies.end(),capturedIndex);
 //            //if(itW != m_whitePiecesIndicies.end()){ // It's okay to comment this out because I told it that it would be there
-//                itW.erase();
+//                itW.erase();  THIS HAS TO BE FIXED TO itW = list.erase(itW)
 //            //}
 //
 //        }
@@ -2123,4 +2133,4 @@ bool TextBoard::makeMove(std::string move){
 //
 //}
 
-}
+

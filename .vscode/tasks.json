@@ -7,8 +7,11 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                // "TextBoard.cpp",
+                // "Player.cpp",
+                // "Game.cpp",
                 "${workspaceFolder}/src/*.cpp",
-                "${workspaceFolder}/src/*.hpp",
+                // "${workspaceFolder}/src/*.h*",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lm"

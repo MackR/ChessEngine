@@ -8,217 +8,236 @@
 
 #include "Player.hpp"
 
-    
-Player::Player(CONSTANTS::Color color){
-        m_player_color = color;
-        m_pCompleteMoveset = nullptr;
-    }
-    
-    string Player::askPlayerForValidMove(){
+Player::Player(CONSTANTS::Color color)
+{
+    m_player_color = color;
+    m_pCompleteMoveset = nullptr;
+}
+
+string Player::askPlayerForValidMove()
+{
+    std::cout << "Moves: ";
+    int counter = 0;
+    for(auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); ++it){
+        std::cout << *it << " ";
+        if(counter < 15){ ++counter;}
+        else{std::cout << endl; counter = 0;}
         
-        string input;
-        std::cout << "What move would you like to make? ";
+    }
+    string input;
+    std::cout << "Please select a move: ";
+    std::cin >> input;
+    std::cout << endl
+              << endl;
+    while (1)
+    {
+
+        for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); it++)
+        {
+            if (input == *it)
+            {
+                // std::cout << "Valid move" << endl;
+                return input;
+            }
+        }
+        cout << "You have entered an invalid move, please try again: ";
+        cin.clear();
+        cin.ignore();
         std::cin >> input;
-        std::cout << endl << endl;
-        while (1) {
-            
-            for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); it++) {
-                if (input == *it) {
-                    //std::cout << "Valid move" << endl;
-                    return input;
-                }
-                
-                
-            }
-            cout << "You have entered an invalid move, please try again: ";
-            cin.clear();
-            cin.ignore();
-            std::cin >> input;
-            std::cout << endl;
+        std::cout << endl;
+    }
+}
+
+bool Player::achievedCheckmateOnEnemy(TextBoard *board)
+{ // Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
+    const std::list<std::string> *nextPlayerMoves;
+
+    if (m_player_color == CONSTANTS::Color::WHITE)
+    { // if player is white, calculate all possible moves for them
+        nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::BLACK);
+        if (nextPlayerMoves->empty())
+        {
+            std::cout << "White wins!" << std::endl;
+            return true;
         }
-        
-        
+    }
+    else if (m_player_color == CONSTANTS::Color::BLACK)
+    {
+        nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::WHITE);
+        if (nextPlayerMoves->empty())
+        {
+            std::cout << "Black wins!" << std::endl;
+            return true;
+        }
+    }
+    else
+    {
+        std::cout << "ERROR: Player color invalid in achievedCheckmate()" << std::endl;
+        return false;
     }
 
-bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
-    const std::list<std::string>* nextPlayerMoves;
-        
-        if (m_player_color == CONSTANTS::Color::WHITE) { // if player is white, calculate all possible moves for them
-            nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::BLACK);
-            if (nextPlayerMoves->size() == 0){std::cout << "White wins!" << std::endl; return true;}
-        }
-        else if (m_player_color == CONSTANTS::Color::BLACK) {
-            nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::WHITE);
-            if (nextPlayerMoves->size() == 0){std::cout << "Black wins!" << std::endl; return true;}
-            
-        }
-        else {std::cout << "ERROR: Player color invalid in achievedCheckmate()" << std::endl; return false; }
-    
     return false;
-        
+}
+
+bool Player::takeTurn(TextBoard *board)
+{
+    // We already should have moves calculated and prepared in the board member variables
+    // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
+
+    std::string move;
+    cout << "It is " << (int)m_player_color*255 << "'s turn" << endl; // announce who's turn it is
+    if (humanPlayer == true)
+    {
+
+        if (m_player_color == CONSTANTS::Color::WHITE)
+        {
+            m_pCompleteMoveset = board->getLegalMoves(CONSTANTS::Color::WHITE);
+        }
+        else if (m_player_color == CONSTANTS::Color::BLACK)
+        {
+            m_pCompleteMoveset = board->getLegalMoves(CONSTANTS::Color::BLACK);
+        }
+        else
+        {
+            cout << "Player doesn't have a valid color" << endl;
+        }
+        move = askPlayerForValidMove();
     }
-    
-    
-    bool Player::takeTurn(TextBoard::TextBoard* board){
-        // We already should have moves calculated and prepared in the board member variables
-        // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
-        
-        std::string move;
-        const std::list<std::string>* m_completeMoveset;
-        cout << "It is " << (int)m_player_color+1 << "'s turn" << endl; // announce who's turn it is
-        if (humanPlayer == true){
-           
-            
-            if (m_player_color == CONSTANTS::Color::WHITE) {
-                m_completeMoveset = board->getLegalMoves(CONSTANTS::Color::WHITE);
-            }
-            else if (m_player_color == CONSTANTS::Color::BLACK){
-                m_completeMoveset = board->getLegalMoves(CONSTANTS::Color::BLACK);
-            }
-            else {
-                cout << "Player doesn't have a valid color" << endl;
-            }
-            move = askPlayerForValidMove();
-        }
-        else {
-            // time check of evaluate board function
-            auto start = std::chrono::system_clock::now();
-            move = computerBeginThinking(board);
-            auto end = std::chrono::system_clock::now();
-            
-            std::chrono::duration<double> elapsed_seconds = end-start;
-            std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-            
-            std::cout << "elapsed comp think time: " << elapsed_seconds.count() << "s\n";
-            
-            
-            if (move == "") {
-                std::cout << "Error: Computer function is passing a blank move" << std::endl; // passed a bad move
-            }
-        }
-        
-        // Modifies the given board with a move, function will do invalid moves, so only give it valid ones
-        board->makeMove(move);
-        
-        if (achievedCheckmateOnEnemy(board)) {
-            return true; // Checkmate!
-        }
-        return false; // Not checkmate
-        
+    else
+    {
+        // // time check of evaluate board function // Commented out because we don't need it yet
+        // auto start = std::chrono::system_clock::now();
+        // move = computerBeginThinking(board);
+        // auto end = std::chrono::system_clock::now();
+
+        // std::chrono::duration<double> elapsed_seconds = end - start;
+        // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+        // std::cout << "elapsed comp think time: " << elapsed_seconds.count() << "s\n";
+
+        // if (move == "")
+        // {
+        //     std::cout << "Error: Computer function is passing a blank move" << std::endl; // passed a bad move
+        // }
     }
-    
-    
+
+    // Modifies the given board with a move, function will do invalid moves, so only give it valid ones
+    board->makeMove(move);
+
+    if (achievedCheckmateOnEnemy(board))
+    {
+        return true; // Checkmate!
+    }
+    return false; // Not checkmate
+}
 
 
 
+// bool Player::OLDachievedCheckmateOnEnemy(TextBoard* board){  Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
+//
+//         auto checkmateBoard = *board;  make a copy of current board
+//         CONSTANTS::Pieces enemyKing;
+//
+//         if (m_player_color == CONSTANTS::WHITE) {  if player is white, calculate all possible moves for them
+//             checkmateBoard.calcPlayerMovesetV2("White", true);
+//             m_completeMoveset = *checkmateBoard.getWhiteMoves();
+//             enemyKing = *checkmateBoard.findKing("Black");
+//         }
+//         if (m_player_color == CONSTANTS::BLACK) {
+//             checkmateBoard.calcPlayerMovesetV2("Black", true);
+//             m_completeMoveset = *checkmateBoard.getBlackMoves();
+//             enemyKing = *checkmateBoard.findKing("White");
+//
+//         }
+//
+//         int enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());  count number of attackers on king
+//
+//         if (enemyKingAttackers > 0) {  if enemy king is in check
+//
+//             Piece* boardState = checkmateBoard.getBoardstate();  copy checkmate board to begin testing moves
+//             Piece* originalBoardState = boardState;
+//             vector<string> enemyMoveset;
+//
+//             if (m_player_color == "White") {
+//                 checkmateBoard.calcPlayerMovesetV2("Black",turnCounter, true);
+//                 enemyMoveset = *checkmateBoard.getBlackMoves();  get all enemy moves
+//             }
+//             if (m_player_color == "Black") {
+//                 checkmateBoard.calcPlayerMovesetV2("White",turnCounter+1, true);
+//                 enemyMoveset = *checkmateBoard.getWhiteMoves();  get all enemy moves
+//
+//             }
+//
+//             int prevFile = 0;
+//             int prevRank = 0;
+//             int newFile = 0;
+//             int newRank = 0;
+//             int prevIndex = 0;
+//             int newIndex = 0;
+//
+//             for (auto it = enemyMoveset.begin(); it != enemyMoveset.end(); it++) {  test enemy moves
+//                 string move = *it;
+//                 prevFile = Piece::cFileToIndex(move[1]);
+//                 prevRank = move[2] - '0'-1;
+//                 newFile = Piece::cFileToIndex(move[3]);
+//                 newRank = move[4] -'0'-1;     Convert string to int
+//
+//                  makes the move the player chose on this hypothetical board
+//                 prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
+//                 newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
+//
+//                 boardState[newIndex].setColor(boardState[prevIndex].getColor());
+//                 boardState[newIndex].setType(boardState[prevIndex].getType());
+//                 boardState[prevIndex].setColor("Empty");
+//                 boardState[prevIndex].setType('E');
+//
+//                  perform en passant if the conditions apply
+//                 if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
+//                     int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
+//                     boardState[enPassantedPieceIndex].setColor("Empty");
+//                     boardState[enPassantedPieceIndex].setType('E');
+//                 }
+//
+//                 checkmateBoard.findPlayerPieces();  update the pieces list after capturing one
+//
+//                 if (m_player_color == "White") {
+//                     checkmateBoard.calcValidatedPlayerMoveset("Black",turnCounter);
+//                     enemyMoveset = *checkmateBoard.getBlackMoves();   enemyMoveset was already calculated above
+//                     cout << "Enemy move is: " << move << endl;
+//                     enemyKing = *checkmateBoard.findKing("Black");
+//                     checkmateBoard.calcPlayerMovesetV2("White", turnCounter+1, true);
+//                     m_completeMoveset = *checkmateBoard.getWhiteMoves();
+//                 }
+//                 if (m_player_color == "Black") {
+//                     checkmateBoard.calcValidatedPlayerMoveset("White",turnCounter+1);
+//                     enemyMoveset = *checkmateBoard.getWhiteMoves();   enemyMoveset was already calculated above
+//                     enemyKing = *checkmateBoard.findKing("White");
+//                     checkmateBoard.calcPlayerMovesetV2("Black", turnCounter+1, true);
+//                     m_completeMoveset = *checkmateBoard.getBlackMoves();
+//
+//                 }
+//
+//
+//
+//                 enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());
+//                 if (enemyKingAttackers == 0) {
+//                     cout << move << " saves the day " << endl;
+//                     incrementTurn();  Increase turn counter
+//                     cout << "Check!" << endl;
+//                     return false;
+//                 }
+//                 *boardState = *originalBoardState;
+//             }
+//             return true;
+//
+//         }
+//
+//
+//         return false;
+//
+//     }
 
-//bool Player::OLDachievedCheckmateOnEnemy(TextBoard::TextBoard* board){  Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
-//
-//        auto checkmateBoard = *board;  make a copy of current board
-//        CONSTANTS::Pieces enemyKing;
-//
-//        if (m_player_color == CONSTANTS::WHITE) {  if player is white, calculate all possible moves for them
-//            checkmateBoard.calcPlayerMovesetV2("White", true);
-//            m_completeMoveset = *checkmateBoard.getWhiteMoves();
-//            enemyKing = *checkmateBoard.findKing("Black");
-//        }
-//        if (m_player_color == CONSTANTS::BLACK) {
-//            checkmateBoard.calcPlayerMovesetV2("Black", true);
-//            m_completeMoveset = *checkmateBoard.getBlackMoves();
-//            enemyKing = *checkmateBoard.findKing("White");
-//
-//        }
-//
-//        int enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());  count number of attackers on king
-//
-//        if (enemyKingAttackers > 0) {  if enemy king is in check
-//
-//            Piece* boardState = checkmateBoard.getBoardstate();  copy checkmate board to begin testing moves
-//            Piece* originalBoardState = boardState;
-//            vector<string> enemyMoveset;
-//
-//            if (m_player_color == "White") {
-//                checkmateBoard.calcPlayerMovesetV2("Black",turnCounter, true);
-//                enemyMoveset = *checkmateBoard.getBlackMoves();  get all enemy moves
-//            }
-//            if (m_player_color == "Black") {
-//                checkmateBoard.calcPlayerMovesetV2("White",turnCounter+1, true);
-//                enemyMoveset = *checkmateBoard.getWhiteMoves();  get all enemy moves
-//
-//            }
-//
-//            int prevFile = 0;
-//            int prevRank = 0;
-//            int newFile = 0;
-//            int newRank = 0;
-//            int prevIndex = 0;
-//            int newIndex = 0;
-//
-//            for (auto it = enemyMoveset.begin(); it != enemyMoveset.end(); it++) {  test enemy moves
-//                string move = *it;
-//                prevFile = Piece::cFileToIndex(move[1]);
-//                prevRank = move[2] - '0'-1;
-//                newFile = Piece::cFileToIndex(move[3]);
-//                newRank = move[4] -'0'-1;     Convert string to int
-//
-//                 makes the move the player chose on this hypothetical board
-//                prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
-//                newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
-//
-//                boardState[newIndex].setColor(boardState[prevIndex].getColor());
-//                boardState[newIndex].setType(boardState[prevIndex].getType());
-//                boardState[prevIndex].setColor("Empty");
-//                boardState[prevIndex].setType('E');
-//
-//                 perform en passant if the conditions apply
-//                if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
-//                    int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-//                    boardState[enPassantedPieceIndex].setColor("Empty");
-//                    boardState[enPassantedPieceIndex].setType('E');
-//                }
-//
-//                checkmateBoard.findPlayerPieces();  update the pieces list after capturing one
-//
-//                if (m_player_color == "White") {
-//                    checkmateBoard.calcValidatedPlayerMoveset("Black",turnCounter);
-//                    enemyMoveset = *checkmateBoard.getBlackMoves();   enemyMoveset was already calculated above
-//                    cout << "Enemy move is: " << move << endl;
-//                    enemyKing = *checkmateBoard.findKing("Black");
-//                    checkmateBoard.calcPlayerMovesetV2("White", turnCounter+1, true);
-//                    m_completeMoveset = *checkmateBoard.getWhiteMoves();
-//                }
-//                if (m_player_color == "Black") {
-//                    checkmateBoard.calcValidatedPlayerMoveset("White",turnCounter+1);
-//                    enemyMoveset = *checkmateBoard.getWhiteMoves();   enemyMoveset was already calculated above
-//                    enemyKing = *checkmateBoard.findKing("White");
-//                    checkmateBoard.calcPlayerMovesetV2("Black", turnCounter+1, true);
-//                    m_completeMoveset = *checkmateBoard.getBlackMoves();
-//
-//                }
-//
-//
-//
-//                enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());
-//                if (enemyKingAttackers == 0) {
-//                    cout << move << " saves the day " << endl;
-//                    incrementTurn();  Increase turn counter
-//                    cout << "Check!" << endl;
-//                    return false;
-//                }
-//                *boardState = *originalBoardState;
-//            }
-//            return true;
-//
-//        }
-//
-//
-//        return false;
-//
-//    }
- 
-
-    
-//    string Player::computerBeginThinking(TextBoard::TextBoard *board){
+//    string Player::computerBeginThinking(TextBoard *board){
 //
 //        // setup get the board and copy it to a simulation board, and calculate possible moves for the position
 //        static int maxStopDepth = 3;
@@ -349,7 +368,7 @@ bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have
 //        return move;
 //
 //    }
-    
+
 //    float Player::computerEvaluateBoard(chess::Board* board, string playerTurn){  // currently only evaluates the board on material advantage
 //
 //        float pawnValue = 1;
@@ -657,9 +676,3 @@ bool Player::achievedCheckmateOnEnemy(TextBoard::TextBoard* board){ // Just have
 //        delete[] scores;
 //        return minScore;
 //    }
-
-    
-    
-
-
-

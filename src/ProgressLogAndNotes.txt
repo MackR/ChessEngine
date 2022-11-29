@@ -170,6 +170,38 @@ Notes for November 26th, 2022 124hr += 8
 - The #include directive is just a way of saying copy the contents of X file into the location of this line
 - Next on my big questions, what is refactoring?  It seems to encompass a lot of concepts. 
 
+Notes for November 28th, 2022 132hr += :
+- Namespaces are used to separate classes and functions ONLY.  They cannot be used in the way that I was before
+  EG: Trying to avoid naming the class that methods were assigned to. IE .hpp(Class MyClass(){}) .cpp(namespace MyClass{ methodOfMyClass(){}});
+- Working with the std::list data structure, the erase(it) function returns a pointer to the next element after the erased element. 
+  - EG: it = list.erase(it);  - Properly advances the iterator while deleting
+- I learned about stack and heap memory today and how they function. I had a general idea
+  before, but after looking into it more, it showed how the stack literally just
+  increments along a big block of memory, adding new pieces to it when needed, and then
+  removing those pieces as they go out of scope. This makes it extremely fast and desireable
+  when possible. Heap is like a book keeping mechanism that has records of what memory
+  is free, and when memory is requested it goes and finds a good spot in the books. 
+  This makes it slow and undesireable in general, but doing dynamic allocations is
+  often required when we don't know array sizes ahead of time. 
+- LEARNED: General techiques for finding errors in a system. Namely binary search by 
+  commenting out lines of code until finding the one giving the issues. In my case, 
+  the stack variable I was using for keeping track of all board history states didn't
+  agree with my operations. I still have to go back and fix it. 
+- Encountered strange behavior with static_cast<int>(CONSTANTS::Color:EMPTY), my enum had negative numbers and this wasn't performing right. Beware
+- A void pointer is a just a pointer to a location in memory. This explains how C++ is so close to the hardware, allowing register access.
+- If I wanted to track memory usage myself, I could overload the new operator and add tracking variables to it. Same for delete. Very useful.
+- If I overload the new operator. The smart pointers will even still work in the system and will incorporate my modifications because they use the new and delete keywords too.
+
+- Accomplishments: Learned essential debugging skills and narrowed down causes of problems.
+                  - Wrote a function for displaying text board until I get SDL working again.
+                  - Starting to feel really proficient at writing code. It's cool. 
+
+Wrapping up:  Today's big takeaway is improving debugging skills is essential to being good at
+              programming. Need to continue developing this area. Program visuals and feedback is essential.
+
+Notes on chess engine for tomorrow. - System recognizes when king is in check by ONLY 1 piece, not two. 
+                                    - It thinks that the king isn't allowed to move infront of pawns. Single or double jumps. 
+
 
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate
