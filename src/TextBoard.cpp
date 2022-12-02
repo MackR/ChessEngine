@@ -10,35 +10,40 @@
 
 TextBoard::TextBoard()
 {
-    // Init the board itself
-    m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
-    m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
-    m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
-    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
-    m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
-    m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
-    m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
-    m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
+    // // Init the board itself
     // m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
-    // m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::EMPTY;
-    // m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::EMPTY;
+    // m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
+    // m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
     // m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
-    // m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::EMPTY;
-    // m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::EMPTY;
-    // m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::EMPTY;
+    // m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
+    // m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
+    // m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
     // m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
-    for (int i = 8; i < 16; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::WPAWN;
-    }
-    for (int i = 16; i < 48; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::EMPTY;
-    }
-    for (int i = 48; i < 56; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::BPAWN;
-    }
+
+    // for (int i = 8; i < 16; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::WPAWN;
+    // }
+    // for (int i = 16; i < 48; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::EMPTY;
+    // }
+    // for (int i = 48; i < 56; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::BPAWN;
+    // }
+    // m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    // m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    // m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
+    // m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Custom Board setup
+    //Rank 8
     m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
     m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
     m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
@@ -47,6 +52,43 @@ TextBoard::TextBoard()
     m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
     m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
     m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+    // Rank 7
+    m_board[0][CONSTANTS::A7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::B7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::C7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::D7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::E7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::F7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::G7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::H7] = CONSTANTS::Piece::BPAWN;
+
+    for(int rank = 2; rank < 6; ++rank){
+        for (int file = 0; file < 8; ++file){
+            m_board[rank][file] = CONSTANTS::Piece::EMPTY;
+        }
+    }
+
+    // Rank 2
+    m_board[0][CONSTANTS::A2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WKING;
+    m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
+
+    // Rank 1
+    m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
+    m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
+    m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
+    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
+    m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
+    m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
+    m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create the first board state in the m_boardHistory stack
     // m_boardHistory.push(m_board);
@@ -1851,12 +1893,13 @@ void TextBoard::calcScreenMovesets()
 
 int TextBoard::countNumAttackers(std::list<std::string> *pplayerMoveset, int forFile, int forRank)
 {
+    std::string move;
+    char type;
+    int beginFile, endFile, beginRank, endRank; // converts from one char within a std::string to an int, and decrements from rank number to array index num
     int attackerCount = 0;
     for (auto it = pplayerMoveset->begin(); it != pplayerMoveset->end(); it++)
     {
-        std::string move = *it;
-        char type;
-        int beginFile, endFile, beginRank, endRank; // converts from one char within a std::string to an int, and decrements from rank number to array index num
+        move = *it;
         parseMove(move, type, beginFile, beginRank, endFile, endRank);
 
         if (endFile == forFile && endRank == forRank)
@@ -2218,6 +2261,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
         // only get king moves and don't do moveset creation below
 
         calcKingMoves(kingFile, kingRank, kingUnfilteredMoveset); // Finds the general squares a king can move to
+        std::list<std::string>::iterator checkIt = attackingKingMoves.begin(); // point to beginning of attacking moves
 
         for (auto it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();)
         {
@@ -2225,6 +2269,9 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 
             char pieceType;
             int prevRank, newRank, prevFile, newFile;
+            char pieceAttackingKingType;
+            int attackerFile;
+            int attackerRank;
 
             parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
 
@@ -2232,6 +2279,50 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             {                                         // CAN IMPROVE SPEED BY GETTING THE attacking moves and performing comparison to the king moves, as soon as one attacking move hits a king move square, it removes the king move and goes to next. This would be an optimization custom function
                 it = kingUnfilteredMoveset.erase(it); // The enemy is attacking our observed square.
             }
+            else if (checkIt != attackingKingMoves.end())
+                {
+                    pieceAttackingKingType = (*checkIt)[0];
+                    if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){ // We don't care about knight or pawn attacks in this way
+                        ++checkIt;
+                    pieceAttackingKingType = (*checkIt)[0];
+                    }
+                    attackerFile = (*checkIt)[1]-'A';
+                    attackerRank = (*checkIt)[2]-'1';
+                    if(pieceAttackingKingType == 'R'){
+                        // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
+                        if (newFile == attackerFile || newRank == attackerRank)
+                        {
+                            it = pcompletePlayerMoveset->erase(it);
+                            ++checkIt;
+                        }
+                        else {++it;}
+                    }
+                    else if (pieceAttackingKingType == 'B')
+                    {
+                        // If we are trying to move directly diagonal to a queen or bishop, don't accept the move
+                        if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
+                        {
+                            it = pcompletePlayerMoveset->erase(it);
+                            ++checkIt;
+                        }
+                        else {++it;}
+                    }
+                    else if (pieceAttackingKingType == 'Q')
+                    {
+                        // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
+                        if (newFile == attackerFile || newRank == attackerRank)
+                        {
+                            it = pcompletePlayerMoveset->erase(it);
+                            ++checkIt;
+                        }
+                        else if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
+                        {
+                            it = pcompletePlayerMoveset->erase(it);
+                            ++checkIt;
+                        }
+                        else {++it;}
+                    }    
+                }
             else
             {
                 ++it;
@@ -2310,13 +2401,16 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             {
                 std::string move = *it2;
 
-                char pieceType, prevFile, newFile;
-                int prevRank, newRank;
+                char pieceType;
+                int prevRank, newRank, prevFile, newFile;
 
                 parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
                 
+                if(move == "KE3E4"){
+                    std::cout << "Get ready" << std::endl;
+                }
 
-                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile - 'A'), newRank) != 0)
+                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile), newRank) != 0)
                 { // CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
                     it2 = kingUnfilteredMoveset.erase(it2);
                 }
@@ -2326,18 +2420,22 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                 else if (checkIt != attackingKingMoves.end())
                 {
                     pieceAttackingKingType = (*checkIt)[0];
-                    attackerFile = (*checkIt)[1];
+                    if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){ // We don't care about knight or pawn attacks in this way
+                        ++checkIt;
+                    pieceAttackingKingType = (*checkIt)[0];
+                    }
+                    attackerFile = (*checkIt)[1]-'A';
                     attackerRank = (*checkIt)[2]-'1';
-                    if (pieceAttackingKingType == 'Q' || pieceAttackingKingType == 'R')
-                    {
+                    if(pieceAttackingKingType == 'R'){
                         // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
                         if (newFile == attackerFile || newRank == attackerRank)
                         {
                             it2 = pcompletePlayerMoveset->erase(it2);
                             ++checkIt;
                         }
+                        else {++it2;}
                     }
-                    else if (pieceAttackingKingType == 'Q' || pieceAttackingKingType == 'B')
+                    else if (pieceAttackingKingType == 'B')
                     {
                         // If we are trying to move directly diagonal to a queen or bishop, don't accept the move
                         if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
@@ -2345,12 +2443,24 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                             it2 = pcompletePlayerMoveset->erase(it2);
                             ++checkIt;
                         }
+                        else {++it2;}
                     }
-                    else if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){
-                        ++checkIt;
-                    }
+                    else if (pieceAttackingKingType == 'Q')
+                    {
+                        // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
+                        if (newFile == attackerFile || newRank == attackerRank)
+                        {
+                            it2 = pcompletePlayerMoveset->erase(it2);
+                            ++checkIt;
+                        }
+                        else if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
+                        {
+                            it2 = pcompletePlayerMoveset->erase(it2);
+                            ++checkIt;
+                        }
+                        else {++it2;}
+                    }    
                 }
-
                 else
                 {
                     ++it2;

@@ -244,7 +244,7 @@ After corrupting the move sequences (most likely), the white king wouldn't move 
 Enpassant not working. I haven't put much work into function yet. 
  
 
-Notes for December 1st, 2022 140hr += 4pm - 3am  (10hrs)
+Notes for December 1st, 2022 140hr += 4pm - 3am  (~10hrs)
  Goals for today are fix castling, and have all functionalities of normal board complete
  Reinstate the find pieces function for updating where everything is in the beginning. 
 
@@ -284,6 +284,21 @@ Solution - found that I setup castling to opposite sides, using the wrong Square
   where the king believes it can move in line directly backwards from a queen when it is attacked by a pawn too.
   Still have to test this for bishops as well. 
 
+
+Notes Decmber 2nd, 2022 150hr += 2hr:
+ - I fixed the bug with the king being in check and thinking it could walk to the square behind it
+   that was techincally not under attack, but as soon as the king moved there it would become under attack.
+ - With this done, I still have to do some testing of the board movement capabilities, and I'm pretty sure
+   that I've covered all the bugs at this point related to movement. Extensive testing required.
+
+ - When I worked at Halodi, something that struck me a lot is one of the programmers always talked 
+   about searching and thinking about edge cases. It was one of the focal points of his programming. 
+   This reminds me of how people say, "If you handle the extremes, the means will handle themselves."
+   The more I do programming like this project, the more I see how we have to think about edge cases
+   and how pre-empting edge cases will help us avoid bugs in the future where the program points 
+   out edge cases by throwing errors into our execution. I just handled one very interesting one,
+   and think they're all gone. It's just much easier to simulate a board and check if the king is in
+   check, but that's too computationally intensive.
 
 
 Modifications to be made after chess engine completion:
