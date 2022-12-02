@@ -50,6 +50,14 @@ private:
     inline bool isWhite(CONSTANTS::Piece piece);
     inline bool isBlack(CONSTANTS::Piece piece);
     inline bool isEmpty(CONSTANTS::Piece piece);
+    inline CONSTANTS::Piece getPiece(int file, int rank);
+    CONSTANTS::Piece getPiece(int index);
+    void addPiece(int file, int rank, CONSTANTS::Piece piece);
+    void addPiece(int index, CONSTANTS::Piece piece);
+    void removePiece(int file, int rank);
+    void removePiece(int index);
+    void movePiece(int prevFile, int prevRank, int newFile, int newRank, CONSTANTS::Piece promotion = CONSTANTS::Piece::EMPTY);
+    void movePiece(int prevIndex, int newIndex, CONSTANTS::Piece promotion = CONSTANTS::Piece::EMPTY);
     std::string buildMoveString(int nFilePrev, int rankPrev, int nFileNew, int rankNew);
     std::string buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew);
     CONSTANTS::Status checkSquareStatus(CONSTANTS::Color playerColor, int nFile, int rank);
@@ -58,14 +66,14 @@ private:
     static int convertCoordinateToBoardIndex(int nFile, int rank);
     static void parseMove( std::string move, char& pieceType, char& prevFile, int& prevRank, char& newFile, int& newRank);
     static void parseMove( std::string move, char& pieceType, int& prevFile, int& prevRank, int& newFile, int& newRank);
-    void calcPawnMoves(int file, int rank, std::list<std::string> &movesResults);
+    void calcPawnMoves(int file, int rank, std::list<std::string> &movesResults, bool attacksOnly = false);
     void calcRookMoves(int file, int rank, std::list<std::string> &movesResults);
     void calcKnightMoves(int file, int rank, std::list<std::string> &moveResults);
     void calcBishopMoves(int file, int rank, std::list<std::string> &moveResults);
     void calcQueenMoves(int file, int rank, std::list<std::string> &moveResults);
     void calcKingMoves(int file, int rank, std::list<std::string> &moveResults);
-    void calcPieceMoves(int file, int rank, std::list<std::string> &resultsList);
-    void findPlayerPieces();
+    void calcPieceMoves(int file, int rank, std::list<std::string> &resultsList, bool attacksOnly = false);
+    void findPlayerPieces(bool regular = true);
     int8_t findKingIndex(CONSTANTS::Color color);
     void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList);
     void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList);
@@ -78,13 +86,15 @@ private:
     static bool squareIsBetweenSquares(std::string move, int testSquareFile, int testSquareRank);
     void calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateMoveset);
     static void getSquaresBetweenSquares (std::string move, std::list<std::string>* returnVectorPointer);
-    bool updatePiecesArray(std::string move, CONSTANTS::Piece capturedPiece); // Archived function
+    //bool updatePiecesArray(std::string move, CONSTANTS::Piece capturedPiece); // Archived function
     
 public:
     TextBoard();
     ~TextBoard();
     char getPieceType(int nFile, int rank);
+    char getPieceType(int index);
     CONSTANTS::Color getPieceColor(int file, int rank);
+    CONSTANTS::Color getPieceColor(int index);
     const board* getBoardState(); // returns a const pointer to a board array containing pieces(enums)
     std::list<std::string>* getLegalMoves(CONSTANTS::Color color) ;
     bool makeMove(std::string move);

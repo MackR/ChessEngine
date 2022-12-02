@@ -170,7 +170,7 @@ Notes for November 26th, 2022 124hr += 8
 - The #include directive is just a way of saying copy the contents of X file into the location of this line
 - Next on my big questions, what is refactoring?  It seems to encompass a lot of concepts. 
 
-Notes for November 28th, 2022 132hr += :
+Notes for November 28th, 2022 132hr +=  6pm - 2am = 8hrs :
 - Namespaces are used to separate classes and functions ONLY.  They cannot be used in the way that I was before
   EG: Trying to avoid naming the class that methods were assigned to. IE .hpp(Class MyClass(){}) .cpp(namespace MyClass{ methodOfMyClass(){}});
 - Working with the std::list data structure, the erase(it) function returns a pointer to the next element after the erased element. 
@@ -178,7 +178,7 @@ Notes for November 28th, 2022 132hr += :
 - I learned about stack and heap memory today and how they function. I had a general idea
   before, but after looking into it more, it showed how the stack literally just
   increments along a big block of memory, adding new pieces to it when needed, and then
-  removing those pieces as they go out of scope. This makes it extremely fast and desireable
+  removing those pieces as they go out of scope. This makes it extremely fast and usage desireable
   when possible. Heap is like a book keeping mechanism that has records of what memory
   is free, and when memory is requested it goes and finds a good spot in the books. 
   This makes it slow and undesireable in general, but doing dynamic allocations is
@@ -201,6 +201,89 @@ Wrapping up:  Today's big takeaway is improving debugging skills is essential to
 
 Notes on chess engine for tomorrow. - System recognizes when king is in check by ONLY 1 piece, not two. 
                                     - It thinks that the king isn't allowed to move infront of pawns. Single or double jumps. 
+
+
+Notes for November 29th, 2022 138hr += 4pm - 6:30pm (2hr)
+
+Bugs found for today:
+  The king thinks that it can move into an attacking square of an enemy pawn, but when it's in the square
+  it realizes that it's in check and requires moving.
+  The king thinks it is unable to move into a square infront of pawns where they can jump forward one or two spaces
+  Game doesn't realize king is in check when king is in double check.
+
+  Diagnosis of bug:  
+  The pawn only thinks it can move diagonal if a piece is diagonal, which is true, but a king still
+  can't move into that spot because then it will be taken. Solution is to provide an all possible moves
+  calculator for the pawn, or a modification on the pawn Calculator that doesn't require a piece for it 
+  to move there. Only use this when moving the king. In the case of computer simulation of moves, it 
+  will handle this error by looking into the future and how pieces will capture. Still requires close watch.
+Solution to bug: BUG FIXED BY MAKING SPECIAL FLAG OF PAWN CALC FUNCTION TELLING IT TO FIND ATTACKING MOVES ONLY. 
+  THE SOLUTION MENTIONED ABOVE ALSO SOLVED THE SECOND BUG BELOW BECAUSE THE KING NOW ONLY AVOIDS HYPOTHETICAL ATTACKING MOVES
+
+
+Diagnosis of bug: 
+  The pawn is also able to move forward anytime it wants, which is why the king thinks it can't go there.
+  The countAttackingMoves(square) function counts an attack as any piece being able to move to a square. 
+  This is true for all pieces except the pawn. 
+  We have to modify the attackingPiece calculator to ignore forward moves of pawns, because they don't capture.
+
+Solution to bug: Bug SOLVED with diagnosis solution - 4:47pm
+  - Edit: Solved this bug first then went back to the previous one, the previous one solution solved this one too
+
+
+Bug: Game doesn't realize king is in check when king is in double check.
+
+Diagnosis: I doubled up the add move command to the moves list for left diagonal capture. Fixed logic 
+           for add diagonal moves which was modified in early bug fixes today.
+SOLVED
+
+New bugs found: 
+
+Black king tries to castle king side when it is able to castle queenside. Offers the kingside option.
+After corrupting the move sequences (most likely), the white king wouldn't move backwards into empty space.
+Enpassant not working. I haven't put much work into function yet. 
+ 
+
+Notes for December 1st, 2022 140hr += 4pm - 3am  (10hrs)
+ Goals for today are fix castling, and have all functionalities of normal board complete
+ Reinstate the find pieces function for updating where everything is in the beginning. 
+
+- Bug, castling was performing wrong.
+Solution - found that I setup castling to opposite sides, using the wrong Squares
+
+- I'm starting to think that for critical datatypes, they should each have their own getter and setter 
+  functions along with variable checking that would allow them to make sure the right inputs are coming
+  in when the program is first being debugged, then after it is performing better, remove the logging statements
+    - A good example of this is the piece indicies array, we don't want any pieces inserted where their pieces
+      evaluate to EMPTY squares, and so it would be good to have an update function and checking function associated
+      with debugging printouts and halt conditions if something is found.
+- The principle of never repeat yourself is becoming more and more apparent to me. It cuts down on possibility
+  for bugs, easiness of updating a function type, and ability to fix bugs in a widespread manner and include 
+  debugging information. 
+- getters and setters are appearing more and more important. They allow debugging and special accessing of variables.
+  They also allow good coordination of a system that might get out of control if people start modifying 
+  values from all locations in a system. I was allowing people to access the KEY m_board variable from all over
+  the program, but moving things on the board meant I needed to update the piece indexes variable aswell
+  of where all the pieces are. Using a getter and setter allows me to make sure both variables stay in sync.
+    - The simplification for having these two variables in sync is just to have a list of piece locations
+      for each player, and they interact with eachother by looking at the opponent array or just updating
+      their own numbers in the array. Each index in the vector would correspond to a piece, and when the piece
+      is captured, it's value would become -1. We would have a vector for white pieces and black pieces. But
+      I suppose we could just have one vector where elements 1-16 are the white pieces, and 17-32
+- One big realization today is that providing enough abstraction for a datatype in a class allows
+  refactoring what goes on behind the scenes in the class without affecting many of the other functions.
+  This is an excellent thing to keep in mind as we figure out how to make better and better programs. 
+  When I wrote my first chess engine, nothing was factored out and it was all intertwined. Now, functions
+  are abstracted and have improved immensely.  If I wanted to check the fundamental datatype structure of
+  the board behind the class, the m_board variable, I think I might be able to do it. 
+  the 
+
+- Spent a lot of time refactoring today, the code has improved a lot and many bugs fixed. I fixed enpassant
+  double check, single check, and castling. Although I should still test what happens when I attack a 
+  square in between the kings castling sequence. It seems like my only error left is for double check
+  where the king believes it can move in line directly backwards from a queen when it is attacked by a pawn too.
+  Still have to test this for bishops as well. 
+
 
 
 Modifications to be made after chess engine completion:
