@@ -301,6 +301,50 @@ Notes Decmber 2nd, 2022 150hr += 2hr:
    check, but that's too computationally intensive.
 
 
+Notes December 4th, 2022 152hr: += 1hr
+- New bugs found. When the king is in check, the current move calculator allows the king to 
+  capture the piece that is attacking it, even if the piece is defended. 
+- Second bug, when I created the previous bug fix, I made it so that the king couldn't step onto
+  any of the ranks, or files of queens and rooks, nor the diagonals of queens and bishops when it
+  is getting out of check. This fine on an open board, but there is one situation this doesn't work
+  seen here :  
+  |BP|**|**|**|**|BB|**|**|
+  |--.--.--.--.--.--.--.--|
+  |**|**|**|WQ|**|**|**|**|
+  |--.--.--.--.--.--.--.--|
+  |WP|**|WN|**|WP|WN|**|WP|
+  |--.--.--.--.--.--.--.--|
+  |**|WP|BQ|**|**|WP|WB|**|
+  |--.--.--.--.--.--.--.--|
+  |**|WK|**|WR|**|**|WR|**|
+  |__|__|__|__|__|__|__|__| The king is in check, but the calculator says he king cannot 
+  move onto the square left diagonal from it, because it is on the same rank as the queen. 
+
+  The move calculator also says the king can capture the queen here. 
+
+  Notes December 5th, 2022 153hr += 4:
+
+  Confirmed the bug where the king thinks it can take a piece that is protected. While it is true that 
+  any piece can take any piece in general, the king is not allowed if the piece is defended. The game 
+  does not account for pieces being defended at the moment and doesn't disallow the king from making invalid moves.
+  I created a function for pawns to get their attacking moves only, but not their actual instantly legal moves.
+  I can extend this to other pieces. Every piece should have its attacking/protection moves where it
+  protects/attacks a piece, even if it is friendly. Then we'll have two movesets. Protection capture moveset,
+  and a legally allowed move moveset. Should be a simple fix. 
+
+  Fixed the bug where the king thinks it cannot hide behind another piece because it will be on the same 
+  file or rank as the queen after being in check. 
+
+  The first bug mentioned today (long writing) was easily fixed by incorporating only a few extra lines 
+  of code into my work. A quite elegant solution. 
+  
+  This is it! The move calculator now correctly determines all the right moves for the current player.
+  I can move on to updating the computer calculation function, which I expect to be quicker than 
+  all the work that came before it. Once that is done, I can add the list of modifications I've been 
+  intending on for a while. 
+
+
+
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate
 - Figure out where and when to use unique pointers and shared pointers

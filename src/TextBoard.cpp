@@ -73,7 +73,7 @@ TextBoard::TextBoard()
     m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
     m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::WPAWN;
     m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WKING;
+    m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WPAWN;
     m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
     m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
     m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
@@ -82,7 +82,7 @@ TextBoard::TextBoard()
     m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
     m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
     m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
-    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
     m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
     m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
     m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
@@ -745,7 +745,7 @@ void TextBoard::calcPawnMoves(int file, int rank, std::list<std::string> &movesR
 
     return;
 }
-void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesResults)
+void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting)
 {
 
     CONSTANTS::Color pieceColor = getPieceColor(file, rank);
@@ -774,6 +774,9 @@ void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesR
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[0] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank));
+                }
             }
         }
         if (stopFlag[1] == false)
@@ -796,6 +799,9 @@ void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesR
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[1] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank));
+                }
             }
         }
         if (stopFlag[2] == false)
@@ -818,6 +824,9 @@ void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesR
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[2] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file, rank + i));
+                }
             }
         }
         if (stopFlag[3] == false)
@@ -840,13 +849,17 @@ void TextBoard::calcRookMoves(int file, int rank, std::list<std::string> &movesR
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[3] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file, rank - i));
+                }
+                
             }
         }
     }
 
     return;
 }
-void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &moveResults)
+void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting)
 {
 
     CONSTANTS::Color pieceColor = getPieceColor(file, rank);
@@ -865,9 +878,9 @@ void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &move
     {
         CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, squarePair.first, squarePair.second);
 
-        if (squareStatus != CONSTANTS::Status::FRIENDLY && squareStatus != CONSTANTS::Status::INVALID)
+        if ((squareStatus != CONSTANTS::Status::FRIENDLY || isProtecting) && squareStatus != CONSTANTS::Status::INVALID)
         {
-            moveResults.push_back(buildMoveString(file, rank, squarePair.first, squarePair.second));
+            movesResults.push_back(buildMoveString(file, rank, squarePair.first, squarePair.second));
         }
     }
 
@@ -875,7 +888,7 @@ void TextBoard::calcKnightMoves(int file, int rank, std::list<std::string> &move
 
     return;
 }
-void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &moveResults)
+void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting)
 {
 
     CONSTANTS::Color pieceColor = getPieceColor(file, rank);
@@ -893,16 +906,19 @@ void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &move
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
                 stopFlag[0] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[0] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                }
             }
         }
         if (stopFlag[1] == false)
@@ -915,16 +931,19 @@ void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &move
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
                 stopFlag[1] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[1] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                }
             }
         }
         if (stopFlag[2] == false)
@@ -937,16 +956,19 @@ void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &move
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
                 stopFlag[2] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[2] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                }
             }
         }
         if (stopFlag[3] == false)
@@ -959,23 +981,26 @@ void TextBoard::calcBishopMoves(int file, int rank, std::list<std::string> &move
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
                 stopFlag[3] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[3] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                }
             }
         }
     }
 
     return;
 }
-void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveResults)
+void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting)
 {
 
     CONSTANTS::Color pieceColor = getPieceColor(file, rank);
@@ -994,16 +1019,20 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
                 stopFlag[0] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[0] = true;
+
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank + i));
+                }
             }
         }
         if (stopFlag[1] == false)
@@ -1016,16 +1045,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
                 stopFlag[1] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[1] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank - i));
+                }
             }
         }
         if (stopFlag[2] == false)
@@ -1038,16 +1070,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
                 stopFlag[2] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[2] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank + i));
+                }
             }
         }
         if (stopFlag[3] == false)
@@ -1060,16 +1095,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
                 stopFlag[3] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[3] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank - i));
+                }
             }
         }
         if (stopFlag[4] == false)
@@ -1082,16 +1120,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank));
                 stopFlag[4] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file + i, rank));
+                movesResults.push_back(buildMoveString(file, rank, file + i, rank));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[4] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file + i, rank));
+                }
             }
         }
         if (stopFlag[5] == false)
@@ -1104,16 +1145,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank));
                 stopFlag[5] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file - i, rank));
+                movesResults.push_back(buildMoveString(file, rank, file - i, rank));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[5] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file - i, rank));
+                }
             }
         }
         if (stopFlag[6] == false)
@@ -1126,16 +1170,19 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file, rank + i));
                 stopFlag[6] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file, rank + i));
+                movesResults.push_back(buildMoveString(file, rank, file, rank + i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[6] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file, rank + i));
+                }
             }
         }
         if (stopFlag[7] == false)
@@ -1148,23 +1195,26 @@ void TextBoard::calcQueenMoves(int file, int rank, std::list<std::string> &moveR
             }
             else if (squareStatus == CONSTANTS::Status::ENEMY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file, rank - i));
                 stopFlag[7] = true;
             }
             else if (squareStatus == CONSTANTS::Status::EMPTY)
             {
-                moveResults.push_back(buildMoveString(file, rank, file, rank - i));
+                movesResults.push_back(buildMoveString(file, rank, file, rank - i));
             }
             else if (squareStatus == CONSTANTS::Status::FRIENDLY)
             {
                 stopFlag[7] = true;
+                if(isProtecting){
+                    movesResults.push_back(buildMoveString(file, rank, file, rank - i));
+                }
             }
         }
     }
 
     return;
 }
-void TextBoard::calcKingMoves(int file, int rank, std::list<std::string> &moveResults)
+void TextBoard::calcKingMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting)
 {
     CONSTANTS::Color pieceColor = getPieceColor(file, rank);
     for (int row = -1; row <= 1; ++row)
@@ -1177,9 +1227,9 @@ void TextBoard::calcKingMoves(int file, int rank, std::list<std::string> &moveRe
             else
             {
                 squareStatus = checkSquareStatus(pieceColor, file + col, rank + row);
-                if (squareStatus == CONSTANTS::Status::EMPTY || squareStatus == CONSTANTS::Status::ENEMY)
+                if (squareStatus == CONSTANTS::Status::EMPTY || squareStatus == CONSTANTS::Status::ENEMY || (squareStatus == CONSTANTS::Status::FRIENDLY && isProtecting))
                 {
-                    moveResults.push_back(buildMoveString(file, rank, file + col, rank + row));
+                    movesResults.push_back(buildMoveString(file, rank, file + col, rank + row));
                 }
             }
         }
@@ -1196,19 +1246,19 @@ void TextBoard::calcPieceMoves(int file, int rank, std::list<std::string> &resul
         calcPawnMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'R':
-        calcRookMoves(file, rank, resultsList);
+        calcRookMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'N':
-        calcKnightMoves(file, rank, resultsList);
+        calcKnightMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'B':
-        calcBishopMoves(file, rank, resultsList);
+        calcBishopMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'Q':
-        calcQueenMoves(file, rank, resultsList);
+        calcQueenMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'K':
-        calcKingMoves(file, rank, resultsList);
+        calcKingMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'E':
         std::cout << "Error, passed empty square to getPieceType()" << std::endl;
@@ -1796,6 +1846,261 @@ void TextBoard::queenScreenMoves(int file, int rank, std::list<std::string> &mov
     return;
 }
 
+// This is a special function for handling a case where the king moves out of check
+void TextBoard::queenCheckScreenMoves(int file, int rank, std::list<std::string> &movesHolder)
+{
+    movesHolder.clear(); // Make sure to give a vector you don't care about
+
+    CONSTANTS::Color pieceColor = getPieceColor(file, rank);
+
+    bool stopFlag[8] = {false, false, false, false, false, false, false, false};
+    bool passedKing[8] = {false, false, false, false, false, false, false, false};
+
+    for (int i = 1; i < 8; ++i)
+    {
+        if (!stopFlag[0])
+        { // if we can keep adding move distance to the right of a piece
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank + i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file +i, rank+i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[0] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[0] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+                stopFlag[0] = true;
+                if (getPieceType(file + i, rank + i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file + (i+1), rank + (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file +(i+1), rank+(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[1])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file - i, rank + i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file - i, rank + i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[1] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[1] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+                stopFlag[1] = true;
+                if (getPieceType(file - i, rank + i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file - (i+1), rank + (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file -(i+1), rank+(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[2])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank - i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file + i, rank - i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[2] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[2] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[2] = true;
+                if (getPieceType(file + i, rank - i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file + (i+1), rank - (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file +(i+1), rank-(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[3])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file - i, rank - i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file - i, rank - i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[3] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[3] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[3] = true;
+                if (getPieceType(file - i, rank - i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file - (i+1), rank - (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file -(i+1), rank-(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[4])
+        { // if we can keep adding move distance to the right of a piece
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file + i, rank); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file + i, rank));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[4] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[4] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[4] = true;
+                if (getPieceType(file + i, rank) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file + (i+1), rank); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file +(i+1), rank));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[5])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file - i, rank); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file - i, rank));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[5] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[5] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[5] = true;
+                if (getPieceType(file - i, rank) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file - (i+1), rank); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file -(i+1), rank));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[6])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank + i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file, rank + i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[6] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[6] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[6] = true;
+                if (getPieceType(file, rank + i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file, rank + (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file, rank+(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+        if (!stopFlag[7])
+        {
+
+            CONSTANTS::Status squareStatus = checkSquareStatus(pieceColor, file, rank - i); // check the space i squares to the right of the piece
+
+            if (squareStatus == CONSTANTS::Status::EMPTY)
+            { // if the space is empty then do nothing
+                movesHolder.push_back(buildMoveString(file,rank,file, rank - i));
+            }
+            else if (squareStatus == CONSTANTS::Status::FRIENDLY)
+            {
+                stopFlag[7] = true;
+            }
+            else if (squareStatus == CONSTANTS::Status::INVALID)
+            {
+                stopFlag[7] = true; // Stop adding moves to the right
+            }
+            else if (squareStatus == CONSTANTS::Status::ENEMY)
+            {
+
+                stopFlag[7] = true;
+                if (getPieceType(file, rank - i) == 'K')
+                {   
+                    squareStatus = checkSquareStatus(pieceColor, file, rank - (i+1)); // check the space i squares to the right of the piece                                                               // if there are two attackers being hit, is the second one their king? 
+                    if(squareStatus == CONSTANTS::Status::EMPTY){
+                        movesHolder.push_back(buildMoveString(file,rank,file, rank-(i+1)));                                            // stop looking further for more pieces in the way
+                    }
+                }
+            }
+        }
+    }
+
+    return;
+}
+
 void TextBoard::getScreenMoves(int pieceFile, int pieceRank, std::list<std::string> &resultsList)
 {
 
@@ -2239,12 +2544,9 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             int8_t rank = tempPieceIndex / 8;
             int8_t file = tempPieceIndex % 8;
             char tempPieceType = getPieceType(file, rank);
-            if (tempPieceType != 'K')
-            {
-                std::list<std::string> partialMoveset;
-                calcPieceMoves(file, rank, partialMoveset, true);
-                pcompletePlayerMoveset->insert(pcompletePlayerMoveset->end(), partialMoveset.begin(), partialMoveset.end());
-            }
+            std::list<std::string> partialMoveset;
+            calcPieceMoves(file, rank, partialMoveset, true);
+            pcompletePlayerMoveset->insert(pcompletePlayerMoveset->end(), partialMoveset.begin(), partialMoveset.end());
         }
         return;
     }
@@ -2309,13 +2611,11 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     }
                     else if (pieceAttackingKingType == 'Q')
                     {
-                        // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
-                        if (newFile == attackerFile || newRank == attackerRank)
-                        {
-                            it = pcompletePlayerMoveset->erase(it);
-                            ++checkIt;
-                        }
-                        else if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
+                        std::list<std::string> movesHolder, newSquareAttackers;
+                        queenCheckScreenMoves(attackerFile,attackerRank,movesHolder); // SPEED OPPORTUNITY This calculates every time. Better to store and lookup. 
+
+                        int attacksOnNewSquare = countNumAttackers(&movesHolder,newFile,newRank);
+                        if (attacksOnNewSquare != 0)
                         {
                             it = pcompletePlayerMoveset->erase(it);
                             ++checkIt;
@@ -2406,11 +2706,11 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 
                 parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
                 
-                if(move == "KE3E4"){
-                    std::cout << "Get ready" << std::endl;
-                }
+                // if(move == "KE3E4"){
+                //     std::cout << "Get ready" << std::endl;
+                // }
 
-                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile), newRank) != 0)
+                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile), newRank) != 0) // Bug during the check condition. Enemy pieces can't attack their own pieces, but they can defend their own if taken. Need to adapt a protection clause
                 { // CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
                     it2 = kingUnfilteredMoveset.erase(it2);
                 }
@@ -2447,13 +2747,11 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     }
                     else if (pieceAttackingKingType == 'Q')
                     {
-                        // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
-                        if (newFile == attackerFile || newRank == attackerRank)
-                        {
-                            it2 = pcompletePlayerMoveset->erase(it2);
-                            ++checkIt;
-                        }
-                        else if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
+                        std::list<std::string> movesHolder, newSquareAttackers;
+                        queenCheckScreenMoves(attackerFile,attackerRank,movesHolder); // SPEED OPPORTUNITY This calculates every time. Better to store and lookup. 
+
+                        int attacksOnNewSquare = countNumAttackers(&movesHolder,newFile,newRank);
+                        if (attacksOnNewSquare != 0)
                         {
                             it2 = pcompletePlayerMoveset->erase(it2);
                             ++checkIt;
