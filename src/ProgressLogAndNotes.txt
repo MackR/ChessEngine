@@ -8,354 +8,354 @@
 Prior to travelling to paris on October 12th, I spent many hours on the project on other plane trips. Like to Hawaii
 Previous hours 0 += 40hr, even coming up with the first version of the chess engine took a lot longer
 October 12th - 40hr += 7 - on the plane
+
 October 14th - 47hr += 7 - Friday
+
 Logged hours in chess program: October 17th - 54hr += 7 - Early Sunday morning & afternoon Monday
+
 October 18th - 3am - 8am - 61hr += 5 - Couldn't sleep due to jetlag
-October 19th - 1:30pm - 6:40pm - 66hr += 5 - learned about many many facets of programming, including:
-- Anonymous objects, placing anonymous objects inside other data structures,
-- Declaring a pointer to an array of pointers ex: int (* array)[10] is a pointer to an array of ints. int* (* array)[10] is a pointer to an array of int pointers
-- That we should avoid memory leaks with smart pointers, specifically unique and shared pointers.  They are very useful. Or by being super careful with new and delete
-    - We may also get memory leaks from inheritance if the child constructor isn’t correctly called. Need to look into more.
-- Inheritance: virtual keywords are used to make sure that the correct functions are called in a class, along with the correct destructors perhaps?  Very important for memory
-- Two’s complement: You can get the two’s complement of a number by inverting the bits and adding 1.  A number with a 1 on the far left is a negative number.
-- Signed vs unsigned variables. They abide by two’s complement, and you should always try to use signed variables because of bad behavior from unsigned.
-- Continue keyword: Used to finish current loop iteration and start next
-- Break keyword: Exit the current looping or conditional structure
-- Switch statements: Need the “break” keyword at the end of each case(), otherwise they will finish one case and move onto the next and evaluate that one.
-- inline functions, use them to decrease stack size and function call overhead. Best for super small functions and the compiler may choose to ignore them for many reasons including non-void return type(?) - weird
-- passing by reference vs passing by pointer, very confusing. Generally best to pass by reference.
-- lvalues and rvalues. Lvalue is when an expression evaluates to an address
+
+Notes for October 19th - 1:30pm - 6:40pm - 66hr += 5 - learned about many many facets of programming, including:
+    - Anonymous objects, placing anonymous objects inside other data structures,
+    - Declaring a pointer to an array of pointers ex: int (* array)[10] is a pointer to an array of ints. int* (* array)[10] is a pointer to an array of int pointers
+    - That we should avoid memory leaks with smart pointers, specifically unique and shared pointers.  They are very useful. Or by being super careful with new and             delete
+        - We may also get memory leaks from inheritance if the child constructor isn’t correctly called. Need to look into more.
+    - Inheritance: virtual keywords are used to make sure that the correct functions are called in a class, along with the correct destructors perhaps?  Very important         for memory
+    - Two’s complement: You can get the two’s complement of a number by inverting the bits and adding 1.  A number with a 1 on the far left is a negative number.
+    - Signed vs unsigned variables. They abide by two’s complement, and you should always try to use signed variables because of bad behavior from unsigned.
+    - Continue keyword: Used to finish current loop iteration and start next
+    - Break keyword: Exit the current looping or conditional structure
+    - Switch statements: Need the “break” keyword at the end of each case(), otherwise they will finish one case and move onto the next and evaluate that one.
+    - inline functions, use them to decrease stack size and function call overhead. Best for super small functions and the compiler may choose to ignore them for many         reasons including non-void return type(?) - weird
+    - passing by reference vs passing by pointer, very confusing. Generally best to pass by reference.
+    - lvalues and rvalues. Lvalue is when an expression evaluates to an address
 
 Notes for October 21st, 2022:  71hr += 5.5hr
-Making complex arrays and array pointers just so you can compress multiple for loops into one for loop that correctly substitutes arrays is too complicated. Better way to perform is to have a small for loop that substitutes values on it’s own using if statements, and then runs the same code after all the variables have been customized by the small if statements at beginning of for loop. There might be even better way to perform.
+    - Making complex arrays and array pointers just so you can compress multiple for loops into one for loop that correctly substitutes arrays is too complicated. Better       way to perform is to have a small for loop that substitutes values on it’s own using if statements, and then runs the same code after all the variables have been         customized by the small if statements at beginning of for loop. There might be even better way to perform.
 
-Questions for October 21st, 2022:
-
-How to determine what a member function is, and best practices for naming/capitalization of such functions?
-
-Allowed return types for a c++ function, and can you define a return method for a new type?
-
-Benefits of list over vector, and vice versa. Also method functions of each.
-
-Does array indexing work so that in array[4][4], you can type array[1][5] and it returns first element of second row?  If so, this is a problem I need to fix. Is array[3][4] the same are array [4][3]?  There’s some commutative property of arrays like 3[array] = array[3]
-
-Need to learn about throwing exceptions and when I can do it, and when I should try doing it. Why is try and catch different from if-then statements?
+    Questions for October 21st, 2022:
+        - How to determine what a member function is, and best practices for naming/capitalization of such functions?
+        - Allowed return types for a c++ function, and can you define a return method for a new type?
+        - Benefits of list over vector, and vice versa. Also method functions of each.
+        - Does array indexing work so that in array[4][4], you can type array[1][5] and it returns first element of second row?  If so, this is a problem I need to fix.           Is array[3][4] the same are array [4][3]?  There’s some commutative property of arrays like 3[array] = array[3] 
+            - EDIT: No, this phenomenon is different from this specific scenario.  Pointer addition says that given object A and index 3. That A[3] is the same as 3[A]                 because they are both pointers to memory and add commutitatively 
+        - Need to learn about throwing exceptions and when I can do it, and when I should try doing it. Why is try and catch different from if-then statements?
 
 
 Notes for October 22, 2022: 77hr += 4hr on train ride to Normandy
 
 October 24th, 2022: 81hr += 4hr
-Questions:
-- What type of programming model is the best setup for a chess game?  Factory model? It’s probably best to have one where the player manipulates/sends commands to a board, and the board decides for each of them what is valid.
-- Can enums be accessed by index?
+    Questions:
+    - What type of programming model is the best setup for a chess game?  Factory model? It’s probably best to have one where the player manipulates/sends commands to a       board, and the board decides for each of them what is valid.
+    - Can enums be accessed by index?
 
 Notes for November 15th, 2022 - 85hr += 6
 
-Lessons:
-C style casts always perform exactly what you want them to, however, it is really easy to mess up when casting.
-Static_cast<type> checks at compile time if you are doing a valid cast and alerts the programmer if there is an issue
-Dynamic_cast<type> only casts with pointers and references, and returns null at runtime if the cast fails.
-Reinterpret_cast<type> forces the conversion of one type to another, including pointers. Only use when you’re doing weird stuff
-const_cast<type> is used for removing the const control on a variable, but still may result in runtime errors. Generally never use.
+    Lessons:
+    C style casts always perform exactly what you want them to, however, it is really easy to mess up when casting.
+    Static_cast<type> checks at compile time if you are doing a valid cast and alerts the programmer if there is an issue
+    Dynamic_cast<type> only casts with pointers and references, and returns null at runtime if the cast fails.
+    Reinterpret_cast<type> forces the conversion of one type to another, including pointers. Only use when you’re doing weird stuff
+    const_cast<type> is used for removing the const control on a variable, but still may result in runtime errors. Generally never use.
 
-Questions:
-- How to make it so that one cannot modify a reference’s value, returned from a functions?
-    - Answer: Function should return a const reference to the object. This prevents modification of reference’s values.
--
+    Questions:
+    - How to make it so that one cannot modify a reference’s value, returned from a functions?
+        - Answer: Function should return a const reference to the object. This prevents modification of reference’s values.
 
 
 Notes for November 16th, 2022 - 91hr += 5
 
-Lessons:
-If you setup the right structure in your program, you can easily cut down on calculations.
-Calculations done at the appropriate time makes your program so much more understandable and intuitive to write.
-EXAMPLE:  When I make a move on the board, instead of waiting for an external call to the calculate player moves function. I immediately call  calculateMoves() function at the end of makeMove() because makeMove knows who just made the move and it allows clean calling of the function and no external calls ever.
-Sometimes, information is in an easy interpretation form, it might be better to use it sooner than later to setup some variable for later in the program
+    Lessons:
+    - If you setup the right structure in your program, you can easily cut down on calculations.
+    - Calculations done at the appropriate time makes your program so much more understandable and intuitive to write.
+        EXAMPLE:  When I make a move on the board, instead of waiting for an external call to the calculate player moves function. I immediately call  calculateMoves()           function at the end of makeMove() because makeMove knows who just made the move and it allows clean calling of the function and no external calls ever.
+    - Sometimes, when information is in an easy interpretation form, it might be better to use it sooner instead of later to setup some variable for later in the program
 
 
 Notes for November 18th, 2022 - 96hr += 5
 
-Lessons/Thoughts:
-- Metafunctions aka Templates, are much more powerful than I originally thought. They allow the generation of multiple acceptable function type combinations, but they also allow calculation of constants and having mathematical outputs at compile time.
-- I was trying to make a file for all the constants that I wanted to use throughout the chess program, like ENUMs for Colors, Squares, and Pieces, but using the #include directive will cause multiple definitions of the constants whenever I include them in a new file. So, as of C++ 17, the inline declaration not only says to take small functions and direct copy paste them into places where they are used, but inline also tells the compiler to be aware of multiple declaration, and only take a single declaration. This still forces recompiling every file that contains the constants if the constants are changed, but there are alternative ways to get around it if compilation times are too long.
-- Constexpr is another keyword that tells the compiler to evaluate the variable at compile time and that it can be used in other constexpr's.
-- I've been going through my old chess engine more and it is more and more obvious why it didn't perform at the level I hoped. The code is a mess. But I've learned so much since then and have been able to refactor it substantially.
-- The interface a user has with code is extremely important. The simpler it is at the base level, the less issues cascade to the upper levels.
-- I'm sure my code could be simplified in many ways even after all I have learned, but I'll just have to go back after I've learned even more.
+    Lessons/Thoughts:
+    - Metafunctions aka Templates, are much more powerful than I originally thought. They allow the generation of multiple acceptable function type combinations, but           they also allow calculation of constants and having mathematical outputs at compile time.
+    - I was trying to make a file for all the constants that I wanted to use throughout the chess program, like ENUMs for Colors, Squares, and Pieces, but using the           #include directive will cause multiple definitions of the constants whenever I include them in a new file. So, as of C++ 17, the inline declaration not only says         to take small functions and direct copy paste them into places where they are used, but inline also tells the compiler to be aware of multiple declaration, and           only take a single declaration. This still forces recompiling every file that contains the constants if the constants are changed, but there are alternative ways         to get around it if compilation times are too long.
+    - Constexpr is another keyword that tells the compiler to evaluate the variable at compile time and that it can be used in other constexpr's.
+    - I've been going through my old chess engine more and it is more and more obvious why it didn't perform at the level I hoped. The code is a mess. But I've learned         so much since then and have been able to refactor it substantially.
+    - The interface a user has with code is extremely important. The simpler it is at the base level, the less issues cascade to the upper levels.
+    - I'm sure my code could be simplified in many ways even after all I have learned, but I'll just have to go back after I've learned even more.
 
 
 Notes for November 21nd, 2022 - 101hr += 2
-- Handled alternative tasks today however had some learning from programming
-- References are not allowed to point to nothing, they must be immediately initialized. Possibly because they reference to locations in memory and we shouldn't be defining locations in memory with references if they aren't being used correctly. Online says to use references first and pointers second if required. I prefer references so far.
-- Reminder: lookup how to implement namespaces again.
-- I'm probably using an older version of C++, the program refused the inline operator on variables meaning it is probably from before C++17
+    - Handled alternative tasks today however had some learning from programming
+    - References are not allowed to point to nothing, they must be immediately initialized. Possibly because they reference to locations in memory and we shouldn't be         defining locations in memory with references if they aren't being used correctly. Online says to use references first and pointers second if required. I prefer           references so far.
+    - Reminder: lookup how to implement namespaces again.
+    - I'm probably using an older version of C++, the program refused the inline operator on variables meaning it is probably from before C++17
 
 Notes for November 22rd, 2022 - 103hr += 4
-- It seems that the switch case is setup is only able to work with one equals statement. Switch var  case 5 || 6  essentially means if switch is equal to (5 || 6).  (5 || 6) == 1.  So the switch block essentially means if var == 1. Which we don't want.
-- Xcode is throwing warnings over using the arr[0][i] convention to access all the indexes of an array without using two subscripts, instead I'm just pointing to the beginning of the array and pointing past the end of the first row into the second and third
-- Headers should contain the optional argument specification when defining functions.
-- I'm starting to think about the general form of writing a function. It seems there are generic things that need to happen to make it good. Just brainstorming here, lets see:
-    - 1. Declare the variables needed for sanitizing the inputs to function
-      2. Go through a bunch of debug checking statements for invalid inputs and throw errors if any problem is found with inputs
-      3. Declare and init variables for converting inputs to useable form for function
-      4. Begin execution and start calculating flags for a function behavior
-      5. Write calculations/execute.
-      6. Output the variables/variable
-- Spent an hour watching a presentation on debugging. I could benefit from learning to compile and debug within the command line
-- Started looking into the #ifdef preprocessor directives. Useful for debugging vs release builds. The chess engine should be really fast, so while it is useful to have debugging and input sanitizing code within a program, it slows it down significantly.
+    - It seems that the switch case is setup is only able to work with one equals statement. Switch var  case 5 || 6  essentially means if switch is equal to (5 || 6).         (5 || 6) == 1.  So the switch block essentially means if var == 1. Which we don't want.
+    - Xcode is throwing warnings over using the arr[0][i] convention to access all the indexes of an array without using two subscripts, instead I'm just pointing to the       beginning of the array and pointing past the end of the first row into the second and third
+    - Headers should contain the optional argument specification when defining functions.
+    - I'm starting to think about the general form of writing a function. It seems there are generic things that need to happen to make it good. Just brainstorming here,       lets see:
+        1. Declare the variables needed for sanitizing the inputs to function
+        2. Go through a bunch of debug checking statements for invalid inputs and throw errors if any problem is found with inputs
+        3. Declare and init variables for converting inputs to useable form for function
+        4. Begin execution and start calculating flags for a function behavior
+        5. Write calculations/execute.
+        6. Output the variables/variable
+    - Spent an hour watching a presentation on debugging. I could benefit from learning to compile and debug within the command line
+    - Started looking into the #ifdef preprocessor directives. Useful for debugging vs release builds. The chess engine should be really fast, so while it is useful to         have debugging and input sanitizing code within a program, it slows it down significantly.
     - EXAMPLE: Line 5: #DEFINE DEBUG;  Line 25: #ifdef DEBUG  Line 26: printf("In debug mode!"); #endif
     - If I commented out the #DEFINE DEBUG line, then the "program" above wouldn't print what I wrote.
-    - We don't want too much debugging code in our work, so maybe at the beginning of each function is the only time we put real debugging code to explain to the user when a function doesn't receive the input it expected. That handles syntax, but logical/performance errors will still persist.
+    - We don't want too much debugging code in our work, so maybe at the beginning of each function is the only time we put real debugging code to explain to the user         when a function doesn't receive the input it expected. That handles syntax, but logical/performance errors will still persist.
     
 Notes for November 23rd, 2022 107hr += 8hr
-- The past few days have been slow. I've been getting back into the rythm of things.
-- I implemented my method of declaring all the variables at the top of the function, and setting all the parameters based on the conditions of the variables. Then I was able to combine the different functionalities of calculating black and white pieces into only one calculation for the two of them. Same thing with the enpassant. This seems like a really good way to design functions. Very clear, easy to write, easy to read, and few errors.
-- Encountered an issue with my enums and how EMPTY color, and EMPTY Piece overlap definitions. Discovered the best way to fix this is with enum class Color and enum class Piece.  This allows me to define what empty means for each of them
-- One issue with enum classes is that I cannot use the enums for indexes anymore, which is what I am doing with the Squares enum. Luckily I only have one enum I want to use for indexes, but if this wasn't the case, I would have to static_cast the enum class to an int.
-- I'm realizing it might be useful to learn regex for find and replace functionality.
-- It seems the general naming convention for programming is:
+    - The past few days have been slow. I've been getting back into the rythm of things.
+    - I implemented my method of declaring all the variables at the top of the function, and setting all the parameters based on the conditions of the variables. Then I       was able to combine the different functionalities of calculating black and white pieces into only one calculation for the two of them. Same thing with the               enpassant. This seems like a really good way to design functions. Very clear, easy to write, easy to read, and few errors.
+    - Encountered an issue with my enums and how EMPTY color, and EMPTY Piece overlap definitions. Discovered the best way to fix this is with enum class Color and enum       class Piece.  This allows me to define what empty means for each of them
+    - One issue with enum classes is that I cannot use the enums for indexes anymore, which is what I am doing with the Squares enum. Luckily I only have one enum I want       to use for indexes, but if this wasn't the case, I would have to static_cast the enum class to an int.
+    - I'm realizing it might be useful to learn regex for find and replace functionality.
+    - It seems the general naming convention for programming is:
     - mMemberVar for member variables of classes
     - helloThere is a local variable of the function you are currently doing, doesn't exist outside this scope
     - MyClass - class names should be uppercase at start and at new words
     - Other specifiers prefixes of variable names include c - constant, v - volatile, s - static, r - reference, p - pointer
     - Functions should be PascalCase.
     - Input variables to functions should be func(int camelCase, char camelCase2)
-- I finally have the compiler back up and checking my program. It seems I forgot some details about how to separate header and implementation files and what goes in each. Default parameters go in the header file, but they cannot be member variables.
-- In the implementation file I forgot to specify the functions belonged to the TextBoard class, although I put them in the TextBoard namespace.
-- The use of ENUMs through my variables has required me to cascade populate them through the rest of the program. It's clean coding I suppose, but annoying. Probably saving me from dealing with many bugs though.
+    - I finally have the compiler back up and checking my program. It seems I forgot some details about how to separate header and implementation files and what goes in       each. Default parameters go in the header file, but they cannot be member variables.
+    - In the implementation file I forgot to specify the functions belonged to the TextBoard class, although I put them in the TextBoard namespace.
+    - The use of ENUMs through my variables has required me to cascade populate them through the rest of the program. It's clean coding I suppose, but annoying. Probably       saving me from dealing with many bugs though.
 
 Notes for November 24th, 2022 115hr += 12:40 - 2:50,
-- Continuing updating code now that the compiler is turned on. Performing many easy small changes.
-- RELEARNED: Arrays cannot be initialized uniformly to a value, each value must be individually set. In my case, I use the {bool,bool,...} constructor
-- RELEARNED: Using the .begin() and .end() functions with a dynamic datatype returns an iterator pointing to the beginning element and one element after the last element.
-- LEARNED: Static can only be declared in the header file
-- REMINDER: The dereference operator goes before the pointer object.
-- LEARNED: Arrays are not assignable, only the elements within them. Up until this point I had only ever assigned std::vectors, lists, etc... I didn't realize C++ doesn't have an operator for equating one array to another and changing all the values.
-- LEARNED: When using the erase function of the std::list, it is to be used in the form of list.erase(pointer/iterator to element).  Earlier, I was doing iterator.erase(), which doesn't make sense
+    - Continuing updating code now that the compiler is turned on. Performing many easy small changes.
+    - RELEARNED: Arrays cannot be initialized uniformly to a value, each value must be individually set. In my case, I use the {bool,bool,...} constructor
+    - RELEARNED: Using the .begin() and .end() functions with a dynamic datatype returns an iterator pointing to the beginning element and one element after the last           element.
+    - LEARNED: Static can only be declared in the header file
+    - REMINDER: The dereference operator goes before the pointer object.
+    - LEARNED: Arrays are not assignable, only the elements within them. Up until this point I had only ever assigned std::vectors, lists, etc... I didn't realize C++         doesn't have an operator for equating one array to another and changing all the values.
+    - LEARNED: When using the erase function of the std::list, it is to be used in the form of list.erase(pointer/iterator to element).  Earlier, I was doing                   iterator.erase(), which doesn't make sense
 
 Notes for November 25th, 2022 120hr += 4
-- Started handling the issues with the standard library that xcode was giving. Xcode was a little outdated and it was probably best
-  to migrate to a different platform for programming. I'm typing this from VSCode now. Xcode took up 15gb of memory, way too much
-  for my computer. This setup is much better. 
-- LEARNED: To simlink new libraries into my project folder structure and the purpose of all the different folders in a library 
-    - The src folder has all source files (obviously)
-    - Lib folder contains all the precompiled libraries from your code, this allows you to share the utility of your code  without 
-      sharing the source code and letting others have all your work. In open source projects, people often don't have to do this
-    - The build folder contains all the builds of your project, often segmented into a debug and release folders
-    - The include folder often contains all the header files of the compiled libraries/functions you want to use in your project
-    - The cmake file is a file that tells the compiler how to behave in order to build the projects that you are doing.
-      - It specifies things such as the compiler you want to use, the compile flags used, the C++ version you want to compile,
-        the src directory showing it what files to build, the build directory (where the outputs go)
-        - Timestamp video link: https://youtu.be/Dyz9O7s7B8w?t=426  - EXCELLENT VIDEO
-- LEARNING: It seems that sometimes you want to allow people to see some implementation details of a class, and other
-  times you do not want them to see those details. So you can split your classes up into private sections and public sections
-  that allow people to compile the parts they need and simply use the tools they need from your precompiled class. 
+    - Started handling the issues with the standard library that xcode was giving. Xcode was a little outdated and it was probably best
+      to migrate to a different platform for programming. I'm typing this from VSCode now. Xcode took up 15gb of memory, way too much
+      for my computer. This setup is much better. 
+    - LEARNED: To simlink new libraries into my project folder structure and the purpose of all the different folders in a library 
+        - The src folder has all source files (obviously)
+        - Lib folder contains all the precompiled libraries from your code, this allows you to share the utility of your code  without 
+          sharing the source code and letting others have all your work. In open source projects, people often don't have to do this
+        - The build folder contains all the builds of your project, often segmented into a debug and release folders
+        - The include folder often contains all the header files of the compiled libraries/functions you want to use in your project
+        - The cmake file is a file that tells the compiler how to behave in order to build the projects that you are doing.
+            - It specifies things such as the compiler you want to use, the compile flags used, the C++ version you want to compile,
+              the src directory showing it what files to build, the build directory (where the outputs go)
+            - Timestamp video link: https://youtu.be/Dyz9O7s7B8w?t=426  - EXCELLENT VIDEO
+      - LEARNING: It seems that sometimes you want to allow people to see some implementation details of a class, and other
+        times you do not want them to see those details. So you can split your classes up into private sections and public sections
+        that allow people to compile the parts they need and simply use the tools they need from your precompiled class. 
   
 Notes for November 26th, 2022 124hr += 8 
-- I dove into the deep end of setting up an environment today. Learning all about compiling commands and
-  managing the include directories and how the VSCode workspace is setup using all the different file types.
-  It is SOOO CONFUSING.  A very frustrating process and even now that I got everything fixed in the include
-  folders, the cmath section is declaring that it doesn't recognize it's own functions. I'm frustrated.
-  Everything seems so close to working now. 
-- Relearned how to setup an access token with github and learned that there is a config folder in the
-  git folder in our projects that directs the repository how to behave. When I was trying to push my code
-  to the repository, it was continuing to ask for my credentials, and I had to go into the config file
-  and change it to look at the ssh link for the repo. It then started working.
-- It's been a long day of difficult coding. I know if I work on any problem long enough a solution will
-  appear. It's just a matter of perseverence. If all this SDL config setup fails, I can always redownload
-  Xcode and try setting up that environment again, where I've had SDL working before. Maybe the c++
-  libraries there just needed updating, idk. 
-- LEARNED: About simlinks and how they can help point towards your include files. Where to find header files
-  in a linux filesystem and macbook file system. 
-- The #include directive is just a way of saying copy the contents of X file into the location of this line
-- Next on my big questions, what is refactoring?  It seems to encompass a lot of concepts. 
+    - I dove into the deep end of setting up an environment today. Learning all about compiling commands and
+      managing the include directories and how the VSCode workspace is setup using all the different file types.
+      It is SOOO CONFUSING.  A very frustrating process and even now that I got everything fixed in the include
+      folders, the cmath section is declaring that it doesn't recognize it's own functions. I'm frustrated.
+      Everything seems so close to working now. 
+    - Relearned how to setup an access token with github and learned that there is a config folder in the
+      git folder in our projects that directs the repository how to behave. When I was trying to push my code
+      to the repository, it was continuing to ask for my credentials, and I had to go into the config file
+      and change it to look at the ssh link for the repo. It then started working.
+    - It's been a long day of difficult coding. I know if I work on any problem long enough a solution will
+        appear. It's just a matter of perseverence. If all this SDL config setup fails, I can always redownload
+        Xcode and try setting up that environment again, where I've had SDL working before. Maybe the c++
+        libraries there just needed updating, idk. 
+    - LEARNED: About simlinks and how they can help point towards your include files. Where to find header files
+        in a linux filesystem and macbook file system. 
+    - The #include directive is just a way of saying copy the contents of X file into the location of this line
+    - Next on my big questions, what is refactoring?  It seems to encompass a lot of concepts. 
 
 Notes for November 28th, 2022 132hr +=  6pm - 2am = 8hrs :
-- Namespaces are used to separate classes and functions ONLY.  They cannot be used in the way that I was before
-  EG: Trying to avoid naming the class that methods were assigned to. IE .hpp(Class MyClass(){}) .cpp(namespace MyClass{ methodOfMyClass(){}});
-- Working with the std::list data structure, the erase(it) function returns a pointer to the next element after the erased element. 
-  - EG: it = list.erase(it);  - Properly advances the iterator while deleting
-- I learned about stack and heap memory today and how they function. I had a general idea
-  before, but after looking into it more, it showed how the stack literally just
-  increments along a big block of memory, adding new pieces to it when needed, and then
-  removing those pieces as they go out of scope. This makes it extremely fast and usage desireable
-  when possible. Heap is like a book keeping mechanism that has records of what memory
-  is free, and when memory is requested it goes and finds a good spot in the books. 
-  This makes it slow and undesireable in general, but doing dynamic allocations is
-  often required when we don't know array sizes ahead of time. 
-- LEARNED: General techiques for finding errors in a system. Namely binary search by 
-  commenting out lines of code until finding the one giving the issues. In my case, 
-  the stack variable I was using for keeping track of all board history states didn't
-  agree with my operations. I still have to go back and fix it. 
-- Encountered strange behavior with static_cast<int>(CONSTANTS::Color:EMPTY), my enum had negative numbers and this wasn't performing right. Beware
-- A void pointer is a just a pointer to a location in memory. This explains how C++ is so close to the hardware, allowing register access.
-- If I wanted to track memory usage myself, I could overload the new operator and add tracking variables to it. Same for delete. Very useful.
-- If I overload the new operator. The smart pointers will even still work in the system and will incorporate my modifications because they use the new and delete keywords too.
+    - Namespaces are used to separate classes and functions ONLY.  They cannot be used in the way that I was before
+        EG: Trying to avoid naming the class that methods were assigned to. IE .hpp(Class MyClass(){}) .cpp(namespace MyClass{ methodOfMyClass(){}});
+    - Working with the std::list data structure, the erase(it) function returns a pointer to the next element after the erased element. 
+    - EG: it = list.erase(it);  - Properly advances the iterator while deleting
+    - I learned about stack and heap memory today and how they function. I had a general idea
+        before, but after looking into it more, it showed how the stack literally just
+        increments along a big block of memory, adding new pieces to it when needed, and then
+        removing those pieces as they go out of scope. This makes it extremely fast and usage desireable
+        when possible. Heap is like a book keeping mechanism that has records of what memory
+        is free, and when memory is requested it goes and finds a good spot in the books. 
+        This makes it slow and undesireable in general, but doing dynamic allocations is
+        often required when we don't know array sizes ahead of time. - EDIT: Vector and list objects make this viable and prefered
+    - LEARNED: General techiques for finding errors in a system. Namely binary search by 
+        commenting out lines of code until finding the one giving the issues. In my case, 
+        the stack variable I was using for keeping track of all board history states didn't
+        agree with my operations. I still have to go back and fix it. 
+    - Encountered strange behavior with static_cast<int>(CONSTANTS::Color:EMPTY), my enum had negative numbers and this wasn't performing right. Beware
+    - A void pointer is a just a pointer to a location in memory. This explains how C++ is so close to the hardware, allowing register access.
+    - If I wanted to track memory usage myself, I could overload the new operator and add tracking variables to it. Same for delete. Very useful.
+    - If I overload the new operator. The smart pointers will even still work in the system and will incorporate my modifications because they use the new and delete           keywords too.
 
-- Accomplishments: Learned essential debugging skills and narrowed down causes of problems.
+   - Accomplishments: Learned essential debugging skills and narrowed down causes of problems.
                   - Wrote a function for displaying text board until I get SDL working again.
                   - Starting to feel really proficient at writing code. It's cool. 
 
-Wrapping up:  Today's big takeaway is improving debugging skills is essential to being good at
+     Wrapping up:  Today's big takeaway is improving debugging skills is essential to being good at
               programming. Need to continue developing this area. Program visuals and feedback is essential.
 
-Notes on chess engine for tomorrow. - System recognizes when king is in check by ONLY 1 piece, not two. 
-                                    - It thinks that the king isn't allowed to move infront of pawns. Single or double jumps. 
+     Notes on chess engine for tomorrow. 
+        - System recognizes when king is in check by ONLY 1 piece, not two. 
+        - It thinks that the king isn't allowed to move infront of pawns. Single or double jumps. 
 
 
 Notes for November 29th, 2022 138hr += 4pm - 6:30pm (2hr)
 
-Bugs found for today:
-  The king thinks that it can move into an attacking square of an enemy pawn, but when it's in the square
-  it realizes that it's in check and requires moving.
-  The king thinks it is unable to move into a square infront of pawns where they can jump forward one or two spaces
-  Game doesn't realize king is in check when king is in double check.
+    Bugs found for today:
+      The king thinks that it can move into an attacking square of an enemy pawn, but when it's in the square
+      it realizes that it's in check and requires moving.
+      The king thinks it is unable to move into a square infront of pawns where they can jump forward one or two spaces
+      Game doesn't realize king is in check when king is in double check.
 
-  Diagnosis of bug:  
-  The pawn only thinks it can move diagonal if a piece is diagonal, which is true, but a king still
-  can't move into that spot because then it will be taken. Solution is to provide an all possible moves
-  calculator for the pawn, or a modification on the pawn Calculator that doesn't require a piece for it 
-  to move there. Only use this when moving the king. In the case of computer simulation of moves, it 
-  will handle this error by looking into the future and how pieces will capture. Still requires close watch.
-Solution to bug: BUG FIXED BY MAKING SPECIAL FLAG OF PAWN CALC FUNCTION TELLING IT TO FIND ATTACKING MOVES ONLY. 
-  THE SOLUTION MENTIONED ABOVE ALSO SOLVED THE SECOND BUG BELOW BECAUSE THE KING NOW ONLY AVOIDS HYPOTHETICAL ATTACKING MOVES
-
-
-Diagnosis of bug: 
-  The pawn is also able to move forward anytime it wants, which is why the king thinks it can't go there.
-  The countAttackingMoves(square) function counts an attack as any piece being able to move to a square. 
-  This is true for all pieces except the pawn. 
-  We have to modify the attackingPiece calculator to ignore forward moves of pawns, because they don't capture.
-
-Solution to bug: Bug SOLVED with diagnosis solution - 4:47pm
-  - Edit: Solved this bug first then went back to the previous one, the previous one solution solved this one too
+      Diagnosis of bug:  
+      The pawn only thinks it can move diagonal if a piece is diagonal, which is true, but a king still
+      can't move into that spot because then it will be taken. Solution is to provide an all possible moves
+      calculator for the pawn, or a modification on the pawn Calculator that doesn't require a piece for it 
+      to move there. Only use this when moving the king. In the case of computer simulation of moves, it 
+      will handle this error by looking into the future and how pieces will capture. Still requires close watch.
+    Solution to bug: BUG FIXED BY MAKING SPECIAL FLAG OF PAWN CALC FUNCTION TELLING IT TO FIND ATTACKING MOVES ONLY. 
+      THE SOLUTION MENTIONED ABOVE ALSO SOLVED THE SECOND BUG BELOW BECAUSE THE KING NOW ONLY AVOIDS HYPOTHETICAL ATTACKING MOVES
 
 
-Bug: Game doesn't realize king is in check when king is in double check.
+    Diagnosis of bug: 
+      The pawn is also able to move forward anytime it wants, which is why the king thinks it can't go there.
+      The countAttackingMoves(square) function counts an attack as any piece being able to move to a square. 
+      This is true for all pieces except the pawn. 
+      We have to modify the attackingPiece calculator to ignore forward moves of pawns, because they don't capture.
 
-Diagnosis: I doubled up the add move command to the moves list for left diagonal capture. Fixed logic 
-           for add diagonal moves which was modified in early bug fixes today.
-SOLVED
+    Solution to bug: Bug SOLVED with diagnosis solution - 4:47pm
+      - Edit: Solved this bug first then went back to the previous one, the previous one solution solved this one too
 
-New bugs found: 
 
-Black king tries to castle king side when it is able to castle queenside. Offers the kingside option.
-After corrupting the move sequences (most likely), the white king wouldn't move backwards into empty space.
-Enpassant not working. I haven't put much work into function yet. 
+    Bug: Game doesn't realize king is in check when king is in double check.
+
+    Diagnosis: I doubled up the add move command to the moves list for left diagonal capture. Fixed logic 
+               for add diagonal moves which was modified in early bug fixes today.
+    SOLVED
+
+    New bugs found: 
+
+    Black king tries to castle king side when it is able to castle queenside. Offers the kingside option.
+    After corrupting the move sequences (most likely), the white king wouldn't move backwards into empty space.
+    Enpassant not working. I haven't put much work into function yet. 
  
 
 Notes for December 1st, 2022 140hr += 4pm - 3am  (~10hrs)
- Goals for today are fix castling, and have all functionalities of normal board complete
- Reinstate the find pieces function for updating where everything is in the beginning. 
+     Goals for today are fix castling, and have all functionalities of normal board complete
+     Reinstate the find pieces function for updating where everything is in the beginning. 
 
-- Bug, castling was performing wrong.
-Solution - found that I setup castling to opposite sides, using the wrong Squares
+    - Bug, castling was performing wrong.
+    Solution - found that I setup castling to opposite sides, using the wrong Squares
 
-- I'm starting to think that for critical datatypes, they should each have their own getter and setter 
-  functions along with variable checking that would allow them to make sure the right inputs are coming
-  in when the program is first being debugged, then after it is performing better, remove the logging statements
-    - A good example of this is the piece indicies array, we don't want any pieces inserted where their pieces
-      evaluate to EMPTY squares, and so it would be good to have an update function and checking function associated
-      with debugging printouts and halt conditions if something is found.
-- The principle of never repeat yourself is becoming more and more apparent to me. It cuts down on possibility
-  for bugs, easiness of updating a function type, and ability to fix bugs in a widespread manner and include 
-  debugging information. 
-- getters and setters are appearing more and more important. They allow debugging and special accessing of variables.
-  They also allow good coordination of a system that might get out of control if people start modifying 
-  values from all locations in a system. I was allowing people to access the KEY m_board variable from all over
-  the program, but moving things on the board meant I needed to update the piece indexes variable aswell
-  of where all the pieces are. Using a getter and setter allows me to make sure both variables stay in sync.
-    - The simplification for having these two variables in sync is just to have a list of piece locations
-      for each player, and they interact with eachother by looking at the opponent array or just updating
-      their own numbers in the array. Each index in the vector would correspond to a piece, and when the piece
-      is captured, it's value would become -1. We would have a vector for white pieces and black pieces. But
-      I suppose we could just have one vector where elements 1-16 are the white pieces, and 17-32
-- One big realization today is that providing enough abstraction for a datatype in a class allows
-  refactoring what goes on behind the scenes in the class without affecting many of the other functions.
-  This is an excellent thing to keep in mind as we figure out how to make better and better programs. 
-  When I wrote my first chess engine, nothing was factored out and it was all intertwined. Now, functions
-  are abstracted and have improved immensely.  If I wanted to check the fundamental datatype structure of
-  the board behind the class, the m_board variable, I think I might be able to do it. 
-  the 
+    - I'm starting to think that for critical datatypes, they should each have their own getter and setter 
+      functions along with variable checking that would allow them to make sure the right inputs are coming
+      in when the program is first being debugged, then after it is performing better, remove the logging statements
+        - A good example of this is the piece indicies array, we don't want any pieces inserted where their pieces
+          evaluate to EMPTY squares, and so it would be good to have an update function and checking function associated
+          with debugging printouts and halt conditions if something is found.
+    - The principle of never repeat yourself is becoming more and more apparent to me. It cuts down on possibility
+      for bugs, easiness of updating a function type, and ability to fix bugs in a widespread manner and include 
+      debugging information. 
+    - getters and setters are appearing more and more important. They allow debugging and special accessing of variables.
+      They also allow good coordination of a system that might get out of control if people start modifying 
+      values from all locations in a system. I was allowing people to access the KEY m_board variable from all over
+      the program, but moving things on the board meant I needed to update the piece indexes variable aswell
+      of where all the pieces are. Using a getter and setter allows me to make sure both variables stay in sync.
+        - The simplification for having these two variables in sync is just to have a list of piece locations
+          for each player, and they interact with eachother by looking at the opponent array or just updating
+          their own numbers in the array. Each index in the vector would correspond to a piece, and when the piece
+          is captured, it's value would become -1. We would have a vector for white pieces and black pieces. But
+          I suppose we could just have one vector where elements 1-16 are the white pieces, and 17-32
+    - One big realization today is that providing enough abstraction for a datatype in a class allows
+      refactoring what goes on behind the scenes in the class without affecting many of the other functions.
+      This is an excellent thing to keep in mind as we figure out how to make better and better programs. 
+      When I wrote my first chess engine, nothing was factored out and it was all intertwined. Now, functions
+      are abstracted and have improved immensely.  If I wanted to check the fundamental datatype structure of
+      the board behind the class, the m_board variable, I think I might be able to do it. 
+      the 
 
-- Spent a lot of time refactoring today, the code has improved a lot and many bugs fixed. I fixed enpassant
-  double check, single check, and castling. Although I should still test what happens when I attack a 
-  square in between the kings castling sequence. It seems like my only error left is for double check
-  where the king believes it can move in line directly backwards from a queen when it is attacked by a pawn too.
-  Still have to test this for bishops as well. 
+    - Spent a lot of time refactoring today, the code has improved a lot and many bugs fixed. I fixed enpassant
+      double check, single check, and castling. Although I should still test what happens when I attack a 
+      square in between the kings castling sequence. It seems like my only error left is for double check
+      where the king believes it can move in line directly backwards from a queen when it is attacked by a pawn too.
+      Still have to test this for bishops as well. 
 
 
 Notes Decmber 2nd, 2022 150hr += 2hr:
- - I fixed the bug with the king being in check and thinking it could walk to the square behind it
-   that was techincally not under attack, but as soon as the king moved there it would become under attack.
- - With this done, I still have to do some testing of the board movement capabilities, and I'm pretty sure
-   that I've covered all the bugs at this point related to movement. Extensive testing required.
+     - I fixed the bug with the king being in check and thinking it could walk to the square behind it
+       that was techincally not under attack, but as soon as the king moved there it would become under attack.
+     - With this done, I still have to do some testing of the board movement capabilities, and I'm pretty sure
+       that I've covered all the bugs at this point related to movement. Extensive testing required.
 
- - When I worked at Halodi, something that struck me a lot is one of the programmers always talked 
-   about searching and thinking about edge cases. It was one of the focal points of his programming. 
-   This reminds me of how people say, "If you handle the extremes, the means will handle themselves."
-   The more I do programming like this project, the more I see how we have to think about edge cases
-   and how pre-empting edge cases will help us avoid bugs in the future where the program points 
-   out edge cases by throwing errors into our execution. I just handled one very interesting one,
-   and think they're all gone. It's just much easier to simulate a board and check if the king is in
-   check, but that's too computationally intensive.
+     - When I worked at Halodi, something that struck me a lot is one of the programmers always talked 
+       about searching and thinking about edge cases. It was one of the focal points of his programming. 
+       This reminds me of how people say, "If you handle the extremes, the means will handle themselves."
+       The more I do programming like this project, the more I see how we have to think about edge cases
+       and how pre-empting edge cases will help us avoid bugs in the future where the program points 
+       out edge cases by throwing errors into our execution. I just handled one very interesting one,
+       and think they're all gone. It's just much easier to simulate a board and check if the king is in
+       check, but that's too computationally intensive.
 
 
 Notes December 4th, 2022 152hr: += 1hr
-- New bugs found. When the king is in check, the current move calculator allows the king to 
-  capture the piece that is attacking it, even if the piece is defended. 
-- Second bug, when I created the previous bug fix, I made it so that the king couldn't step onto
-  any of the ranks, or files of queens and rooks, nor the diagonals of queens and bishops when it
-  is getting out of check. This fine on an open board, but there is one situation this doesn't work
-  seen here :  
-  |BP|**|**|**|**|BB|**|**|
-  |--.--.--.--.--.--.--.--|
-  |**|**|**|WQ|**|**|**|**|
-  |--.--.--.--.--.--.--.--|
-  |WP|**|WN|**|WP|WN|**|WP|
-  |--.--.--.--.--.--.--.--|
-  |**|WP|BQ|**|**|WP|WB|**|
-  |--.--.--.--.--.--.--.--|
-  |**|WK|**|WR|**|**|WR|**|
-  |__|__|__|__|__|__|__|__| The king is in check, but the calculator says he king cannot 
-  move onto the square left diagonal from it, because it is on the same rank as the queen. 
+    - New bugs found. When the king is in check, the current move calculator allows the king to 
+      capture the piece that is attacking it, even if the piece is defended. 
+    - Second bug, when I created the previous bug fix, I made it so that the king couldn't step onto
+      any of the ranks, or files of queens and rooks, nor the diagonals of queens and bishops when it
+      is getting out of check. This fine on an open board, but there is one situation this doesn't work
+      seen here :  
+      |BP|**|**|**|**|BB|**|**|
+      |--.--.--.--.--.--.--.--|
+      |**|**|**|WQ|**|**|**|**|
+      |--.--.--.--.--.--.--.--|
+      |WP|**|WN|**|WP|WN|**|WP|
+      |--.--.--.--.--.--.--.--|
+      |**|WP|BQ|**|**|WP|WB|**|
+      |--.--.--.--.--.--.--.--|
+      |**|WK|**|WR|**|**|WR|**|
+      |__|__|__|__|__|__|__|__| The king is in check, but the calculator says he king cannot 
+      move onto the square left diagonal from it, because it is on the same rank as the queen. 
 
-  The move calculator also says the king can capture the queen here. 
+      The move calculator also says the king can capture the queen here. 
 
   Notes December 5th, 2022 153hr += 4:
 
-  Confirmed the bug where the king thinks it can take a piece that is protected. While it is true that 
-  any piece can take any piece in general, the king is not allowed if the piece is defended. The game 
-  does not account for pieces being defended at the moment and doesn't disallow the king from making invalid moves.
-  I created a function for pawns to get their attacking moves only, but not their actual instantly legal moves.
-  I can extend this to other pieces. Every piece should have its attacking/protection moves where it
-  protects/attacks a piece, even if it is friendly. Then we'll have two movesets. Protection capture moveset,
-  and a legally allowed move moveset. Should be a simple fix. 
+      Confirmed the bug where the king thinks it can take a piece that is protected. While it is true that 
+      any piece can take any piece in general, the king is not allowed if the piece is defended. The game 
+      does not account for pieces being defended at the moment and doesn't disallow the king from making invalid moves.
+      I created a function for pawns to get their attacking moves only, but not their actual instantly legal moves.
+      I can extend this to other pieces. Every piece should have its attacking/protection moves where it
+      protects/attacks a piece, even if it is friendly. Then we'll have two movesets. Protection capture moveset,
+      and a legally allowed move moveset. Should be a simple fix. 
 
-  Fixed the bug where the king thinks it cannot hide behind another piece because it will be on the same 
-  file or rank as the queen after being in check. 
+      Fixed the bug where the king thinks it cannot hide behind another piece because it will be on the same 
+      file or rank as the queen after being in check. 
 
-  The first bug mentioned today (long writing) was easily fixed by incorporating only a few extra lines 
-  of code into my work. A quite elegant solution. 
-  
-  This is it! The move calculator now correctly determines all the right moves for the current player.
-  I can move on to updating the computer calculation function, which I expect to be quicker than 
-  all the work that came before it. Once that is done, I can add the list of modifications I've been 
-  intending on for a while. 
+      The first bug mentioned today (long writing) was easily fixed by incorporating only a few extra lines 
+      of code into my work. A quite elegant solution. 
+
+      This is it! The move calculator now correctly determines all the right moves for the current player.
+      I can move on to updating the computer calculation function, which I expect to be quicker than 
+      all the work that came before it. Once that is done, I can add the list of modifications I've been 
+      intending on for a while. 
 
 Notes December 6th, 2022 157hr += 6hr:
- - During my last commit, I performed all the command line commands, and then after they completed. I noticed my shredder
-   was still turned on, so I went to unplug it and instead, I unplugged my computer, corrupting my git repository folder.
- - LEARNED git FSCK performs a check of the status of the git and reports what is wrong. In order to fix my issues, Luckily
-   I am dilligent about pushing code to the repository origin online, and I was able to retrieve a new copy of the .git folder
-   from online, and replace my corrupted one with the new one. I attempted some other fixes beforehand, but this was the most
-   practical solution.
- - Today I completed the computer player code conversion and refactored the code into much nicer formats. The two separate 
-   minimizer and maximizer functions are now combined into one. My principle of using standard variables at the top of a 
-   function and then setting those variables based on flags, which then controls the operation of the function below that 
-   is an excellent method. It has consolidated a lot of code. The computer player is now ready for testing and debugging. 
- - My only major known problem at the moment is the stack variable in the TextBoard file which doesn't like the way I push
-   new data into it. I'm getting some strange error output that only complains during compiling. I will fix this tomorrow. 
+     - During my last commit, I performed all the command line commands, and then after they completed. I noticed my shredder
+       was still turned on, so I went to unplug it and instead, I unplugged my computer, corrupting my git repository folder.
+     - LEARNED git FSCK performs a check of the status of the git and reports what is wrong. In order to fix my issues, Luckily
+       I am dilligent about pushing code to the repository origin online, and I was able to retrieve a new copy of the .git folder
+       from online, and replace my corrupted one with the new one. I attempted some other fixes beforehand, but this was the most
+       practical solution.
+     - Today I completed the computer player code conversion and refactored the code into much nicer formats. The two separate 
+       minimizer and maximizer functions are now combined into one. My principle of using standard variables at the top of a 
+       function and then setting those variables based on flags, which then controls the operation of the function below that 
+       is an excellent method. It has consolidated a lot of code. The computer player is now ready for testing and debugging. 
+     - My only major known problem at the moment is the stack variable in the TextBoard file which doesn't like the way I push
+       new data into it. I'm getting some strange error output that only complains during compiling. I will fix this tomorrow. 
    
 
 
