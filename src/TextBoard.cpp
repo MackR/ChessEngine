@@ -91,7 +91,7 @@ TextBoard::TextBoard()
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create the first board state in the m_boardHistory stack
-    // m_boardHistory.push(m_board);
+    m_boardHistory.push(m_board);
 
     // Init the supporting variables
     m_playerTurn = CONSTANTS::Color::WHITE;
@@ -297,6 +297,10 @@ CONSTANTS::Piece TextBoard::getPiece(int file, int rank)
         return CONSTANTS::Piece::EMPTY;
     }
     return m_board[rank][file];
+}
+
+std::list<int8_t>* getPieceLocations(CONSTANTS::Color color){
+
 }
 void TextBoard::addPiece(int file, int rank, CONSTANTS::Piece piece)
 {
@@ -2879,7 +2883,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 //    return &m_board;
 //}
 
-const TextBoard::board *TextBoard::getBoardState()
+TextBoard::board *TextBoard::getBoardState()
 { // This one is hard!  Returns a read only pointer to the board state
     return &m_board;
 }
@@ -2888,16 +2892,16 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
     m_board[rank][file] = newPiece;
     return true;
 };
-// void TextBoard::undoLastMove(){
-//     m_boardHistory.pop();
-//     m_moveHistory.pop();
-//     for(int rank = 0; rank <8; ++rank){
-//         for (int file = 0; file <8; ++file){
-//             m_board[rank][file] = m_boardHistory.top()[rank][file];
-//         }
-//     }
-//     return;
-// };
+void TextBoard::undoLastMove(){
+    m_boardHistory.pop();
+    m_moveHistory.pop();
+    for(int rank = 0; rank <8; ++rank){
+        for (int file = 0; file <8; ++file){
+            m_board[rank][file] = m_boardHistory.top()[rank][file];
+        }
+    }
+    return;
+};
 std::list<std::string> *TextBoard::getLegalMoves(CONSTANTS::Color color)
 {
     switch (color)
@@ -2914,6 +2918,8 @@ std::list<std::string> *TextBoard::getLegalMoves(CONSTANTS::Color color)
 // bool TextBoard::isWinner(CONSTANTS::Color winnerColor){
 //     //If current players moveset is empty. Report winner is the opposing player!
 // } // Reports if white or black is the winner when asked
+
+// Reports if move was successful and board was modified
 bool TextBoard::makeMove(std::string move)
 {
 
@@ -3120,7 +3126,7 @@ bool TextBoard::makeMove(std::string move)
         nextPlayer = CONSTANTS::Color::WHITE;
 
     // Need to update the move history for the move
-    // m_boardHistory.push(m_board);
+    m_boardHistory.push(m_board);
     m_moveHistory.push(move);
     calcPlayerMovesetV2(nextPlayer, true); // Update the potential moves lists for proper color
 

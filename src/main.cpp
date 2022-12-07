@@ -52,7 +52,7 @@ int main(int argc, const char * argv[]) {
     //SDL_Delay(500);
     
     //game.m_white.humanPlayer = true;  // tells game it's a comp player
-    //game.m_black.humanPlayer = true;  // tells game it's a comp player
+    game.m_black.humanPlayer = false;  // tells game it's a comp player
     
     
     

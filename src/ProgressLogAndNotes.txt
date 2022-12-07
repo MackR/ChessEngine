@@ -343,6 +343,20 @@ Notes December 4th, 2022 152hr: += 1hr
   all the work that came before it. Once that is done, I can add the list of modifications I've been 
   intending on for a while. 
 
+Notes December 6th, 2022 157hr += 6hr:
+ - During my last commit, I performed all the command line commands, and then after they completed. I noticed my shredder
+   was still turned on, so I went to unplug it and instead, I unplugged my computer, corrupting my git repository folder.
+ - LEARNED git FSCK performs a check of the status of the git and reports what is wrong. In order to fix my issues, Luckily
+   I am dilligent about pushing code to the repository origin online, and I was able to retrieve a new copy of the .git folder
+   from online, and replace my corrupted one with the new one. I attempted some other fixes beforehand, but this was the most
+   practical solution.
+ - Today I completed the computer player code conversion and refactored the code into much nicer formats. The two separate 
+   minimizer and maximizer functions are now combined into one. My principle of using standard variables at the top of a 
+   function and then setting those variables based on flags, which then controls the operation of the function below that 
+   is an excellent method. It has consolidated a lot of code. The computer player is now ready for testing and debugging. 
+ - My only major known problem at the moment is the stack variable in the TextBoard file which doesn't like the way I push
+   new data into it. I'm getting some strange error output that only complains during compiling. I will fix this tomorrow. 
+   
 
 
 Modifications to be made after chess engine completion:

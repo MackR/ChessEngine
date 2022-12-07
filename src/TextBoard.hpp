@@ -25,7 +25,7 @@
 
 
 class TextBoard{
-    
+public:
     typedef CONSTANTS::Piece board[8][8]; // see getBoardState()
     
 private:
@@ -52,6 +52,7 @@ private:
     inline bool isEmpty(CONSTANTS::Piece piece);
     inline CONSTANTS::Piece getPiece(int file, int rank);
     CONSTANTS::Piece getPiece(int index);
+    std::list<int8_t>* getPieceLocations(CONSTANTS::Color color) const noexcept;
     void addPiece(int file, int rank, CONSTANTS::Piece piece);
     void addPiece(int index, CONSTANTS::Piece piece);
     void removePiece(int file, int rank);
@@ -90,13 +91,14 @@ private:
     //bool updatePiecesArray(std::string move, CONSTANTS::Piece capturedPiece); // Archived function
     
 public:
+    
     TextBoard();
     ~TextBoard();
     char getPieceType(int nFile, int rank);
     char getPieceType(int index);
     CONSTANTS::Color getPieceColor(int file, int rank);
     CONSTANTS::Color getPieceColor(int index);
-    const board* getBoardState(); // returns a const pointer to a board array containing pieces(enums)
+    board* getBoardState(); // returns a const pointer to a board array containing pieces(enums)
     std::list<std::string>* getLegalMoves(CONSTANTS::Color color) ;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, CONSTANTS::Piece newPiece);
