@@ -357,7 +357,29 @@ Notes December 6th, 2022 157hr += 6hr:
      - My only major known problem at the moment is the stack variable in the TextBoard file which doesn't like the way I push
        new data into it. I'm getting some strange error output that only complains during compiling. I will fix this tomorrow. 
    
-
+Notes December 7th, 2022 163hr += 5hr:
+    - BUG: My last big problem is that the compiler has issues with adding an array of ENUMs onto a stack.
+        It works fine when using a vector instead of an array. This is a problem I need an advanced programmer
+        for since I cannot find any resources online whatsoever that address this problem. This is going to slow my 
+        system down considerably, but I'm going to use vectors for now just for stack, and revert to arrays later 
+          UPDATE: Using a vector solved the problem, it just required translation from array to vector for stack storage.
+                  Not an ideal method, possibly slow, but solves the problem for now. 
+    - I got the computer program making moves!  It still has a long ways to go, but it is calculating
+      much faster than the first time I developed a chess program. The first time, it took about 20 seconds
+      for a calculation of 3 layers deep to finish, and up to 2 minutes for one that's 4 moves deep. Now, 
+      it finishs a 3 layer calculation within 5 seconds, and I haven't been able to test 4 layers yet. 
+      The program is getting stuck on the issue of capturing the king and what to do in that case. I had
+      this issue the first time I developed my program. I'll find a way to fix it.
+    - Discovering that having state variables in a program is tricky, you always have to make sure they
+      are updated at the right time. This makes them (and your program) prone to bugs. Try avoiding such variables.
+    - I still have many inefficient debugging pieces of code in my work, once I fix all the bugs, I'll
+      be able to remove them and speed up my program. There's also many other improvements I can make 
+      to improve efficiency, such as removing all forms of object copying unless I absolutely have to do it. 
+    - The time is 9:45pm, I've been programming and updating small portions of github since 6:30.
+        - Will continue after workout. 
+    - The time is now 12:15am.  I've encountered a problem where my board evaluation function is 
+      accessing rows and columns in the wrong index order, despite me doing it the right way. I'm very confused.
+      Calling it a night. Many more bug fixes complete in the last 2 hours. I didn't go to the gym.
 
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate

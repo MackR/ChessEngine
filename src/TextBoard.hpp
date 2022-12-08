@@ -14,6 +14,7 @@
 #include <iostream>
 #include <stack>
 #include <list>
+#include <vector>
 #include <algorithm>
 
 
@@ -30,19 +31,21 @@ public:
     
 private:
     
-    bool m_whitesTurn;
     board m_board;
-    u_int8_t m_turnNum;
+    // u_int8_t m_turnNum;
+    CONSTANTS::Color m_playerTurn;
     std::stack<std::string> m_moveHistory;
-    std::stack<board> m_boardHistory;
+    // std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
+    std::stack<std::vector<CONSTANTS::Piece>> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;
     std::list<std::int8_t> m_blackPieceIndices;
+    std::stack<std::list<std::int8_t>> m_whiteIndexHistory;
+    std::stack<std::list<std::int8_t>> m_blackIndexHistory;
     std::list<std::string> m_whiteScreenMoves;
     std::list<std::string> m_blackScreenMoves;
     std::list<std::string> m_whiteMoves;
     std::list<std::string> m_blackMoves;
     
-    CONSTANTS::Color m_playerTurn;
     bool m_blackKingMoved, m_whiteKingMoved;
     bool m_whiteARookMoved,m_whiteHRookMoved, m_blackARookMoved, m_blackHRookMoved;
     
@@ -74,7 +77,7 @@ private:
     void calcQueenMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting = false);
     void calcKingMoves(int file, int rank, std::list<std::string> &movesResults, bool isProtecting = false);
     void calcPieceMoves(int file, int rank, std::list<std::string> &resultsList, bool attacksOnly = false);
-    void findPlayerPieces(bool regular = true);
+    void findPlayerPieces(bool update = false);
     int8_t findKingIndex(CONSTANTS::Color color);
     void rookScreenMoves(int file, int rank, std::list<std::string>& resultsList);
     void bishopScreenMoves(int file, int rank, std::list<std::string>& resultsList);

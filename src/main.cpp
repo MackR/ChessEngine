@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
     //screen.update();
     //SDL_Delay(500);
     
-    //game.m_white.humanPlayer = true;  // tells game it's a comp player
+    game.m_white.humanPlayer = false;  // tells game it's a comp player
     game.m_black.humanPlayer = false;  // tells game it's a comp player
     
     
@@ -121,7 +121,7 @@ for (int row = 7; row >=0; --row){
                 break;
         }
         
-        string name = std::string() + cColor + pieceType;
+        string name = std::string() + pieceType + cColor;
         std::cout << "|" << name;
     }
     std::cout << "|" <<std::endl;

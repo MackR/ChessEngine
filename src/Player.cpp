@@ -246,9 +246,8 @@ string Player::computerBeginThinking(TextBoard *board)
 {
 
     // setup get the board and copy it to a simulation board, and calculate possible moves for the position
-    static int maxStopDepth = 2;
+    static int maxStopDepth = 3;
     currentTurnBoardScore = computerEvaluateBoard(board, m_player_color); // Eventually we want the computer to prune bad branches
-    auto simulationBoard = *board; // make ONE copy of the board to work with when starting thinking
 
     // time check of evaluate board function
     auto start = std::chrono::system_clock::now();
@@ -260,8 +259,8 @@ string Player::computerBeginThinking(TextBoard *board)
 
     std::cout << "elapsed board eval time: " << elapsed_seconds.count() << "s\n";
 
-    list<string> *simMoveset;
-    list<string> *simEnemyMoveset;
+    list<string> simMoveset;
+    list<string> simEnemyMoveset;
 
     // time check of calc moveset function
     //         start = std::chrono::system_clock::now();
@@ -281,11 +280,13 @@ string Player::computerBeginThinking(TextBoard *board)
     //
     map<string, float> moveScores;
     string move;
+    auto simulationBoard = *board; // make ONE copy of the board to work with when starting thinking
+
     if (m_player_color == CONSTANTS::Color::WHITE)
     {
-        simMoveset = simulationBoard.getLegalMoves(CONSTANTS::Color::WHITE); // Points to location of moveset in board object
+        simMoveset = *simulationBoard.getLegalMoves(CONSTANTS::Color::WHITE); // Points to location of moveset in board object
 
-        for (auto it = simMoveset->begin(); it != simMoveset->end(); it++)
+        for (auto it = simMoveset.begin(); it != simMoveset.end(); it++)
         {
             string move = *it;
             if (move == "")
@@ -340,15 +341,16 @@ string Player::computerBeginThinking(TextBoard *board)
     }
     else
     {
-        simMoveset = simulationBoard.getLegalMoves(CONSTANTS::Color::BLACK);
-
-        for (auto it = simMoveset->begin(); it != simMoveset->end(); it++)
+        simMoveset = *simulationBoard.getLegalMoves(CONSTANTS::Color::BLACK);
+        int counter = 0;
+        for (std::list<std::string>::iterator it = simMoveset.begin(); it != simMoveset.end(); ++it)
         {
             string move = *it;
             simulationBoard.makeMove(move);
             float moveScore = computerMaxMin(&simulationBoard, 1, maxStopDepth,CONSTANTS::Color::WHITE); // Need a filtered moveset parameter // it's returning the overall value of the board some moves into the future
             moveScores.insert({move, moveScore});                                   // Many ways of inserting a pair into map (emplace, make_pair, {key,value})
             simulationBoard.undoLastMove();
+            ++counter;
         }
 
         string smallestKey;
@@ -407,7 +409,8 @@ float Player::computerEvaluateBoard(TextBoard *board, CONSTANTS::Color playerTur
     {
         for (int file = 0; file < 8; ++file)
         {
-            switch (*boardState[rank][file])
+            CONSTANTS::Piece piece = *boardState[rank][file];
+            switch (piece)
             {
             case CONSTANTS::Piece::WKING:
                 score += kingValue;
@@ -525,8 +528,9 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
     float singleScore = 0;
     float maxMinScore;
 
-    int moveCountBeforeLoop = moves->size();
+    // int moveCountBeforeLoop = moves->size();
     auto movesMem = *moves; // remember the possible moves before modifying the board
+    auto memBoard = *board;
     int i = 0;
 
     for (auto it = movesMem.begin(); it != movesMem.end(); ++it) // start modifying the board
@@ -548,6 +552,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
         
         if (currentDepth == stopDepth - 1) // If we are one layer from finished, evaluate the board and return
         {
+            computerEvaluateBoard(board, enemyColor);
             scores[i] = computerEvaluateBoard(board, enemyColor);
         }
         else

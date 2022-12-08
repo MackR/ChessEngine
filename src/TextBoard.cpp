@@ -10,75 +10,7 @@
 
 TextBoard::TextBoard()
 {
-    // // Init the board itself
-    // m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
-    // m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
-    // m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
-    // m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
-    // m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
-    // m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
-    // m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
-    // m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
-
-    // for (int i = 8; i < 16; ++i)
-    // {
-    //     m_board[0][i] = CONSTANTS::Piece::WPAWN;
-    // }
-    // for (int i = 16; i < 48; ++i)
-    // {
-    //     m_board[0][i] = CONSTANTS::Piece::EMPTY;
-    // }
-    // for (int i = 48; i < 56; ++i)
-    // {
-    //     m_board[0][i] = CONSTANTS::Piece::BPAWN;
-    // }
-    // m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
-    // m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
-    // m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
-    // m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
-    // m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
-    // m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
-    // m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
-    // m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Custom Board setup
-    //Rank 8
-    m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
-    m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
-    m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
-    m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
-    m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
-    m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
-    m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
-    m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
-    // Rank 7
-    m_board[0][CONSTANTS::A7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::B7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::C7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::D7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::E7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::F7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::G7] = CONSTANTS::Piece::BPAWN;
-    m_board[0][CONSTANTS::H7] = CONSTANTS::Piece::BPAWN;
-
-    for(int rank = 2; rank < 6; ++rank){
-        for (int file = 0; file < 8; ++file){
-            m_board[rank][file] = CONSTANTS::Piece::EMPTY;
-        }
-    }
-
-    // Rank 2
-    m_board[0][CONSTANTS::A2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
-    m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
-
-    // Rank 1
+    // Init the board itself
     m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
     m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
     m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
@@ -88,15 +20,86 @@ TextBoard::TextBoard()
     m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
     m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
 
+    for (int i = 8; i < 16; ++i)
+    {
+        m_board[0][i] = CONSTANTS::Piece::WPAWN;
+    }
+    for (int i = 16; i < 48; ++i)
+    {
+        m_board[0][i] = CONSTANTS::Piece::EMPTY;
+    }
+    for (int i = 48; i < 56; ++i)
+    {
+        m_board[0][i] = CONSTANTS::Piece::BPAWN;
+    }
+    m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
+    m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
+    m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
+    m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
+    m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
+    m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // // Custom Board setup
+    // //Rank 8
+    // m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    // m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    // m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
+    // m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+    // // Rank 7
+    // m_board[0][CONSTANTS::A7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::B7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::C7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::D7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::E7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::F7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::G7] = CONSTANTS::Piece::BPAWN;
+    // m_board[0][CONSTANTS::H7] = CONSTANTS::Piece::BPAWN;
+
+    // for(int rank = 2; rank < 6; ++rank){
+    //     for (int file = 0; file < 8; ++file){
+    //         m_board[rank][file] = CONSTANTS::Piece::EMPTY;
+    //     }
+    // }
+
+    // // Rank 2
+    // m_board[0][CONSTANTS::A2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
+    // m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
+
+    // // Rank 1
+    // m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
+    // m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
+    // m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
+    // m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
+    // m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
+    // m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
+    // m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
+    // m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create the first board state in the m_boardHistory stack
-    m_boardHistory.push(m_board);
+    std::vector<CONSTANTS::Piece> v_board(64);
+    for (int idx = 0; idx < 64; ++idx){
+        v_board[idx] = m_board[0][idx];
+    }
+    m_boardHistory.push(v_board);
 
     // Init the supporting variables
     m_playerTurn = CONSTANTS::Color::WHITE;
-    m_turnNum = 1;
-    m_whitesTurn = true;
+    // m_turnNum = 1;
     m_blackKingMoved = false;
     m_whiteKingMoved = false;
     m_whiteARookMoved = false;
@@ -104,11 +107,11 @@ TextBoard::TextBoard()
     m_blackARookMoved = false;
     m_blackHRookMoved = false;
 
-    findPlayerPieces();
+    findPlayerPieces(false);
     calcPlayerMovesetV2(CONSTANTS::Color::WHITE, true); // At the start of every game, calculate all white's moves.
 }
 
-void TextBoard::findPlayerPieces(bool regularSetup)
+void TextBoard::findPlayerPieces(bool update)
 {   // Function should only be used once on init, then other functions should keep piece lists updated
     // This commented out section below is faster, but it is only called once, so whats the point
     // if (regularSetup){
@@ -119,6 +122,11 @@ void TextBoard::findPlayerPieces(bool regularSetup)
     // }
     // }
     // else{
+        if(update){
+           m_whitePieceIndices.clear();
+           m_blackPieceIndices.clear(); 
+        }
+
     for (int index = 0; index < 64; index++)
     {
         CONSTANTS::Piece piece = m_board[0][index];
@@ -131,6 +139,8 @@ void TextBoard::findPlayerPieces(bool regularSetup)
             m_blackPieceIndices.push_back(index);
         }
     }
+    // m_whiteIndexHistory.push(m_whitePieceIndices);
+    // m_blackIndexHistory.push(m_blackPieceIndices);
     // }
 
     return;
@@ -299,9 +309,9 @@ CONSTANTS::Piece TextBoard::getPiece(int file, int rank)
     return m_board[rank][file];
 }
 
-std::list<int8_t>* getPieceLocations(CONSTANTS::Color color){
+// std::list<int8_t>* getPieceLocations(CONSTANTS::Color color){
 
-}
+// }
 void TextBoard::addPiece(int file, int rank, CONSTANTS::Piece piece)
 {
     if (file < 0 || file > 7 || rank < 0 || rank > 7)
@@ -330,6 +340,36 @@ void TextBoard::addPiece(int file, int rank, CONSTANTS::Piece piece)
     }
     return;
 }
+
+void TextBoard::addPiece(int index, CONSTANTS::Piece piece)
+{
+    if (index < 0 || index > 63)
+    {
+        std::cout << "Error, segmentation fault" << std::endl;
+        return;
+    }
+    if (isEmpty(piece))
+    {
+        std::cout << "Error: Attempting to place empty piece on board" << std::endl;
+        return;
+    }
+    if (getPieceColor(index) != CONSTANTS::Color::EMPTY)
+    {
+        std::cout << "Error: Placing piece ontop of other piece" << std::endl;
+        return;
+    }
+    m_board[0][index] = piece;
+    if (isWhite(piece))
+    {
+        m_whitePieceIndices.push_back(index);
+    }
+    else if (isBlack(piece))
+    {
+        m_blackPieceIndices.push_back(index);
+    }
+    return;
+}
+
 void TextBoard::removePiece(int file, int rank)
 {
     CONSTANTS::Piece piece = getPiece(file, rank);
@@ -390,34 +430,6 @@ CONSTANTS::Piece TextBoard::getPiece(int index)
         return CONSTANTS::Piece::EMPTY;
     }
     return m_board[0][index];
-}
-void TextBoard::addPiece(int index, CONSTANTS::Piece piece)
-{
-    if (index < 0 || index > 63)
-    {
-        std::cout << "Error, segmentation fault" << std::endl;
-        return;
-    }
-    if (isEmpty(piece))
-    {
-        std::cout << "Error: Attempting to place empty piece on board" << std::endl;
-        return;
-    }
-    if (getPieceColor(index) != CONSTANTS::Color::EMPTY)
-    {
-        std::cout << "Error: Placing piece ontop of other piece" << std::endl;
-        return;
-    }
-    m_board[0][index] = piece;
-    if (isWhite(piece))
-    {
-        m_whitePieceIndices.push_back(index);
-    }
-    else if (isBlack(piece))
-    {
-        m_blackPieceIndices.push_back(index);
-    }
-    return;
 }
 void TextBoard::removePiece(int index)
 {
@@ -737,6 +749,9 @@ void TextBoard::calcPawnMoves(int file, int rank, std::list<std::string> &movesR
         if (rank != prePromotionRank)
         {
             movesResults.push_back(buildMoveString(file, rank, rightFile, forwardRank));
+            // if (buildMoveString(file, rank, rightFile, forwardRank) == "PD5E4"){
+            //     std::cout << "Watch out" << std::endl;
+            // }
         }
         else
         { // Pawn promotion right diagonal capture
@@ -1265,7 +1280,7 @@ void TextBoard::calcPieceMoves(int file, int rank, std::list<std::string> &resul
         calcKingMoves(file, rank, resultsList, attacksOnly);
         break;
     case 'E':
-        std::cout << "Error, passed empty square to getPieceType()" << std::endl;
+        std::cout << "Error, passed empty square to calcPieceMoves()" << std::endl;
         break;
     }
     return;
@@ -1290,10 +1305,10 @@ int8_t TextBoard::findKingIndex(CONSTANTS::Color color)
     for (auto it = pieceListIndexes->begin(); it != pieceListIndexes->end(); ++it)
     { //
         int8_t testPieceIndex = *it;
-        if (testPieceIndex % 8 == 3 && (testPieceIndex / 8 == 0 || testPieceIndex / 8 == 7))
-        {
-            std::cout << "Condition found" << std::endl;
-        }
+        // if (testPieceIndex % 8 == 3 && (testPieceIndex / 8 == 0 || testPieceIndex / 8 == 7))
+        // {
+        //     std::cout << "Condition found" << std::endl;
+        // }
         char pieceType = getPieceType(testPieceIndex % 8, testPieceIndex / 8);
         if (pieceType == 'K')
         {
@@ -2518,18 +2533,16 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
     else
         return;
 
-    calcScreenMovesets(); // calculate all the screening attacks (attacks that hit the king through another piece). Can optimize by making it color specific
 
     // find king, calculate checks on king, calculate screen attackers on king
 
     int8_t kingIndex = findKingIndex(playerColor); // might have issue with this if comp is simulating taking enemy king
+    this;
     int8_t kingFile = kingIndex % 8;
     int8_t kingRank = kingIndex / 8;
 
-    if (kingIndex == -1)
-    {
-        std::cout << "Warning, did not find king on the board, returning" << std::endl;
-        return;
+    if (kingIndex == -1){
+        return; // Error, did not find the king on the board
     }
 
     std::list<std::string> attackingKingMoves;
@@ -2539,6 +2552,8 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
     std::list<std::string> kingFilteredMoveset;
     std::list<std::string> castlingMoveset;
     int8_t checksOnKing = 0;
+
+    calcScreenMovesets(); // calculate all the screening attacks (attacks that hit the king through another piece). Can optimize by making it color specific
 
     if (!validateMoveset)
     { // if we don't need to apply normal move rules with regards to the king then just get all the unabridged moves
@@ -2726,6 +2741,10 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     pieceAttackingKingType = (*checkIt)[0];
                     if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){ // We don't care about knight or pawn attacks in this way
                         ++checkIt;
+                        if(checkIt == attackingKingMoves.end()){
+                            ++it2;
+                            continue;
+                        }
                     pieceAttackingKingType = (*checkIt)[0];
                     }
                     attackerFile = (*checkIt)[1]-'A';
@@ -2895,11 +2914,16 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
 void TextBoard::undoLastMove(){
     m_boardHistory.pop();
     m_moveHistory.pop();
-    for(int rank = 0; rank <8; ++rank){
-        for (int file = 0; file <8; ++file){
-            m_board[rank][file] = m_boardHistory.top()[rank][file];
-        }
+    // m_whiteIndexHistory.pop();
+    // m_whitePieceIndices = m_whiteIndexHistory.top();
+    // m_blackIndexHistory.pop();
+    // m_blackPieceIndices = m_blackIndexHistory.top();
+    for (int idx = 0; idx < 64; ++idx){
+        m_board[0][idx] = m_boardHistory.top()[idx];
     }
+    if(m_playerTurn == CONSTANTS::Color::WHITE) m_playerTurn = CONSTANTS::Color::BLACK;
+    else if(m_playerTurn == CONSTANTS::Color::BLACK) m_playerTurn = CONSTANTS::Color::WHITE;
+    findPlayerPieces(true); // We need to re-update the location of all the pieces after moving them back. Slow but accomplishes goals for now.
     return;
 };
 std::list<std::string> *TextBoard::getLegalMoves(CONSTANTS::Color color)
@@ -3126,7 +3150,11 @@ bool TextBoard::makeMove(std::string move)
         nextPlayer = CONSTANTS::Color::WHITE;
 
     // Need to update the move history for the move
-    m_boardHistory.push(m_board);
+    std::vector<CONSTANTS::Piece> v_board(64);
+    for (int idx = 0; idx < 64; ++idx){
+        v_board[idx] = m_board[0][idx];
+    }
+    m_boardHistory.push(v_board);
     m_moveHistory.push(move);
     calcPlayerMovesetV2(nextPlayer, true); // Update the potential moves lists for proper color
 
