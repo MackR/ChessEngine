@@ -12,7 +12,7 @@
 #include "ChessConstants.h"
 #include "TextBoard.hpp"
 #include "Player.hpp"
-#include "Game.hpp"
+// #include "Game.hpp"
 //#include "Rect.hpp"
 //#include "GraphicsHandler.hpp"
 using namespace std;
@@ -25,8 +25,6 @@ int main(int argc, const char * argv[]) {
     
     //SDLScreen::Screen screen;
     //screen.init();
-
-    Game game;
     
     
     //auto boardstate = board.getBoardstate()[17];
@@ -50,9 +48,9 @@ int main(int argc, const char * argv[]) {
     //GFX.drawBoard(game.m_board);
     //screen.update();
     //SDL_Delay(500);
-    
-    game.m_white.humanPlayer = false;  // tells game it's a comp player
-    game.m_black.humanPlayer = false;  // tells game it's a comp player
+    Player white(CONSTANTS::Color::WHITE, false); // false -> computer player
+    Player black(CONSTANTS::Color::BLACK, false); // false -> computer player
+    TextBoard chessboard;
     
     
     
@@ -61,34 +59,32 @@ int main(int argc, const char * argv[]) {
         //board.drawBoard(screen.getRenderer());
         //screen.update();
         //SDL_Delay(500);
-        printBoard(game.m_board);
-        game.checkmateOnBlack = game.m_white.takeTurn(&game.m_board);
-        if (game.checkmateOnBlack == true) {
+        printBoard(chessboard);
+
+        if (white.takeTurn(&chessboard)) {
+            printBoard(chessboard);
             cout << "Checkmate!  White wins!" << endl;
             break;
         }
-        //GFX.drawBoard(game.m_board);
+        //GFX.drawBoard(chessboard);
         //screen.update();
-        printBoard(game.m_board);
-        game.checkmateOnWhite = game.m_black.takeTurn(&game.m_board);
-        if (game.checkmateOnWhite == true){
+        printBoard(chessboard);
+
+        if (black.takeTurn(&chessboard)){
+            printBoard(chessboard);
             cout << "Checkmate!  Black wins!" << endl;
-            cout << "Press any entry then enter to quit" << endl;
-            string quit;
-            cin >> quit;
+            // cout << "Press any entry then enter to quit" << endl;
+            // string quit;
+            // cin >> quit;
             break;
         }
-        //GFX.drawBoard(game.m_board);
+        //GFX.drawBoard(chessboard);
         //screen.update();
         
         //if(screen.processEvents() == false){
         //    break;
         //}
     }
-    
-    // still need to add: checkmate checker and setter, en passant
-    
-    // Pieces set, board set, need to test pieces, need game class to decide who plays next, ask for moves in console
     
 
     //screen.close();
@@ -98,7 +94,7 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-
+// Creates a console printout of the chess board - temporary replacement for graphics
 void printBoard(TextBoard &board){
 
 std::cout << "  A. B. C .D. E. F. G. H." << std::endl;

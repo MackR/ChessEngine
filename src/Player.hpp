@@ -30,26 +30,27 @@ class Player {
 private:
     CONSTANTS::Color m_player_color;
     std::list<std::string> *m_pCompleteMoveset; // Pointer to a 
-    bool check = false;
+    bool m_check = false;
+    const int m_computerStopDepth = 3;
     
-    string askPlayerForValidMove(); // Only used within takeTurn()
+    string askPlayerForMove(); // Only used within takeTurn()
     
     //CPU Functions
-    float computerMaximizer(TextBoard *board, int currentDepth, int stopDepth);
-    float computerMinimizer(TextBoard *board, int currentDepth, int stopDepth);
-    float computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, CONSTANTS::Color color);
-    float computerEvaluateBoard(TextBoard* board, CONSTANTS::Color playerTurn);
+    // float computerMaximizer(TextBoard *board, int currentDepth, int stopDepth); // Archived
+    // float computerMinimizer(TextBoard *board, int currentDepth, int stopDepth); // Archived
+    float computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, const CONSTANTS::Color color);
+    float computerEvaluateBoard(TextBoard* board, const CONSTANTS::Color playerTurn);
 
 public:
-    bool humanPlayer = true;
+    bool m_isHuman = true;
+    float m_currentTurnBoardScore;
 //    std::list<std::string>& m_completeMoveset; // initialize me after finding all your pieces on the board, needs a pointer to the boardstate
-    float currentTurnBoardScore;
-    Player(CONSTANTS::Color color);
+    Player(const CONSTANTS::Color color, const bool isHuman);
     bool takeTurn(TextBoard* board);
     bool achievedCheckmateOnEnemy(TextBoard* board);
     
     //CPU Functions
-    string computerBeginThinking(TextBoard* board);
+    string computeMove(TextBoard* board);
     
 
     

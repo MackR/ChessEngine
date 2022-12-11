@@ -35,6 +35,7 @@ private:
     // u_int8_t m_turnNum;
     CONSTANTS::Color m_playerTurn;
     std::stack<std::string> m_moveHistory;
+    std::stack<CONSTANTS::Piece> m_captureHistory;
     // std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
     std::stack<std::vector<CONSTANTS::Piece>> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;

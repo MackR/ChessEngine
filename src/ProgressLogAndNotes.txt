@@ -119,9 +119,11 @@ Notes for November 23rd, 2022 107hr += 8hr
     - Other specifiers prefixes of variable names include c - constant, v - volatile, s - static, r - reference, p - pointer
     - Functions should be PascalCase.
     - Input variables to functions should be func(int camelCase, char camelCase2)
-    - I finally have the compiler back up and checking my program. It seems I forgot some details about how to separate header and implementation files and what goes in       each. Default parameters go in the header file, but they cannot be member variables.
+    - I finally have the compiler back up and checking my program. It seems I forgot some details about how to separate header and implementation files and what goes in each. 
+        Default parameters go in the header file, but they cannot be member variables.
     - In the implementation file I forgot to specify the functions belonged to the TextBoard class, although I put them in the TextBoard namespace.
-    - The use of ENUMs through my variables has required me to cascade populate them through the rest of the program. It's clean coding I suppose, but annoying. Probably       saving me from dealing with many bugs though.
+    - The use of ENUMs through my variables has required me to cascade populate them through the rest of the program. It's clean coding I suppose, but annoying. 
+        Probably saving me from dealing with many bugs though.
 
 Notes for November 24th, 2022 115hr += 12:40 - 2:50,
     - Continuing updating code now that the compiler is turned on. Performing many easy small changes.
@@ -361,7 +363,7 @@ Notes December 7th, 2022 163hr += 5hr:
     - BUG: My last big problem is that the compiler has issues with adding an array of ENUMs onto a stack.
         It works fine when using a vector instead of an array. This is a problem I need an advanced programmer
         for since I cannot find any resources online whatsoever that address this problem. This is going to slow my 
-        system down considerably, but I'm going to use vectors for now just for stack, and revert to arrays later 
+        system down considerably, but I'm going to use vectors for now just for storing data in a stack, and revert to arrays later 
           UPDATE: Using a vector solved the problem, it just required translation from array to vector for stack storage.
                   Not an ideal method, possibly slow, but solves the problem for now. 
     - I got the computer program making moves!  It still has a long ways to go, but it is calculating
@@ -375,11 +377,13 @@ Notes December 7th, 2022 163hr += 5hr:
     - I still have many inefficient debugging pieces of code in my work, once I fix all the bugs, I'll
       be able to remove them and speed up my program. There's also many other improvements I can make 
       to improve efficiency, such as removing all forms of object copying unless I absolutely have to do it. 
-    - The time is 9:45pm, I've been programming and updating small portions of github since 6:30.
-        - Will continue after workout. 
     - The time is now 12:15am.  I've encountered a problem where my board evaluation function is 
       accessing rows and columns in the wrong index order, despite me doing it the right way. I'm very confused.
-      Calling it a night. Many more bug fixes complete in the last 2 hours. I didn't go to the gym.
+      Many more bug fixes complete in the last 2 hours.
+Notes December 8th, 2022 168hr += 6hr: Start time 6pm
+    - Began looking over the code to find ways to optimize. Going to start adding restrictions to variables
+        that should have been there before. Like const to function arguments
+
 
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate

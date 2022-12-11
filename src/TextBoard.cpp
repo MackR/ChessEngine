@@ -309,6 +309,16 @@ CONSTANTS::Piece TextBoard::getPiece(int file, int rank)
     return m_board[rank][file];
 }
 
+CONSTANTS::Piece TextBoard::getPiece(int index)
+{
+    if (index < 0 || index > 63)
+    {
+        std::cout << "Error, segmentation fault" << std::endl;
+        return CONSTANTS::Piece::EMPTY;
+    }
+    return m_board[0][index];
+}
+
 // std::list<int8_t>* getPieceLocations(CONSTANTS::Color color){
 
 // }
@@ -370,9 +380,31 @@ void TextBoard::addPiece(int index, CONSTANTS::Piece piece)
     return;
 }
 
+void TextBoard::removePiece(int index)
+{
+    CONSTANTS::Piece piece = getPiece(index);
+        m_captureHistory.push(piece); // Store the piece in capture history before removing
+
+    if (isEmpty(piece))
+    {
+        std::cout << "Error, attempting to remove empty piece from board" << std::endl;
+        return;
+    }
+    m_board[0][index] = CONSTANTS::Piece::EMPTY;
+    if (isWhite(piece))
+    {
+        m_whitePieceIndices.remove(index);
+    }
+    else if (isBlack(piece))
+    {
+        m_blackPieceIndices.remove(index);
+    }
+    return;
+}
 void TextBoard::removePiece(int file, int rank)
 {
     CONSTANTS::Piece piece = getPiece(file, rank);
+    m_captureHistory.push(piece); // Store the piece in capture history before removing
     if (isEmpty(piece))
     {
         std::cout << "Error, attempting to remove empty piece from board" << std::endl;
@@ -418,38 +450,12 @@ void TextBoard::movePiece(int prevFile, int prevRank, int newFile, int newRank, 
     }
     else
     {
+        m_moveHistory.push(buildMoveString(prevFile,prevRank,newFile,newRank));
         m_board[newRank][newFile] = m_board[prevRank][prevFile];
     }
     m_board[prevRank][prevFile] = CONSTANTS::Piece::EMPTY;
 }
-CONSTANTS::Piece TextBoard::getPiece(int index)
-{
-    if (index < 0 || index > 63)
-    {
-        std::cout << "Error, segmentation fault" << std::endl;
-        return CONSTANTS::Piece::EMPTY;
-    }
-    return m_board[0][index];
-}
-void TextBoard::removePiece(int index)
-{
-    CONSTANTS::Piece piece = getPiece(index);
-    if (isEmpty(piece))
-    {
-        std::cout << "Error, attempting to remove empty piece from board" << std::endl;
-        return;
-    }
-    m_board[0][index] = CONSTANTS::Piece::EMPTY;
-    if (isWhite(piece))
-    {
-        m_whitePieceIndices.remove(index);
-    }
-    else if (isBlack(piece))
-    {
-        m_blackPieceIndices.remove(index);
-    }
-    return;
-}
+
 void TextBoard::movePiece(int prevIndex, int newIndex, CONSTANTS::Piece promotion)
 {
     CONSTANTS::Color movingPieceColor = getPieceColor(prevIndex);
@@ -483,6 +489,7 @@ void TextBoard::movePiece(int prevIndex, int newIndex, CONSTANTS::Piece promotio
     }
     m_board[0][prevIndex] = CONSTANTS::Piece::EMPTY;
 }
+
 
 std::string TextBoard::buildMoveString(char cFileOld, int rankOld, char cFileNew, int rankNew)
 {
@@ -2202,7 +2209,7 @@ void TextBoard::calcScreenMovesets()
         }
     }
 
-    //    for(auto it = m_blackPieceIndices.begin(); it != m_blackPieceIndices.end(); it++){ // do the same for black
+    //    for(auto it = m_blackPieceIndices.begin(); it != m_blackPieceIndices.end(); ++it){ // do the same for black
     //        int8_t tempPiece = m_board[*it];
     //        int8_t index = *it;
     //        int8_t tempPieceRank = index/8;
@@ -2221,7 +2228,7 @@ int TextBoard::countNumAttackers(std::list<std::string> *pplayerMoveset, int for
     char type;
     int beginFile, endFile, beginRank, endRank; // converts from one char within a std::string to an int, and decrements from rank number to array index num
     int attackerCount = 0;
-    for (auto it = pplayerMoveset->begin(); it != pplayerMoveset->end(); it++)
+    for (auto it = pplayerMoveset->begin(); it != pplayerMoveset->end(); ++it)
     {
         move = *it;
         parseMove(move, type, beginFile, beginRank, endFile, endRank);
@@ -2238,7 +2245,7 @@ int TextBoard::countNumAttackers(std::list<std::string> *pplayerMoveset, int for
 
 void TextBoard::getAttackingMoves(std::list<std::string> playerMoves, int forFile, int forRank, std::list<std::string> *attackingMoves)
 {
-    for (auto it = playerMoves.begin(); it != playerMoves.end(); it++)
+    for (auto it = playerMoves.begin(); it != playerMoves.end(); ++it)
     {
         std::string simple = it->c_str();
         int file = TextBoard::cFileToIndex(simple[3]);
@@ -2398,95 +2405,95 @@ bool TextBoard::squareIsBetweenSquares(std::string move, int testSquareFile, int
 
     return false; // all other cases the test square isn't on the line between the pieces
 }
+// Good function, but unused
+// void TextBoard::getSquaresBetweenSquares(std::string move, std::list<std::string> *returnVectorPointer)
+// {
 
-void TextBoard::getSquaresBetweenSquares(std::string move, std::list<std::string> *returnVectorPointer)
-{
+//     char pieceType, prevFile, newFile;
+//     int prevRank, newRank;
 
-    char pieceType, prevFile, newFile;
-    int prevRank, newRank;
+//     parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
+//     returnVectorPointer->clear();
 
-    parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
-    returnVectorPointer->clear();
+//     int square2File = newFile - 'A';
+//     int square2Rank = newRank;
+//     int square1File = prevFile - 'A';
+//     int square1Rank = prevRank;
 
-    int square2File = newFile - 'A';
-    int square2Rank = newRank;
-    int square1File = prevFile - 'A';
-    int square1Rank = prevRank;
+//     int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
-    int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+//     if (square1Rank >= square2Rank)
+//     {
+//         y2 = square1Rank;
+//         y1 = square2Rank;
+//     }
+//     else if (square2Rank > square1Rank)
+//     {
+//         y2 = square2Rank;
+//         y1 = square1Rank;
+//     }
 
-    if (square1Rank >= square2Rank)
-    {
-        y2 = square1Rank;
-        y1 = square2Rank;
-    }
-    else if (square2Rank > square1Rank)
-    {
-        y2 = square2Rank;
-        y1 = square1Rank;
-    }
+//     if (square1File >= square2File)
+//     {
+//         x2 = square1File;
+//         x1 = square2File;
+//     }
+//     else if (square2File > square1File)
+//     {
+//         x2 = square2File;
+//         x1 = square1File;
+//     }
 
-    if (square1File >= square2File)
-    {
-        x2 = square1File;
-        x1 = square2File;
-    }
-    else if (square2File > square1File)
-    {
-        x2 = square2File;
-        x1 = square1File;
-    }
+//     // if it's a vertical line, if the file is the same, and the square is inbetween or on the endpoints, return true
+//     if (x2 == x1)
+//     {
+//         for (int i = 0; i < y2 - y1; i++)
+//         {
+//             char y, x;
+//             y = static_cast<char>(y1 + i);
+//             x = static_cast<char>(x1);
+//             std::string sX(1, x);
+//             std::string sY(1, y);
 
-    // if it's a vertical line, if the file is the same, and the square is inbetween or on the endpoints, return true
-    if (x2 == x1)
-    {
-        for (int i = 0; i < y2 - y1; i++)
-        {
-            char y, x;
-            y = static_cast<char>(y1 + i);
-            x = static_cast<char>(x1);
-            std::string sX(1, x);
-            std::string sY(1, y);
+//             returnVectorPointer->push_back(sX + sY); // Dereference the data storage location of variable and add a square to the list
+//         }
+//         return;
+//     }
+//     // if it's a horizontal line, if the test rank is the same, and the square is inbetween or on the endpoints, return true
+//     if (y2 == y1)
+//     {
+//         for (int i = 0; i < x2 - x1; i++)
+//         {
+//             char y, x;
+//             y = static_cast<char>(y1);
+//             x = static_cast<char>(x1 + i);
+//             std::string sX(1, x);
+//             std::string sY(1, y);
 
-            returnVectorPointer->push_back(sX + sY); // Dereference the data storage location of variable and add a square to the list
-        }
-        return;
-    }
-    // if it's a horizontal line, if the test rank is the same, and the square is inbetween or on the endpoints, return true
-    if (y2 == y1)
-    {
-        for (int i = 0; i < x2 - x1; i++)
-        {
-            char y, x;
-            y = static_cast<char>(y1);
-            x = static_cast<char>(x1 + i);
-            std::string sX(1, x);
-            std::string sY(1, y);
+//             returnVectorPointer->push_back(sX + sY);
+//         }
+//         return;
+//     }
 
-            returnVectorPointer->push_back(sX + sY);
-        }
-        return;
-    }
+//     float slope = (y2 - y1) / (x2 - x1); // calculate slope of line  (the only valid slope is 1 or -1)
+//     // test the slope
+//     if (abs(slope) != 1)
+//     {
+//         std::cout << "two non linear squares given, invalid inputs" << std::endl;
+//     }
 
-    float slope = (y2 - y1) / (x2 - x1); // calculate slope of line  (the only valid slope is 1 or -1)
-    // test the slope
-    if (abs(slope) != 1)
-    {
-        std::cout << "two non linear squares given, invalid inputs" << std::endl;
-    }
+//     for (int i = 0; i < x2 - x1; i++)
+//     {
+//         char y, x;
+//         y = static_cast<char>(y1 + i);
+//         x = static_cast<char>(x1 + i);
+//         std::string sX(1, x);
+//         std::string sY(1, y);
 
-    for (int i = 0; i < x2 - x1; i++)
-    {
-        char y, x;
-        y = static_cast<char>(y1 + i);
-        x = static_cast<char>(x1 + i);
-        std::string sX(1, x);
-        std::string sY(1, y);
-
-        returnVectorPointer->push_back(sX + sY);
-    }
-    return;
-}
+//         returnVectorPointer->push_back(sX + sY);
+//     }
+//     return;
+// }
 
 void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateMoveset)
 {
@@ -2538,13 +2545,13 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 
     int8_t kingIndex = findKingIndex(playerColor); // might have issue with this if comp is simulating taking enemy king
     this;
-    int8_t kingFile = kingIndex % 8;
-    int8_t kingRank = kingIndex / 8;
 
     if (kingIndex == -1){
         return; // Error, did not find the king on the board
     }
 
+    int8_t kingFile = kingIndex % 8;
+    int8_t kingRank = kingIndex / 8;
     std::list<std::string> attackingKingMoves;
     std::list<std::string> apparentScreenAttackingKingMoves;
     std::list<std::string> screenAttackingKingMoves;
@@ -2557,12 +2564,11 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 
     if (!validateMoveset)
     { // if we don't need to apply normal move rules with regards to the king then just get all the unabridged moves
-        for (auto it = pPlayerPieceIndices->begin(); it != pPlayerPieceIndices->end(); it++)
+        for (auto it = pPlayerPieceIndices->begin(); it != pPlayerPieceIndices->end(); ++it)
         {
             int8_t tempPieceIndex = *it;
             int8_t rank = tempPieceIndex / 8;
             int8_t file = tempPieceIndex % 8;
-            char tempPieceType = getPieceType(file, rank);
             std::list<std::string> partialMoveset;
             calcPieceMoves(file, rank, partialMoveset, true);
             pcompletePlayerMoveset->insert(pcompletePlayerMoveset->end(), partialMoveset.begin(), partialMoveset.end());
@@ -2654,7 +2660,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 
     } // if there are two attacks on the king, the king must move
 
-    for (auto it = pPlayerPieceIndices->begin(); it != pPlayerPieceIndices->end(); it++)
+    for (auto it = pPlayerPieceIndices->begin(); it != pPlayerPieceIndices->end(); ++it)
     {
         int8_t tempPieceIndex = *it;
         int tempFile = tempPieceIndex % 8;
@@ -2673,7 +2679,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     std::string move = *it;
 
                     if (squareIsBetweenSquares(move, tempFile, tempRank))
-                    { // if the piece is the one being pinned (in front of king)
+                    { // if the piece is the one being pinned (in between king && attacker)
                         for (auto it1 = partialMoveset.begin(); it1 != partialMoveset.end();)
                         { // for each of the moves in the single piece's moveset
                             auto possibleMove = *it1;
@@ -2715,36 +2721,33 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
             char pieceAttackingKingType;
             int attackerFile;
             int attackerRank;
-            std::list<std::string>::iterator checkIt = attackingKingMoves.begin(); // point to beginning of attacking moves
-            for (std::list<std::string>::iterator it2 = kingUnfilteredMoveset.begin(); it2 != kingUnfilteredMoveset.end();)
+            std::list<std::string>::iterator checkIt = attackingKingMoves.begin(); // point to beginning of moves attacking the king
+            for (std::list<std::string>::iterator it = kingUnfilteredMoveset.begin(); it != kingUnfilteredMoveset.end();)
             {
-                std::string move = *it2;
+                std::string move = *it;
 
                 char pieceType;
                 int prevRank, newRank, prevFile, newFile;
 
                 parseMove(move, pieceType, prevFile, prevRank, newFile, newRank);
-                
-                // if(move == "KE3E4"){
-                //     std::cout << "Get ready" << std::endl;
-                // }
 
-                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile), newRank) != 0) // Bug during the check condition. Enemy pieces can't attack their own pieces, but they can defend their own if taken. Need to adapt a protection clause
+
+                if (countNumAttackers(penemyMoveset, static_cast<int>(newFile), newRank) != 0) 
                 { // CAN IMPROVE SPEED BY GETTING THE MOVES AND DOING COMPARISON
-                    it2 = kingUnfilteredMoveset.erase(it2);
+                    it = kingUnfilteredMoveset.erase(it);
                 }
                 // In the case being checked by queen, rook, bishop.  The king can't run away in a straight line.
                 // When we get to a move that involves the king running away in a straight line or diagonal, remove the move
                 // and increment the number of moves we've removed. If the king is in double check, it has to remove 2 moves.
                 else if (checkIt != attackingKingMoves.end())
-                {
+                {   
                     pieceAttackingKingType = (*checkIt)[0];
                     if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){ // We don't care about knight or pawn attacks in this way
                         ++checkIt;
-                        if(checkIt == attackingKingMoves.end()){
-                            ++it2;
+                        // if(checkIt == attackingKingMoves.end()){ // Since there's only 1 checking move, this should always be true
+                            ++it;
                             continue;
-                        }
+                        // }
                     pieceAttackingKingType = (*checkIt)[0];
                     }
                     attackerFile = (*checkIt)[1]-'A';
@@ -2753,20 +2756,20 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                         // If we are trying to move directly horizontal or vertical of the queen or rook, don't accept the move
                         if (newFile == attackerFile || newRank == attackerRank)
                         {
-                            it2 = pcompletePlayerMoveset->erase(it2);
+                            it = pcompletePlayerMoveset->erase(it);
                             ++checkIt;
                         }
-                        else {++it2;}
+                        else {++it;}
                     }
                     else if (pieceAttackingKingType == 'B')
                     {
                         // If we are trying to move directly diagonal to a queen or bishop, don't accept the move
                         if (newFile - attackerFile != 0 && abs((newRank - attackerRank) / (newFile - attackerFile)) == 1)
                         {
-                            it2 = pcompletePlayerMoveset->erase(it2);
+                            it = pcompletePlayerMoveset->erase(it);
                             ++checkIt;
                         }
-                        else {++it2;}
+                        else {++it;}
                     }
                     else if (pieceAttackingKingType == 'Q')
                     {
@@ -2776,15 +2779,15 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                         int attacksOnNewSquare = countNumAttackers(&movesHolder,newFile,newRank);
                         if (attacksOnNewSquare != 0)
                         {
-                            it2 = pcompletePlayerMoveset->erase(it2);
+                            it = pcompletePlayerMoveset->erase(it);
                             ++checkIt;
                         }
-                        else {++it2;}
+                        else {++it;}
                     }    
                 }
                 else
                 {
-                    ++it2;
+                    ++it;
                 }
             }
 
@@ -2881,7 +2884,7 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
     }
     // Writes out list of moves:
     // cout << "Moveset List for " << playerColor << std::endl;
-    // for (auto it = completePlayerMoveset->begin(); it != completePlayerMoveset->end(); it++) {
+    // for (auto it = completePlayerMoveset->begin(); it != completePlayerMoveset->end(); ++it) {
     //    std::cout << *it << ", ";
     //}
     // cout << std::endl;
@@ -2902,8 +2905,8 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
 //    return &m_board;
 //}
 
-TextBoard::board *TextBoard::getBoardState()
-{ // This one is hard!  Returns a read only pointer to the board state
+TextBoard::board* TextBoard::getBoardState()
+{ // This one is hard!  I want this to return a read only pointer to board state
     return &m_board;
 }
 bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
@@ -2911,7 +2914,8 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
     m_board[rank][file] = newPiece;
     return true;
 };
-void TextBoard::undoLastMove(){
+// This function is a big deal. It executes thousands of times. Can optimize. BUG: Not resetting castling
+void TextBoard::undoLastMove(){ 
     m_boardHistory.pop();
     m_moveHistory.pop();
     // m_whiteIndexHistory.pop();

@@ -8,13 +8,14 @@
 
 #include "Player.hpp"
 
-Player::Player(CONSTANTS::Color color)
+Player::Player(CONSTANTS::Color color, const bool isHuman)
 {
     m_player_color = color;
+    m_isHuman = isHuman;
     m_pCompleteMoveset = nullptr;
 }
 
-string Player::askPlayerForValidMove()
+string Player::askPlayerForMove()
 {
     std::cout << "Moves: ";
     int counter = 0;
@@ -36,10 +37,10 @@ string Player::askPlayerForValidMove()
     std::cin >> input;
     std::cout << endl
               << endl;
+
     while (1)
     {
-
-        for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); it++)
+        for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); ++it)
         {
             if (input == *it)
             {
@@ -55,14 +56,14 @@ string Player::askPlayerForValidMove()
     }
 }
 
-bool Player::achievedCheckmateOnEnemy(TextBoard *board)
+bool Player::achievedCheckmateOnEnemy(TextBoard *pboard)
 { // Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
     const std::list<std::string> *nextPlayerMoves;
 
     if (m_player_color == CONSTANTS::Color::WHITE)
     { // if player is white, calculate all possible moves for them
-        nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::BLACK);
-        if (nextPlayerMoves->empty())
+
+        if (pboard->getLegalMoves(CONSTANTS::Color::BLACK)->empty())
         {
             std::cout << "White wins!" << std::endl;
             return true;
@@ -70,8 +71,7 @@ bool Player::achievedCheckmateOnEnemy(TextBoard *board)
     }
     else if (m_player_color == CONSTANTS::Color::BLACK)
     {
-        nextPlayerMoves = board->getLegalMoves(CONSTANTS::Color::WHITE);
-        if (nextPlayerMoves->empty())
+        if (pboard->getLegalMoves(CONSTANTS::Color::WHITE)->empty())
         {
             std::cout << "Black wins!" << std::endl;
             return true;
@@ -86,181 +86,79 @@ bool Player::achievedCheckmateOnEnemy(TextBoard *board)
     return false;
 }
 
-bool Player::takeTurn(TextBoard *board)
+bool Player::takeTurn(TextBoard *pboard)
 {
     // We already should have moves calculated and prepared in the board member variables
     // ask the player for move and test if the move is valid, if the move isn't valid, discard their choice and ask again
 
     std::string move;
-    cout << "It is " << (int)m_player_color * 255 << "'s turn" << endl; // announce who's turn it is
-    if (humanPlayer == true)
-    {
 
-        if (m_player_color == CONSTANTS::Color::WHITE)
-        {
-            m_pCompleteMoveset = board->getLegalMoves(CONSTANTS::Color::WHITE);
-        }
-        else if (m_player_color == CONSTANTS::Color::BLACK)
-        {
-            m_pCompleteMoveset = board->getLegalMoves(CONSTANTS::Color::BLACK);
-        }
-        else
-        {
-            cout << "Player doesn't have a valid color" << endl;
-        }
-        move = askPlayerForValidMove();
+    cout << "It is " << (int)m_player_color * 255 << "'s turn" << endl; // announce who's turn it is
+    if (m_isHuman == true)
+    {
+        m_pCompleteMoveset = pboard->getLegalMoves(m_player_color);
+        move = askPlayerForMove();
     }
     else
     {
-        // time check of evaluate board function // Commented out because we don't need it yet
+        // time check of computer think function
         auto start = std::chrono::system_clock::now();
-        move = computerBeginThinking(board);
+        move = computeMove(pboard);
         auto end = std::chrono::system_clock::now();
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-        std::cout << "elapsed comp think time: " << elapsed_seconds.count() << "s\n";
+        std::cout << "Elapsed comp think time: " << elapsed_seconds.count() << "s\n";
 
         if (move == "")
         {
-            std::cout << "Error: Computer function is passing a blank move" << std::endl; // passed a bad move
+            std::cout << "Error: Computer is picking a blank move" << std::endl; // passed a bad move
         }
     }
 
     // Modifies the given board with a move, function will do invalid moves, so only give it valid ones
-    board->makeMove(move);
+    // time check of computer think function
+    auto start = std::chrono::system_clock::now();
+    pboard->makeMove(move);
+    auto end = std::chrono::system_clock::now();
 
-    if (achievedCheckmateOnEnemy(board))
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "Elapsed makeMove() time: " << elapsed_seconds.count() << "s\n";
+
+    if (achievedCheckmateOnEnemy(pboard))
     {
         return true; // Checkmate!
     }
     return false; // Not checkmate
 }
 
-// bool Player::OLDachievedCheckmateOnEnemy(TextBoard* board){  Might not need this function. Just have to check next player moveList size. If their list of possible moves is == 0, they have lost.
-//
-//         auto checkmateBoard = *board;  make a copy of current board
-//         CONSTANTS::Pieces enemyKing;
-//
-//         if (m_player_color == CONSTANTS::WHITE) {  if player is white, calculate all possible moves for them
-//             checkmateBoard.calcPlayerMovesetV2("White", true);
-//             m_completeMoveset = *checkmateBoard.getWhiteMoves();
-//             enemyKing = *checkmateBoard.findKing("Black");
-//         }
-//         if (m_player_color == CONSTANTS::BLACK) {
-//             checkmateBoard.calcPlayerMovesetV2("Black", true);
-//             m_completeMoveset = *checkmateBoard.getBlackMoves();
-//             enemyKing = *checkmateBoard.findKing("White");
-//
-//         }
-//
-//         int enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());  count number of attackers on king
-//
-//         if (enemyKingAttackers > 0) {  if enemy king is in check
-//
-//             Piece* boardState = checkmateBoard.getBoardstate();  copy checkmate board to begin testing moves
-//             Piece* originalBoardState = boardState;
-//             vector<string> enemyMoveset;
-//
-//             if (m_player_color == "White") {
-//                 checkmateBoard.calcPlayerMovesetV2("Black",turnCounter, true);
-//                 enemyMoveset = *checkmateBoard.getBlackMoves();  get all enemy moves
-//             }
-//             if (m_player_color == "Black") {
-//                 checkmateBoard.calcPlayerMovesetV2("White",turnCounter+1, true);
-//                 enemyMoveset = *checkmateBoard.getWhiteMoves();  get all enemy moves
-//
-//             }
-//
-//             int prevFile = 0;
-//             int prevRank = 0;
-//             int newFile = 0;
-//             int newRank = 0;
-//             int prevIndex = 0;
-//             int newIndex = 0;
-//
-//             for (auto it = enemyMoveset.begin(); it != enemyMoveset.end(); it++) {  test enemy moves
-//                 string move = *it;
-//                 prevFile = Piece::cFileToIndex(move[1]);
-//                 prevRank = move[2] - '0'-1;
-//                 newFile = Piece::cFileToIndex(move[3]);
-//                 newRank = move[4] -'0'-1;     Convert string to int
-//
-//                  makes the move the player chose on this hypothetical board
-//                 prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
-//                 newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
-//
-//                 boardState[newIndex].setColor(boardState[prevIndex].getColor());
-//                 boardState[newIndex].setType(boardState[prevIndex].getType());
-//                 boardState[prevIndex].setColor("Empty");
-//                 boardState[prevIndex].setType('E');
-//
-//                  perform en passant if the conditions apply
-//                 if (boardState[newIndex].getColor() == "Empty" && boardState[prevIndex].getType() == 'P' && abs(newFile-prevFile) == 1) {
-//                     int enPassantedPieceIndex = Piece::convertCoordinateToBoardIndex(newFile, prevRank);
-//                     boardState[enPassantedPieceIndex].setColor("Empty");
-//                     boardState[enPassantedPieceIndex].setType('E');
-//                 }
-//
-//                 checkmateBoard.findPlayerPieces();  update the pieces list after capturing one
-//
-//                 if (m_player_color == "White") {
-//                     checkmateBoard.calcValidatedPlayerMoveset("Black",turnCounter);
-//                     enemyMoveset = *checkmateBoard.getBlackMoves();   enemyMoveset was already calculated above
-//                     cout << "Enemy move is: " << move << endl;
-//                     enemyKing = *checkmateBoard.findKing("Black");
-//                     checkmateBoard.calcPlayerMovesetV2("White", turnCounter+1, true);
-//                     m_completeMoveset = *checkmateBoard.getWhiteMoves();
-//                 }
-//                 if (m_player_color == "Black") {
-//                     checkmateBoard.calcValidatedPlayerMoveset("White",turnCounter+1);
-//                     enemyMoveset = *checkmateBoard.getWhiteMoves();   enemyMoveset was already calculated above
-//                     enemyKing = *checkmateBoard.findKing("White");
-//                     checkmateBoard.calcPlayerMovesetV2("Black", turnCounter+1, true);
-//                     m_completeMoveset = *checkmateBoard.getBlackMoves();
-//
-//                 }
-//
-//
-//
-//                 enemyKingAttackers = enemyKing.countNumAttackers(m_completeMoveset, enemyKing.getFile(), enemyKing.getRank());
-//                 if (enemyKingAttackers == 0) {
-//                     cout << move << " saves the day " << endl;
-//                     incrementTurn();  Increase turn counter
-//                     cout << "Check!" << endl;
-//                     return false;
-//                 }
-//                 *boardState = *originalBoardState;
-//             }
-//             return true;
-//
-//         }
-//
-//
-//         return false;
-//
-//     }
-
-string Player::computerBeginThinking(TextBoard *board)
+string Player::computeMove(TextBoard *pboard)
 {
 
-    // setup get the board and copy it to a simulation board, and calculate possible moves for the position
-    static int maxStopDepth = 3;
-    currentTurnBoardScore = computerEvaluateBoard(board, m_player_color); // Eventually we want the computer to prune bad branches
+    CONSTANTS::Color enemyColor;
+    list<string> simMoveset; // Holds the moveset in memory before modifying board
+    map<string, float> moveScores;
+    string move;
+    auto simulationBoard = *pboard; // make ONE copy of the board to work with when starting thinking
+
+    // Set the variables for each color
+    if (m_player_color == CONSTANTS::Color::WHITE)
+    {
+        enemyColor = CONSTANTS::Color::BLACK;
+    }
+    else if (m_player_color == CONSTANTS::Color::BLACK)
+    {
+        enemyColor = CONSTANTS::Color::WHITE;
+    }
 
     // time check of evaluate board function
     auto start = std::chrono::system_clock::now();
-    computerEvaluateBoard(board, m_player_color);
+    float currentTurnBoardScore = computerEvaluateBoard(pboard, m_player_color); // Eventually we want the computer to prune bad branches
     auto end = std::chrono::system_clock::now();
-
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
     std::cout << "elapsed board eval time: " << elapsed_seconds.count() << "s\n";
-
-    list<string> simMoveset;
-    list<string> simEnemyMoveset;
 
     // time check of calc moveset function
     //         start = std::chrono::system_clock::now();
@@ -272,61 +170,51 @@ string Player::computerBeginThinking(TextBoard *board)
 
     //        std::cout << "move calc computation elapsed time" << elapsed_seconds.count() << "s\n";
     //        const double OVERHEADCOMPENSATION = 1.06875;
-    //        long double maxMoveTime = 0.00021*pow((simulationBoard.getWhiteMoves()->size()+simulationBoard.getBlackMoves()->size())/2, maxStopDepth)*1.5;
+    //        long double maxMoveTime = 0.00021*pow((simulationBoard.getWhiteMoves()->size()+simulationBoard.getBlackMoves()->size())/2, m_computerStopDepth)*1.5;
     //
-    //        cout << "Max possible move time calculation: " << maxMoveTime << " seconds" << endl;;
+    //        cout << "Estimated maximum think time: " << maxMoveTime << " seconds" << endl;;
     //
     //
     //
-    map<string, float> moveScores;
-    string move;
-    auto simulationBoard = *board; // make ONE copy of the board to work with when starting thinking
 
-    if (m_player_color == CONSTANTS::Color::WHITE)
+    simMoveset = *simulationBoard.getLegalMoves(m_player_color); // Save moveset before the pointer changes
+
+    for (auto it = simMoveset.begin(); it != simMoveset.end(); ++it)
     {
-        simMoveset = *simulationBoard.getLegalMoves(CONSTANTS::Color::WHITE); // Points to location of moveset in board object
-
-        for (auto it = simMoveset.begin(); it != simMoveset.end(); it++)
+        move = *it;
+        if (move == "")
         {
-            string move = *it;
-            if (move == "")
-            {
-                cout << "Warning, bad move selected" << endl;
-            }
-
-            // time check of modify board function
-            //                start = std::chrono::system_clock::now();
-            //                end = std::chrono::system_clock::now();
-            //
-            //                elapsed_seconds = end-start;
-            //                end_time = std::chrono::system_clock::to_time_t(end);
-
-            // std::cout << "finished modify board with move calc computation at " << std::ctime(&end_time)
-            //<< "elapsed time: " << elapsed_seconds.count() << "s\n";
-
-            // do a breadth calculation of depth 2 and find all the moves that suck and remove them from here, then feed those moves into next layer
-
-            simulationBoard.makeMove(move);
-            float moveScore = computerMaxMin(&simulationBoard, 1, maxStopDepth,CONSTANTS::Color::BLACK); // Need a filtered moveset parameter // it's returning the overall value of the board some moves into the future
-            moveScores.insert({move, moveScore});                                   // Many ways of inserting a pair into map (emplace, make_pair, {key,value})
-            simulationBoard.undoLastMove();
-            // In line above, we are resetting to the previous board state to make another move.
-            // This function goes through the entire board and sets every piece, but I can speedup by 64x
-            // if I make it so that it only fixes the pieces that were removed before.
-            // Redesign the make move function so that it returns what piece type is captured
-            // and accounts for promotions
+            cout << "Warning, bad move selected" << endl;
         }
 
-        // Now we go through all the moves and pick the one with the best score (highest # for white)
+        simulationBoard.makeMove(move);
+
+        start = std::chrono::system_clock::now();
+        float moveScore = computerMaxMin(&simulationBoard, 1, m_computerStopDepth, enemyColor); // Need a filtered moveset parameter
+        end = std::chrono::system_clock::now();
+        elapsed_seconds = end - start;
+        end_time = std::chrono::system_clock::to_time_t(end);
+        std::cout << "MaxMin elapsed board eval time: " << elapsed_seconds.count() << "s\n";
+
+        moveScores.insert({move, moveScore}); // Many ways of inserting a pair into map (emplace, make_pair, {key,value})
+        simulationBoard.undoLastMove();
+        // In line above, we are resetting to the previous board state to make another move.
+        // This function goes through the entire board and sets every piece, but I can speedup by 64x
+        // if I make it so that it only fixes the pieces that were removed before.
+        // Redesign the make move function so that it returns what piece type is captured
+        // and accounts for promotions
+    }
+
+    // Now we go through all the moves and pick the one with the best score (highest # for white)
+    if (m_player_color == CONSTANTS::Color::WHITE)
+    {
         string largestKey;
         float largestScore = -2000;
-        for (std::pair<std::string, float> element : moveScores)
+        for (std::pair<std::string, float> pair : moveScores)
         {
-            // Accessing KEY from element
-            std::string key = element.first;
-            // Accessing VALUE from element.
-            int score = element.second;
-
+            // Get the KEY & VALUE
+            std::string key = pair.first;
+            int score = pair.second;
             if (score >= largestScore)
             {
                 largestScore = score;
@@ -334,58 +222,42 @@ string Player::computerBeginThinking(TextBoard *board)
             }
             if (key == "")
             {
-                std::cout << "Returning bad (empty) move for comp think" << std::endl;
+                std::cout << "Received empty move from computeMove()" << std::endl;
             }
         }
         move = largestKey;
     }
     else
     {
-        simMoveset = *simulationBoard.getLegalMoves(CONSTANTS::Color::BLACK);
-        int counter = 0;
-        for (std::list<std::string>::iterator it = simMoveset.begin(); it != simMoveset.end(); ++it)
-        {
-            string move = *it;
-            simulationBoard.makeMove(move);
-            float moveScore = computerMaxMin(&simulationBoard, 1, maxStopDepth,CONSTANTS::Color::WHITE); // Need a filtered moveset parameter // it's returning the overall value of the board some moves into the future
-            moveScores.insert({move, moveScore});                                   // Many ways of inserting a pair into map (emplace, make_pair, {key,value})
-            simulationBoard.undoLastMove();
-            ++counter;
-        }
-
         string smallestKey;
         float smallestScore = 2000;
-        for (std::pair<std::string, float> element : moveScores)
+        for (std::pair<std::string, float> pair : moveScores)
         {
-            // Accessing KEY from element
-            std::string key = element.first;
-            // Accessing VALUE from element.
-            int score = element.second;
+            // Get the KEY & VALUE
+            std::string key = pair.first;
+            int score = pair.second;
 
+            if (key == "")
+            {
+                std::cout << "Received empty move from computeMove()" << std::endl;
+            }
             if (score <= smallestScore)
             {
                 smallestScore = score;
                 smallestKey = key;
             }
-            if (key == "")
-            {
-                std::cout << "Returning bad (empty) move for comp think" << std::endl;
-            }
         }
         move = smallestKey;
     }
-
     if (move == "")
     {
         cout << "Warning, bad move selected" << endl;
     }
 
-    // need to grab the largest value out of the map to finish this
-
     return move;
 }
 
-float Player::computerEvaluateBoard(TextBoard *board, CONSTANTS::Color playerTurn)
+float Player::computerEvaluateBoard(TextBoard *pboard, CONSTANTS::Color playerTurn)
 { // currently only evaluates the board on material advantage
 
     float pawnValue = 1;
@@ -404,12 +276,13 @@ float Player::computerEvaluateBoard(TextBoard *board, CONSTANTS::Color playerTur
 
     float score = 0;
 
-    TextBoard::board* boardState = board->getBoardState(); // gets the address of the actual board member in object;
+    TextBoard::board *boardState = pboard->getBoardState(); // gets the address of the actual board member in object;
     for (int rank = 0; rank < 8; ++rank)
     {
         for (int file = 0; file < 8; ++file)
-        {
-            CONSTANTS::Piece piece = *boardState[rank][file];
+        {   int index = rank*8+file;
+            CONSTANTS::Piece piece = *boardState[0][index];
+            piece;
             switch (piece)
             {
             case CONSTANTS::Piece::WKING:
@@ -443,9 +316,6 @@ float Player::computerEvaluateBoard(TextBoard *board, CONSTANTS::Color playerTur
             case CONSTANTS::Piece::WPAWN:
                 score += pawnValue;
                 /*
-                if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()-1, evalPiece.getFile()-1)].getType() == 'P') {
-                    score += 0.4;
-                }
                 if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()-1, evalPiece.getFile()+1)].getType() == 'P') {
                     score += 0.1;
                 }
@@ -495,18 +365,19 @@ float Player::computerEvaluateBoard(TextBoard *board, CONSTANTS::Color playerTur
     return score;
 }
 
-
 float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, CONSTANTS::Color color)
-{   
+{
     CONSTANTS::Color enemyColor;
     int badCheckmateValue;
     std::list<std::string> *moves = board->getLegalMoves(color);
 
-    if(color == CONSTANTS::Color::WHITE){ // Set parameters for score maximization
+    if (color == CONSTANTS::Color::WHITE)
+    { // Set parameters for score maximization
         badCheckmateValue = -1000;
         enemyColor = CONSTANTS::Color::BLACK;
     }
-    else if(color == CONSTANTS::Color::BLACK){ // Set parameters for score minimization
+    else if (color == CONSTANTS::Color::BLACK)
+    { // Set parameters for score minimization
         badCheckmateValue = 1000;
         enemyColor = CONSTANTS::Color::WHITE;
     }
@@ -518,7 +389,6 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
     }
 
     std::vector<float> scores(nMoves); // We need our array to be the same size as the number of moves
-    
 
     for (int i = 0; i < nMoves; ++i)
     {
@@ -545,11 +415,10 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 
         board->makeMove(move);
 
-        
         // if (currentDepth >= 2 && scores[i]-currentTurnBoardScore > 0.95) {
         //     continue;
         // }
-        
+
         if (currentDepth == stopDepth - 1) // If we are one layer from finished, evaluate the board and return
         {
             computerEvaluateBoard(board, enemyColor);
@@ -560,19 +429,21 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
             scores[i] = computerMaxMin(board, currentDepth + 1, stopDepth, enemyColor);
         }
 
-        ++i;                    // increment the scores array index to
+        ++i;                   // increment the scores array index to
         board->undoLastMove(); // reset the board to before the move was tested and prepare for new one
     }
 
-    if (color == CONSTANTS::Color::WHITE){
-        maxMinScore = *std::max_element(scores.begin(),scores.end()); // Get the minimum score from the list
+    if (color == CONSTANTS::Color::WHITE)
+    {
+        maxMinScore = *std::max_element(scores.begin(), scores.end()); // Get the minimum score from the list
     }
-    else if(color == CONSTANTS::Color::BLACK){
-        maxMinScore = *std::min_element(scores.begin(),scores.end()); // Get the minimum score from the list
+    else if (color == CONSTANTS::Color::BLACK)
+    {
+        maxMinScore = *std::min_element(scores.begin(), scores.end()); // Get the minimum score from the list
     }
     return maxMinScore; // return the minimum score
-
 }
+// ARCHIVED
 // float Player::computerMaximizer(TextBoard *board, int currentDepth, int stopDepth)
 // {
 //         std::list<std::string> *moves = board->getLegalMoves(CONSTANTS::Color::WHITE);
@@ -584,7 +455,6 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 //     }
 
 //     std::vector<float> scores(nMoves); // We need our array to be the same size as the number of moves
-    
 
 //     for (int i = 0; i < nMoves; ++i)
 //     {
@@ -697,7 +567,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 //         // currentBoardVal = computerEvaluateBoard(&simBoard, "White");
 //     }
 //     // kingPiece = *simBoard.findPiece(m_player_color, 'K'); // REMOVE ME AFTER DEBUGGING
-//     for (auto it = moves.begin(); it != moves.end(); it++)
+//     for (auto it = moves.begin(); it != moves.end(); ++it)
 //     {
 //         string move = *it;
 //         ///// saved piece = function (save move and piece captured) goes here /////
