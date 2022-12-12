@@ -12,7 +12,7 @@
 #include "ChessConstants.h"
 #include <stdio.h>
 #include <iostream>
-#include <stack>
+#include <queue>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -34,14 +34,14 @@ private:
     board m_board;
     // u_int8_t m_turnNum;
     CONSTANTS::Color m_playerTurn;
-    std::stack<std::string> m_moveHistory;
-    std::stack<CONSTANTS::Piece> m_captureHistory;
+    std::queue<std::string> m_moveHistory;
+    std::queue<CONSTANTS::Piece> m_captureHistory;
     // std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
-    std::stack<std::vector<CONSTANTS::Piece>> m_boardHistory;
+    std::queue<std::vector<CONSTANTS::Piece>> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;
     std::list<std::int8_t> m_blackPieceIndices;
-    std::stack<std::list<std::int8_t>> m_whiteIndexHistory;
-    std::stack<std::list<std::int8_t>> m_blackIndexHistory;
+    // std::queue<std::list<std::int8_t>> m_whiteIndexHistory;
+    // std::queue<std::list<std::int8_t>> m_blackIndexHistory;
     std::list<std::string> m_whiteScreenMoves;
     std::list<std::string> m_blackScreenMoves;
     std::list<std::string> m_whiteMoves;
