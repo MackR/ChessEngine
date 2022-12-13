@@ -31,7 +31,7 @@ private:
     CONSTANTS::Color m_player_color;
     std::list<std::string> *m_pCompleteMoveset; // Pointer to a 
     bool m_check = false;
-    const int m_computerStopDepth = 3;
+    const int m_computerStopDepth = 4;
     
     string askPlayerForMove(); // Only used within takeTurn()
     

@@ -401,6 +401,23 @@ Notes December 11th, 2022 179hr += 3:
     - Used my first ternary operation for picking pawn color: CONSTANTS::Piece demotion = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Piece::WPAWN : CONSTANTS::Piece::BPAWN;
     - Forced to convert my m_moveHistory stack variable into a queue because I cannot search a stack
     - To do: Continue updating the undoMove function so that it can reset king and rook moved conditions properly
+
+Notes December 12th, 2022 182hr += 7hr
+    - Forced to convert m_moveHistory to a list because queue doesn't allow search either...
+    - I've been coming up with some good programming practices from all my work. 
+      - Declare and use if statements to set variables early, it allows abstraction of code later
+      - Avoid using state variables if possible, they require maintenance throughout application
+      - Declaring and setting variables is better while debugging, even if an anonymous variable are possible
+      - If you have state variables, make sure they are updated as soon as programatically possible, it keeps code clean.
+      - Documentation! Put those comments in to explain code
+      - Put print statements in your code so you code prints where it is while you are still debugging a function.
+          After you finish debugging something, you can remove or comment out some of the conditions, although not required.
+      - Don't repeat yourself! Debugging one section of code is enough.
+      - Realizing that when you make code that relies on speed, you need a constant benchmarking method.
+          This is probably where automated tests, CI/CD on Github and Gitlab come into play. 
+    - I've implemented a more complicated but faster undo function. I'm manually testing it because it likely has too
+        many bugs for me not to visually inspect what is going on. Normally the computer would use it, but I have to test it first. 
+
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate
 - Figure out where and when to use unique pointers and shared pointers

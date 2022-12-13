@@ -91,11 +91,14 @@ TextBoard::TextBoard()
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create the first board state in the m_boardHistory stack
-    std::vector<CONSTANTS::Piece> v_board(64);
-    for (int idx = 0; idx < 64; ++idx){
-        v_board[idx] = m_board[0][idx];
-    }
-    m_boardHistory.push(v_board);
+    // std::vector<CONSTANTS::Piece> v_board(64);
+    // for (int idx = 0; idx < 64; ++idx){
+    //     v_board[idx] = m_board[0][idx];
+    // }
+    // m_boardHistory.push(v_board);
+
+    // m_moveHistory.push_front("");
+    // m_captureHistory.push_front(CONSTANTS::Piece::EMPTY);
 
     // Init the supporting variables
     m_playerTurn = CONSTANTS::Color::WHITE;
@@ -383,7 +386,7 @@ void TextBoard::addPiece(int index, CONSTANTS::Piece piece)
 void TextBoard::removePiece(int index)
 {
     CONSTANTS::Piece piece = getPiece(index);
-        m_captureHistory.push(piece); // Store the piece in capture history before removing. All I need is the piece.
+        // m_captureHistory.push_front(piece); // Store the piece in capture history before removing. All I need is the piece.
 
     if (isEmpty(piece))
     {
@@ -404,7 +407,7 @@ void TextBoard::removePiece(int index)
 void TextBoard::removePiece(int file, int rank)
 {
     CONSTANTS::Piece piece = getPiece(file, rank);
-    m_captureHistory.push(piece); // Store the piece in capture history before removing
+    //m_captureHistory.push_front(piece); // Store the piece in capture history before removing
     if (isEmpty(piece))
     {
         std::cout << "Error, attempting to remove empty piece from board" << std::endl;
@@ -423,6 +426,7 @@ void TextBoard::removePiece(int file, int rank)
 }
 void TextBoard::movePiece(int prevFile, int prevRank, int newFile, int newRank, CONSTANTS::Piece promotion)
 {
+    CONSTANTS::Piece occupyingPiece = getPiece(newFile, newRank);
     CONSTANTS::Color occupyingPieceColor = getPieceColor(newFile, newRank);
     CONSTANTS::Color movingPieceColor = getPieceColor(prevFile, prevRank);
 
@@ -608,11 +612,11 @@ void TextBoard::calcPawnMoves(int file, int rank, std::list<std::string> &movesR
 
     // Set flag for if we should check for enpassant
     bool findEnPassant = false;
-    if (!m_moveHistory.empty() && (m_moveHistory.top()[0] == 'P') && (abs(m_moveHistory.top()[4] - m_moveHistory.top()[2]) > 1))
+    if (!m_moveHistory.empty() && (m_moveHistory.front()[0] == 'P') && (abs(m_moveHistory.front()[4] - m_moveHistory.front()[2]) > 1))
     {
         findEnPassant = true;
-        enPassantFile = m_moveHistory.top()[3] - 'A'; // Convert from char to int
-        enPassantRank = m_moveHistory.top()[4] - '1'; // Convert from char to int
+        enPassantFile = m_moveHistory.front()[3] - 'A'; // Convert from char to int
+        enPassantRank = m_moveHistory.front()[4] - '1'; // Convert from char to int
     }
 
     // Configure variables for moving depending on the location and color of pawn
@@ -2915,39 +2919,51 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
 };
 // This function is a big deal. It executes thousands of times. Can optimize. BUG: Not resetting castling
 void TextBoard::undoLastMove(){ 
-    // Reset to the previous player turn
-    m_playerTurn = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Color::BLACK : CONSTANTS::Color::WHITE;
 
+        CONSTANTS::Square kingStartSquare;
+        CONSTANTS::Square aRookStartSquare, hRookStartSquare;
+        CONSTANTS::Square kingCastlingLeftSquare;
+        CONSTANTS::Square kingCastlingRightSquare;
+        CONSTANTS::Square aRookEndSquare, hRookEndSquare;
+        bool *kingPreviouslyMoved, *aRookPreviouslyMoved, *hRookPreviouslyMoved;
+
+    // Reset to the previous player turn
+    //m_playerTurn = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Color::BLACK : CONSTANTS::Color::WHITE;
+    
+    if(m_playerTurn == CONSTANTS::Color::BLACK){
+        kingStartSquare = CONSTANTS::Square::D1;
+        aRookStartSquare = CONSTANTS::Square::A1, hRookStartSquare = CONSTANTS::Square::H1;
+        kingCastlingLeftSquare = CONSTANTS::Square::B1;
+        kingCastlingRightSquare = CONSTANTS::Square::F1;
+        aRookEndSquare = CONSTANTS::Square::C1, hRookEndSquare = CONSTANTS::Square::E1;
+        kingPreviouslyMoved = &m_whiteKingMoved;
+        aRookPreviouslyMoved = &m_whiteARookMoved;
+        hRookPreviouslyMoved = &m_whiteHRookMoved;
+    }
+    else{
+        kingStartSquare = CONSTANTS::Square::D1;
+        aRookStartSquare = CONSTANTS::Square::A1, hRookStartSquare = CONSTANTS::Square::H1;
+        kingCastlingLeftSquare = CONSTANTS::Square::B1;
+        kingCastlingRightSquare = CONSTANTS::Square::F1;
+        aRookEndSquare = CONSTANTS::Square::C1, hRookEndSquare = CONSTANTS::Square::E1;
+        kingPreviouslyMoved = &m_blackKingMoved;
+        aRookPreviouslyMoved = &m_blackARookMoved;
+        hRookPreviouslyMoved = &m_blackHRookMoved;
+    }
     // m_boardHistory.pop();
     std::string move = m_moveHistory.front();
     if(move[0] == 'O'){ // equivalent to if(move == "O-O" || move == "O-O-O"){ for castling
         if(move.size() == 3){ // equivalent to if(move.size = "O-O")
-            if(m_playerTurn == CONSTANTS::Color::WHITE){
-                movePiece(CONSTANTS::Square::B1, CONSTANTS::Square::D1);
-                movePiece(CONSTANTS::Square::C1, CONSTANTS::Square::A1);
-                m_whiteKingMoved = false;
-                m_whiteARookMoved = false;
-            }
-            else if(m_playerTurn == CONSTANTS::Color::BLACK){
-                movePiece(CONSTANTS::Square::B8, CONSTANTS::Square::D8);
-                movePiece(CONSTANTS::Square::C8, CONSTANTS::Square::A8);
-                m_blackKingMoved = false;
-                m_blackARookMoved = false;
-            }
+                movePiece(kingCastlingLeftSquare, kingStartSquare);
+                movePiece(aRookEndSquare, aRookStartSquare);
+                *kingPreviouslyMoved = false;
+                *aRookPreviouslyMoved = false;
         }
         else if(move.size() == 5){ // equivalent to if(move.size = "O-O-O")
-            if(m_playerTurn == CONSTANTS::Color::WHITE){
-                movePiece(CONSTANTS::Square::F1, CONSTANTS::Square::D1);
-                movePiece(CONSTANTS::Square::E1, CONSTANTS::Square::H1);
-                m_whiteKingMoved = false;
-                m_whiteHRookMoved = false;
-            }
-            else if(m_playerTurn == CONSTANTS::Color::BLACK){
-                movePiece(CONSTANTS::Square::F8, CONSTANTS::Square::D8);
-                movePiece(CONSTANTS::Square::E8, CONSTANTS::Square::H8);
-                m_blackKingMoved = false;
-                m_blackHRookMoved = false;
-            }
+                movePiece(kingCastlingRightSquare, kingStartSquare);
+                movePiece(hRookEndSquare, hRookStartSquare);
+                *kingPreviouslyMoved = false;
+                *hRookPreviouslyMoved = false;
         }
     }
     else if(move.size() == 5){ // If the move was a normal move without pawn promotion
@@ -2955,27 +2971,61 @@ void TextBoard::undoLastMove(){
         int prevFile, prevRank, newFile, newRank;
         parseMove(move, piece, prevFile, prevRank, newFile, newRank); // Get the move variables in usable terms
         movePiece(newFile, newRank, prevFile, prevRank); // Move the capturing piece back to where it was
-        if(m_captureHistory.front() != CONSTANTS::Piece::EMPTY){ // Check if a piece was captured in the capture history
-            addPiece(newFile, newRank, m_captureHistory.front()); // Put the piece back on the board
+        if(m_captureHistory.front().first != CONSTANTS::Piece::EMPTY){ // Check if a piece was captured in the capture history
+            int captureRank = m_captureHistory.front().second/8;
+            int captureFile = m_captureHistory.front().second%8;
+            addPiece(captureFile, captureRank, m_captureHistory.front().first); // Put the piece back on the board
         }
-        if(piece == 'K'){
-            for(auto move : m_moveHistory.front(), m_moveHistory.()){
+        if(piece == 'K'){ // Check if the king has moved before
+            if(convertCoordinateToBoardIndex(prevFile,prevRank) == kingStartSquare){
+                for(auto it = m_moveHistory.rbegin(); it != m_moveHistory.rend(); ++it){ // update this to be a for loop for better speed
+                    if(*it == m_moveHistory.front()) break;
+                    if ((*it)[0] == 'K'){
+                        if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == kingStartSquare){
+                            *kingPreviouslyMoved = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else if(piece == 'R'){
+            if((prevFile == 0 || prevFile == 7) && (prevRank == 0 || prevRank == 7)){ // We are observing the A file Rooks
+              int prevIndex = convertCoordinateToBoardIndex(prevFile,prevRank);
+              if(prevIndex == aRookStartSquare || prevIndex == hRookStartSquare){
+                if(prevIndex == aRookStartSquare){*aRookPreviouslyMoved = false;}
+                else if(prevIndex == hRookStartSquare){*hRookPreviouslyMoved = false;}
 
+                for(auto it = m_moveHistory.rbegin(); it != m_moveHistory.rend(); ++it){ // Update this to be a for loop for better speed
+                    if(*it == m_moveHistory.front()) break;
+                    if ((*it)[0] == 'R'){
+                        if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == aRookStartSquare){
+                            *aRookPreviouslyMoved = true; // We found an even earlier move than the one we're checking showing that the rook has moved before
+                            break;
+                        }
+                        else if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == hRookStartSquare){
+                            *hRookPreviouslyMoved = true;
+                            break;
+                        }
+                    }
+                }
+              }
             }
         }
     }
-    else if(move.size() == 6){ // If the move was a pawn promotion move
+    else if(move.size() == 6){ // If the move was a pawn promotion move. 
         char piece, promotion;
         int prevFile, prevRank, newFile, newRank;
         parseMove(move, piece, prevFile, prevRank, newFile, newRank); // Get the move variables in usable terms
         CONSTANTS::Piece demotion = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Piece::WPAWN : CONSTANTS::Piece::BPAWN;
         movePiece(newFile, newRank, prevFile, prevRank, demotion); // Move the capturing piece back to where it was and demote it to a pawn
-        if(m_captureHistory.top() != CONSTANTS::Piece::EMPTY){ // Check if a piece was captured in the capture history
-            addPiece(newFile, newRank, m_captureHistory.top()); // Put the piece back on the board
+        if(m_captureHistory.front().first != CONSTANTS::Piece::EMPTY){ // Check if a piece was captured in the capture history
+            addPiece(newFile, newRank, m_captureHistory.front().first); // Put the piece back on the board
         }
     }
-    m_moveHistory.pop(); // We've handled the move, remove it from history
-    m_captureHistory.pop(); // Remove the capture from the history
+
+    m_moveHistory.pop_front(); // We've handled the move, remove it from history
+    m_captureHistory.pop_front(); // Remove the capture from the history
     // m_whiteIndexHistory.pop();
     // m_whitePieceIndices = m_whiteIndexHistory.top();
     // m_blackIndexHistory.pop();
@@ -2983,7 +3033,7 @@ void TextBoard::undoLastMove(){
     // for (int idx = 0; idx < 64; ++idx){
     //     m_board[0][idx] = m_boardHistory.top()[idx];
     // }
-    findPlayerPieces(true); // We need to re-update the location of all the pieces after moving them back. Slow but accomplishes goals for now.
+    //findPlayerPieces(true); // We need to re-update the location of all the pieces after moving them back. Slow but accomplishes goals for now.
     return;
 };
 std::list<std::string> *TextBoard::getLegalMoves(CONSTANTS::Color color)
@@ -3006,6 +3056,7 @@ std::list<std::string> *TextBoard::getLegalMoves(CONSTANTS::Color color)
 // Reports if move was successful and board was modified
 bool TextBoard::makeMove(std::string move)
 {
+    
 
     int prevFile = 0;
     int prevRank = 0;
@@ -3026,11 +3077,16 @@ bool TextBoard::makeMove(std::string move)
         return false;
     }
 
-    if (!(move == "O-O" || move == "O-O-O"))
+    if (move[0] != 'O') // equivalent to (!(move == "O-O" || move == "O-O-O"))
     { // If we are not castling
 
         TextBoard::parseMove(move, pieceType, prevFile, prevRank, newFile, newRank); // parse the move
         pieceColor = getPieceColor(prevFile, prevRank);
+        CONSTANTS::Color capturedPieceColor = getPieceColor(newFile, newRank);
+        CONSTANTS::Piece capturedPiece = getPiece(newFile, newRank);
+
+        // Now that we know the move format, add the moveHistory and captured piece
+
 
         if (move.size() == 6)
         { // If we are promoting a piece, set the flag.
@@ -3047,19 +3103,24 @@ bool TextBoard::makeMove(std::string move)
          prevIndex = Piece::convertCoordinateToBoardIndex(prevFile, prevRank);
          newIndex = Piece::convertCoordinateToBoardIndex(newFile, newRank);
          */
-        if (pieceType == 'P' && abs(newFile - prevFile) == 1)
-        { // If a pawn is capturing
-            if (getPieceColor(newFile, newRank) == CONSTANTS::Color::EMPTY)
-            {                                   // Check for enpassant
-                removePiece(newFile, prevRank); // Enpassant confirmed, delete the enemy pawn
-            }
-        }
 
-        CONSTANTS::Color capturedPieceColor = getPieceColor(newFile, newRank);
+        // Update the move and capture history
+        m_moveHistory.push_front(move);
+        m_captureHistory.push_front(std::make_pair(capturedPiece,convertCoordinateToBoardIndex(newFile, newRank)));
 
         if (!promotePawn)
         { // If we are not promoting a pawn
 
+            // Check for the condition of enpassant and remove the piece
+            if (pieceType == 'P' && abs(newFile - prevFile) == 1)
+            { // If a pawn is capturing
+                if (getPieceColor(newFile, newRank) == CONSTANTS::Color::EMPTY)
+                {                                   // Check for enpassant
+                    CONSTANTS::Piece occupyingPiece = getPiece(newFile, prevRank);
+                    m_captureHistory.front() = std::make_pair(occupyingPiece, convertCoordinateToBoardIndex(newFile, prevRank)); // Change the captured piece to be for enpassant
+                    removePiece(newFile, prevRank); // Enpassant confirmed, delete the enemy pawn
+                }
+            }
             movePiece(prevFile, prevRank, newFile, newRank); // Move the piece to the new location
             if (!m_whiteKingMoved || !m_blackKingMoved)
             {
@@ -3155,7 +3216,6 @@ bool TextBoard::makeMove(std::string move)
     }
     else if (move == "O-O")
     {
-
         m_board;
         // finds the king on the board
         int prevKingIndex = findKingIndex(m_playerTurn); // This could be simplified because if we are doing a castling, we already know where the king is, we just have to know which king
@@ -3176,10 +3236,12 @@ bool TextBoard::makeMove(std::string move)
             m_blackKingMoved = true;
             m_blackARookMoved = true;
         }
+        // Update the move and capture history
+        m_moveHistory.push_front(move);
+        m_captureHistory.push_front(std::make_pair(CONSTANTS::Piece::EMPTY, CONSTANTS::Square::OO));
     }
     else if (move == "O-O-O")
     {
-
         // finds the king on the board
         int prevKingIndex = findKingIndex(m_playerTurn); // This could be simplified because if we are doing a castling, we already know where the king is, we just have to know which king
         int newKingIndex = prevKingIndex + 2;
@@ -3199,15 +3261,12 @@ bool TextBoard::makeMove(std::string move)
             m_blackKingMoved = true;
             m_blackHRookMoved = true;
         }
+        // Update the move and capture history
+        m_moveHistory.push_front(move);
+        m_captureHistory.push_front(std::make_pair(CONSTANTS::Piece::EMPTY, CONSTANTS::Square::OO));
     }
 
-    CONSTANTS::Color nextPlayer;
-    if (m_playerTurn == CONSTANTS::Color::WHITE)
-    {
-        nextPlayer = CONSTANTS::Color::BLACK;
-    }
-    else
-        nextPlayer = CONSTANTS::Color::WHITE;
+
 
     // Need to update the move history for the move
     // std::vector<CONSTANTS::Piece> v_board(64);
@@ -3215,9 +3274,9 @@ bool TextBoard::makeMove(std::string move)
     //     v_board[idx] = m_board[0][idx];
     // }
     // m_boardHistory.push(v_board);
-    m_moveHistory.push(move);
-    calcPlayerMovesetV2(nextPlayer, true); // Update the potential moves lists for proper color
+    CONSTANTS::Color nextPlayer = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Color::BLACK : CONSTANTS::Color::WHITE; 
 
+    calcPlayerMovesetV2(nextPlayer, true); // Update the potential moves lists for proper color
     m_playerTurn = nextPlayer;
     return true;
 }

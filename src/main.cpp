@@ -48,8 +48,8 @@ int main(int argc, const char * argv[]) {
     //GFX.drawBoard(game.m_board);
     //screen.update();
     //SDL_Delay(500);
-    Player white(CONSTANTS::Color::WHITE, false); // false -> computer player
-    Player black(CONSTANTS::Color::BLACK, false); // false -> computer player
+    Player white(CONSTANTS::Color::WHITE, true); // false -> computer player
+    Player black(CONSTANTS::Color::BLACK, true); // false -> computer player
     TextBoard chessboard;
     
     

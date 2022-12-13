@@ -34,8 +34,8 @@ private:
     board m_board;
     // u_int8_t m_turnNum;
     CONSTANTS::Color m_playerTurn;
-    std::queue<std::string> m_moveHistory;
-    std::queue<CONSTANTS::Piece> m_captureHistory;
+    std::list<std::string> m_moveHistory;
+    std::list<std::pair<CONSTANTS::Piece, int>> m_captureHistory;
     // std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
     std::queue<std::vector<CONSTANTS::Piece>> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;

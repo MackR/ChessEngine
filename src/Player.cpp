@@ -41,8 +41,11 @@ string Player::askPlayerForMove()
     while (1)
     {
         for (auto it = m_pCompleteMoveset->begin(); it != m_pCompleteMoveset->end(); ++it)
-        {
-            if (input == *it)
+        {   
+            if(input == "UNDO"){
+                return input;
+            }
+            else if (input == *it)
             {
                 // std::cout << "Valid move" << endl;
                 return input;
@@ -119,7 +122,13 @@ bool Player::takeTurn(TextBoard *pboard)
     // Modifies the given board with a move, function will do invalid moves, so only give it valid ones
     // time check of computer think function
     auto start = std::chrono::system_clock::now();
-    pboard->makeMove(move);
+    if(move == "UNDO"){
+        pboard->undoLastMove();
+    }
+    else{
+        pboard->makeMove(move);
+    }
+    
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -386,6 +395,9 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
     if (nMoves == 0)
     {
         return badCheckmateValue; // The king was captured for your side and it's checkmate
+    }
+    if(nMoves != moves->size()){
+        std::cout << "moves-> size didn't perform correctly, big error" << std::endl;
     }
 
     std::vector<float> scores(nMoves); // We need our array to be the same size as the number of moves
