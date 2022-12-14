@@ -415,8 +415,28 @@ Notes December 12th, 2022 182hr += 7hr
       - Don't repeat yourself! Debugging one section of code is enough.
       - Realizing that when you make code that relies on speed, you need a constant benchmarking method.
           This is probably where automated tests, CI/CD on Github and Gitlab come into play. 
-    - I've implemented a more complicated but faster undo function. I'm manually testing it because it likely has too
-        many bugs for me not to visually inspect what is going on. Normally the computer would use it, but I have to test it first. 
+    - I've implemented a more complicated but faster undo function. I'm manually testing it because it likely has
+        many bugs. Normally the computer would use it, but I have to test it first.
+
+Notes December 13th, 2022 189hr += 8hr:
+    - The undo move function is fixed. I had to use reverse iterators and figure out how to modify them to stop at the .front element
+    - Finished debugging undolastmove(). Next up is trying to improve speed even more. Through hash tables,
+        early tree pruning, breadth first search, and multithreading parallelization. 
+    - SUCCESS: The bug that was plaguing my evaluate board function is solved.
+        The issue was a tricky pointer bug.  As follows:
+          TextBoard::board* pboardState = pboard->getBoardState(); // gets the address of the actual board member in object;
+          CONSTANTS::Piece piece = (*pboardState)[0][index]; 
+        The directly above line of code dereferences the m_board array and then accesses
+        the element at the [0][index] location. This is completely different from THIS:
+          CONSTANTS::Piece piece = *pboardState[0][index];
+          ^ This piece goes to the index location of the pointer, incrementing by entire rows
+            and then dereferences that. The bug appeared to access rows and columns in opposite order,
+            but it was actually just incrementing by rows in memory and finding first element.
+    - LEARNINGS: If the computer seems to be acting strange, pointer bugs are probably the culprit.
+                  Be thorough with pointers.
+    - Still a bug in the moves allocation and sizing section of the minMax function. 
+        Probably another pointer error. I need to look into this tomorrow. 
+    - Idea: Parenthesis around any situation where pointer dereferencing could be ambiguous?
 
 Modifications to be made after chess engine completion:
 - Figure out where and how to use const within all the functions and when appropriate

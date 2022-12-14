@@ -12,7 +12,7 @@
 #include "ChessConstants.h"
 #include <stdio.h>
 #include <iostream>
-#include <queue>
+// #include <queue>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -28,16 +28,16 @@
 class TextBoard{
 public:
     typedef CONSTANTS::Piece board[8][8]; // see getBoardState()
+    CONSTANTS::Color m_playerTurn;
     
 private:
     
     board m_board;
     // u_int8_t m_turnNum;
-    CONSTANTS::Color m_playerTurn;
     std::list<std::string> m_moveHistory;
     std::list<std::pair<CONSTANTS::Piece, int>> m_captureHistory;
     // std::stack<CONSTANTS::Piece[8][8]> m_boardHistory;
-    std::queue<std::vector<CONSTANTS::Piece>> m_boardHistory;
+    // std::queue<std::vector<CONSTANTS::Piece>> m_boardHistory;
     std::list<std::int8_t> m_whitePieceIndices;
     std::list<std::int8_t> m_blackPieceIndices;
     // std::queue<std::list<std::int8_t>> m_whiteIndexHistory;
@@ -106,7 +106,7 @@ public:
     std::list<std::string>* getLegalMoves(CONSTANTS::Color color) ;
     bool makeMove(std::string move);
     bool editBoard(int file, int rank, CONSTANTS::Piece newPiece);
-    void undoLastMove();
+    void undoLastMove(bool recalcMoves);
     bool isWinner(CONSTANTS::Color winnerColor); // Reports if white or black is the winner when asked
 
     

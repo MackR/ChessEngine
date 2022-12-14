@@ -123,7 +123,8 @@ bool Player::takeTurn(TextBoard *pboard)
     // time check of computer think function
     auto start = std::chrono::system_clock::now();
     if(move == "UNDO"){
-        pboard->undoLastMove();
+        
+        pboard->undoLastMove(true);
     }
     else{
         pboard->makeMove(move);
@@ -133,7 +134,7 @@ bool Player::takeTurn(TextBoard *pboard)
 
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "Elapsed makeMove() time: " << elapsed_seconds.count() << "s\n";
+    std::cout << "Elapsed makeMove()/undoMove() time: " << elapsed_seconds.count() << "s\n";
 
     if (achievedCheckmateOnEnemy(pboard))
     {
@@ -186,7 +187,7 @@ string Player::computeMove(TextBoard *pboard)
     //
     //
 
-    simMoveset = *simulationBoard.getLegalMoves(m_player_color); // Save moveset before the pointer changes
+    simMoveset = *(simulationBoard.getLegalMoves(m_player_color)); // Save moveset before the pointer changes
 
     for (auto it = simMoveset.begin(); it != simMoveset.end(); ++it)
     {
@@ -206,7 +207,7 @@ string Player::computeMove(TextBoard *pboard)
         std::cout << "MaxMin elapsed board eval time: " << elapsed_seconds.count() << "s\n";
 
         moveScores.insert({move, moveScore}); // Many ways of inserting a pair into map (emplace, make_pair, {key,value})
-        simulationBoard.undoLastMove();
+        simulationBoard.undoLastMove(false);
         // In line above, we are resetting to the previous board state to make another move.
         // This function goes through the entire board and sets every piece, but I can speedup by 64x
         // if I make it so that it only fixes the pieces that were removed before.
@@ -285,88 +286,52 @@ float Player::computerEvaluateBoard(TextBoard *pboard, CONSTANTS::Color playerTu
 
     float score = 0;
 
-    TextBoard::board *boardState = pboard->getBoardState(); // gets the address of the actual board member in object;
+    // TextBoard* board = pboard; // gets the address of the actual board member in object;
+    TextBoard::board* pboardState = pboard->getBoardState(); // gets the address of the actual board member in object;
     for (int rank = 0; rank < 8; ++rank)
     {
         for (int file = 0; file < 8; ++file)
-        {   int index = rank*8+file;
-            CONSTANTS::Piece piece = *boardState[0][index];
-            piece;
+        {
+            CONSTANTS::Piece piece = (*pboardState)[rank][file];
             switch (piece)
             {
             case CONSTANTS::Piece::WKING:
                 score += kingValue;
-
+                break;
             case CONSTANTS::Piece::WQUEEN:
                 score += queenValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score += 0.10*(moveCount/MAX_MOVE_NUM_QUEEN); // apply weighting to incentivize getting queen out third and rook 4th
                 break;
             case CONSTANTS::Piece::WROOK:
                 score += rookValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score += 0.05*(moveCount/MAX_MOVE_NUM_ROOK);
                 break;
             case CONSTANTS::Piece::WKNIGHT:
                 score += knightValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score += 0.25*(moveCount/MAX_MOVE_NUM_KNIGHT);
-
                 break;
             case CONSTANTS::Piece::WBISHOP:
                 score += bishopValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score += 0.25*(moveCount/MAX_MOVE_NUM_BISHOP);
-                /*if (evalPiece.getRank() == 0) {
-                    score -= 0.1;
-                }
-                 */
                 break;
             case CONSTANTS::Piece::WPAWN:
                 score += pawnValue;
-                /*
-                if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()-1, evalPiece.getFile()+1)].getType() == 'P') {
-                    score += 0.1;
-                }
-                 */
                 break;
-
             case CONSTANTS::Piece::BKING:
                 score -= kingValue;
                 break;
-
             case CONSTANTS::Piece::BQUEEN:
                 score -= queenValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score -= 0.10*((moveCount/MAX_MOVE_NUM_QUEEN));
                 break;
             case CONSTANTS::Piece::BROOK:
                 score -= rookValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score -= 0.05*(moveCount/MAX_MOVE_NUM_ROOK);
                 break;
             case CONSTANTS::Piece::BKNIGHT:
                 score -= knightValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score -= 0.25*(moveCount/MAX_MOVE_NUM_KNIGHT);
                 break;
             case CONSTANTS::Piece::BBISHOP:
                 score -= bishopValue;
-                //    moveCount = evalPiece.getMoves(boardState, turnCounter)->size();
-                //    score -= 0.25*(moveCount/MAX_MOVE_NUM_BISHOP);
                 break;
             case CONSTANTS::Piece::BPAWN:
                 score -= pawnValue;
-                /*if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()+1, evalPiece.getFile()-1)].getType() == 'P') {
-                    score -= 0.1;
-                }
-                if (boardState[Piece::convertCoordinateToBoardIndex(evalPiece.getRank()+1, evalPiece.getFile()+1)].getType() == 'P') {
-                    score -= 0.1;
-                }
-                 */
                 break;
-            default:
-                break;
+            default: break;
             }
         }
     }
@@ -378,7 +343,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 {
     CONSTANTS::Color enemyColor;
     int badCheckmateValue;
-    std::list<std::string> *moves = board->getLegalMoves(color);
+    std::list<std::string> *pMoves = board->getLegalMoves(color);
 
     if (color == CONSTANTS::Color::WHITE)
     { // Set parameters for score maximization
@@ -391,12 +356,12 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
         enemyColor = CONSTANTS::Color::WHITE;
     }
 
-    const int nMoves = moves->size();
-    if (nMoves == 0)
+    if (pMoves->empty())
     {
         return badCheckmateValue; // The king was captured for your side and it's checkmate
     }
-    if(nMoves != moves->size()){
+    const int nMoves = pMoves->size();
+    if(nMoves != pMoves->size()){
         std::cout << "moves-> size didn't perform correctly, big error" << std::endl;
     }
 
@@ -411,7 +376,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
     float maxMinScore;
 
     // int moveCountBeforeLoop = moves->size();
-    auto movesMem = *moves; // remember the possible moves before modifying the board
+    auto movesMem = *pMoves; // remember the possible moves before modifying the board
     auto memBoard = *board;
     int i = 0;
 
@@ -421,7 +386,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 
         if (move == "")
         {
-            int moveSize = moves->size();
+            int moveSize = pMoves->size();
             std::cout << "Move in moveset is empty" << std::endl;
         }
 
@@ -433,8 +398,8 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
 
         if (currentDepth == stopDepth - 1) // If we are one layer from finished, evaluate the board and return
         {
-            computerEvaluateBoard(board, enemyColor);
-            scores[i] = computerEvaluateBoard(board, enemyColor);
+            int holderScore = computerEvaluateBoard(board, enemyColor);
+            scores[i] = holderScore;
         }
         else
         {
@@ -442,7 +407,7 @@ float Player::computerMaxMin(TextBoard *board, int currentDepth, int stopDepth, 
         }
 
         ++i;                   // increment the scores array index to
-        board->undoLastMove(); // reset the board to before the move was tested and prepare for new one
+        board->undoLastMove(false); // reset the board to before the move was tested and prepare for new one
     }
 
     if (color == CONSTANTS::Color::WHITE)

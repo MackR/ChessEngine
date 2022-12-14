@@ -49,9 +49,9 @@ int main(int argc, const char * argv[]) {
     //screen.update();
     //SDL_Delay(500);
     Player white(CONSTANTS::Color::WHITE, true); // false -> computer player
-    Player black(CONSTANTS::Color::BLACK, true); // false -> computer player
+    Player black(CONSTANTS::Color::BLACK, false); // false -> computer player
     TextBoard chessboard;
-    
+    printBoard(chessboard);
     
     
     while (1) {
@@ -59,9 +59,9 @@ int main(int argc, const char * argv[]) {
         //board.drawBoard(screen.getRenderer());
         //screen.update();
         //SDL_Delay(500);
-        printBoard(chessboard);
 
-        if (white.takeTurn(&chessboard)) {
+        if(chessboard.m_playerTurn == CONSTANTS::Color::WHITE){
+            if (white.takeTurn(&chessboard)) {
             printBoard(chessboard);
             cout << "Checkmate!  White wins!" << endl;
             break;
@@ -69,17 +69,24 @@ int main(int argc, const char * argv[]) {
         //GFX.drawBoard(chessboard);
         //screen.update();
         printBoard(chessboard);
-
-        if (black.takeTurn(&chessboard)){
-            printBoard(chessboard);
-            cout << "Checkmate!  Black wins!" << endl;
-            // cout << "Press any entry then enter to quit" << endl;
-            // string quit;
-            // cin >> quit;
-            break;
         }
-        //GFX.drawBoard(chessboard);
-        //screen.update();
+        else if(chessboard.m_playerTurn == CONSTANTS::Color::BLACK){
+            if (black.takeTurn(&chessboard)){
+                printBoard(chessboard);
+                cout << "Checkmate!  Black wins!" << endl;
+                // cout << "Press any entry then enter to quit" << endl;
+                // string quit;
+                // cin >> quit;
+                break;
+            }
+            printBoard(chessboard);
+            //GFX.drawBoard(chessboard);
+            //screen.update();
+
+        }
+        
+
+
         
         //if(screen.processEvents() == false){
         //    break;

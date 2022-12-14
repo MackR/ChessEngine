@@ -11,74 +11,6 @@
 TextBoard::TextBoard()
 {
     // Init the board itself
-    m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
-    m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
-    m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
-    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WKING;
-    m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WQUEEN;
-    m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
-    m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
-    m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
-
-    for (int i = 8; i < 16; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::WPAWN;
-    }
-    for (int i = 16; i < 48; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::EMPTY;
-    }
-    for (int i = 48; i < 56; ++i)
-    {
-        m_board[0][i] = CONSTANTS::Piece::BPAWN;
-    }
-    m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
-    m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
-    m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
-    m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
-    m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
-    m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
-    m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
-    m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // // Custom Board setup
-    // //Rank 8
-    // m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
-    // m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
-    // m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
-    // m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
-    // m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
-    // m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
-    // m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
-    // m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
-    // // Rank 7
-    // m_board[0][CONSTANTS::A7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::B7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::C7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::D7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::E7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::F7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::G7] = CONSTANTS::Piece::BPAWN;
-    // m_board[0][CONSTANTS::H7] = CONSTANTS::Piece::BPAWN;
-
-    // for(int rank = 2; rank < 6; ++rank){
-    //     for (int file = 0; file < 8; ++file){
-    //         m_board[rank][file] = CONSTANTS::Piece::EMPTY;
-    //     }
-    // }
-
-    // // Rank 2
-    // m_board[0][CONSTANTS::A2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
-    // m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
-
-    // // Rank 1
     // m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::WROOK;
     // m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::WKNIGHT;
     // m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::WBISHOP;
@@ -87,6 +19,104 @@ TextBoard::TextBoard()
     // m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::WBISHOP;
     // m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::WKNIGHT;
     // m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
+
+    // for (int i = 8; i < 16; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::WPAWN;
+    // }
+    // for (int i = 16; i < 48; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::EMPTY;
+    // }
+    // for (int i = 48; i < 56; ++i)
+    // {
+    //     m_board[0][i] = CONSTANTS::Piece::BPAWN;
+    // }
+    // m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    // m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    // m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::BQUEEN;
+    // m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::BBISHOP;
+    // m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::BKNIGHT;
+    // m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    //Rank 8
+    m_board[0][CONSTANTS::A8] = CONSTANTS::Piece::BROOK;
+    m_board[0][CONSTANTS::B8] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C8] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D8] = CONSTANTS::Piece::BKING;
+    m_board[0][CONSTANTS::E8] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::F8] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G8] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H8] = CONSTANTS::Piece::BROOK;
+    // Rank 7
+    m_board[0][CONSTANTS::A7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::B7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::C7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::D7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::E7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::F7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::G7] = CONSTANTS::Piece::BPAWN;
+    m_board[0][CONSTANTS::H7] = CONSTANTS::Piece::BPAWN;
+    // Rank 6
+    m_board[0][CONSTANTS::A6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::B6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::E6] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::F6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G6] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H6] = CONSTANTS::Piece::EMPTY;
+    // Rank 5
+    m_board[0][CONSTANTS::A5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::B5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D5] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::E5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::F5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G5] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H5] = CONSTANTS::Piece::EMPTY;
+    // Rank 4
+    m_board[0][CONSTANTS::A4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::B4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::E4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::F4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G4] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H4] = CONSTANTS::Piece::EMPTY;
+    // Rank 3
+    m_board[0][CONSTANTS::A3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::B3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::E3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::F3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G3] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H3] = CONSTANTS::Piece::EMPTY;
+
+    // Rank 2
+    m_board[0][CONSTANTS::A2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::B2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::C2] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D2] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::E2] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::F2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::G2] = CONSTANTS::Piece::WPAWN;
+    m_board[0][CONSTANTS::H2] = CONSTANTS::Piece::WPAWN;
+
+    // Rank 1
+    m_board[0][CONSTANTS::A1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::B1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::C1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::D1] = CONSTANTS::Piece::WROOK;
+    m_board[0][CONSTANTS::E1] = CONSTANTS::Piece::WKING;
+    m_board[0][CONSTANTS::F1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::G1] = CONSTANTS::Piece::EMPTY;
+    m_board[0][CONSTANTS::H1] = CONSTANTS::Piece::WROOK;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -112,9 +142,10 @@ TextBoard::TextBoard()
 
     findPlayerPieces(false);
     calcPlayerMovesetV2(CONSTANTS::Color::WHITE, true); // At the start of every game, calculate all white's moves.
+    std::cout << "Completed board init" << std::endl;
 }
 
-void TextBoard::findPlayerPieces(bool update)
+void TextBoard::findPlayerPieces(bool init)
 {   // Function should only be used once on init, then other functions should keep piece lists updated
     // This commented out section below is faster, but it is only called once, so whats the point
     // if (regularSetup){
@@ -125,7 +156,7 @@ void TextBoard::findPlayerPieces(bool update)
     // }
     // }
     // else{
-        if(update){
+        if(!init){
            m_whitePieceIndices.clear();
            m_blackPieceIndices.clear(); 
         }
@@ -2614,7 +2645,10 @@ void TextBoard::calcPlayerMovesetV2(CONSTANTS::Color playerColor, bool validateM
                     pieceAttackingKingType = (*checkIt)[0];
                     if (pieceAttackingKingType == 'P' || pieceAttackingKingType == 'N'){ // We don't care about knight or pawn attacks in this way
                         ++checkIt;
-                    pieceAttackingKingType = (*checkIt)[0];
+                        if(checkIt != attackingKingMoves.end()){
+                        pieceAttackingKingType = (*checkIt)[0];
+                        }
+                        else{++it; continue;}
                     }
                     attackerFile = (*checkIt)[1]-'A';
                     attackerRank = (*checkIt)[2]-'1';
@@ -2918,7 +2952,7 @@ bool TextBoard::editBoard(int file, int rank, CONSTANTS::Piece newPiece)
     return true;
 };
 // This function is a big deal. It executes thousands of times. Can optimize. BUG: Not resetting castling
-void TextBoard::undoLastMove(){ 
+void TextBoard::undoLastMove(bool recalcMoves){ 
 
         CONSTANTS::Square kingStartSquare;
         CONSTANTS::Square aRookStartSquare, hRookStartSquare;
@@ -2928,9 +2962,9 @@ void TextBoard::undoLastMove(){
         bool *kingPreviouslyMoved, *aRookPreviouslyMoved, *hRookPreviouslyMoved;
 
     // Reset to the previous player turn
-    //m_playerTurn = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Color::BLACK : CONSTANTS::Color::WHITE;
+    m_playerTurn = (m_playerTurn == CONSTANTS::Color::WHITE) ? CONSTANTS::Color::BLACK : CONSTANTS::Color::WHITE;
     
-    if(m_playerTurn == CONSTANTS::Color::BLACK){
+    if(m_playerTurn == CONSTANTS::Color::WHITE){
         kingStartSquare = CONSTANTS::Square::D1;
         aRookStartSquare = CONSTANTS::Square::A1, hRookStartSquare = CONSTANTS::Square::H1;
         kingCastlingLeftSquare = CONSTANTS::Square::B1;
@@ -2941,11 +2975,11 @@ void TextBoard::undoLastMove(){
         hRookPreviouslyMoved = &m_whiteHRookMoved;
     }
     else{
-        kingStartSquare = CONSTANTS::Square::D1;
-        aRookStartSquare = CONSTANTS::Square::A1, hRookStartSquare = CONSTANTS::Square::H1;
-        kingCastlingLeftSquare = CONSTANTS::Square::B1;
-        kingCastlingRightSquare = CONSTANTS::Square::F1;
-        aRookEndSquare = CONSTANTS::Square::C1, hRookEndSquare = CONSTANTS::Square::E1;
+        kingStartSquare = CONSTANTS::Square::D8;
+        aRookStartSquare = CONSTANTS::Square::A8, hRookStartSquare = CONSTANTS::Square::H8;
+        kingCastlingLeftSquare = CONSTANTS::Square::B8;
+        kingCastlingRightSquare = CONSTANTS::Square::F8;
+        aRookEndSquare = CONSTANTS::Square::C8, hRookEndSquare = CONSTANTS::Square::E8;
         kingPreviouslyMoved = &m_blackKingMoved;
         aRookPreviouslyMoved = &m_blackARookMoved;
         hRookPreviouslyMoved = &m_blackHRookMoved;
@@ -2976,10 +3010,9 @@ void TextBoard::undoLastMove(){
             int captureFile = m_captureHistory.front().second%8;
             addPiece(captureFile, captureRank, m_captureHistory.front().first); // Put the piece back on the board
         }
-        if(piece == 'K'){ // Check if the king has moved before
+        if(piece == 'K'){ // Check if the king has moved before // OPTIMIZATION: Can constrict parameters of if statement further
             if(convertCoordinateToBoardIndex(prevFile,prevRank) == kingStartSquare){
-                for(auto it = m_moveHistory.rbegin(); it != m_moveHistory.rend(); ++it){ // update this to be a for loop for better speed
-                    if(*it == m_moveHistory.front()) break;
+                for(auto it = m_moveHistory.rbegin(); it != std::prev(m_moveHistory.rend()); ++it){ // update this to be a for loop for better speed
                     if ((*it)[0] == 'K'){
                         if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == kingStartSquare){
                             *kingPreviouslyMoved = true;
@@ -2987,26 +3020,25 @@ void TextBoard::undoLastMove(){
                         }
                     }
                 }
+                *kingPreviouslyMoved = false;
             }
         }
-        else if(piece == 'R'){
+        else if(piece == 'R'){ // OPTIMIZATION: Can constrict parameters of if statement further
             if((prevFile == 0 || prevFile == 7) && (prevRank == 0 || prevRank == 7)){ // We are observing the A file Rooks
               int prevIndex = convertCoordinateToBoardIndex(prevFile,prevRank);
               if(prevIndex == aRookStartSquare || prevIndex == hRookStartSquare){
-                if(prevIndex == aRookStartSquare){*aRookPreviouslyMoved = false;}
-                else if(prevIndex == hRookStartSquare){*hRookPreviouslyMoved = false;}
-
-                for(auto it = m_moveHistory.rbegin(); it != m_moveHistory.rend(); ++it){ // Update this to be a for loop for better speed
-                    if(*it == m_moveHistory.front()) break;
+                for(auto it = m_moveHistory.rbegin(); it != std::prev(m_moveHistory.rend()); ++it){ // Update this to be a for loop for better speed
                     if ((*it)[0] == 'R'){
-                        if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == aRookStartSquare){
+                        if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == aRookStartSquare && convertCoordinateToBoardIndex(prevFile,prevRank) == aRookStartSquare){
                             *aRookPreviouslyMoved = true; // We found an even earlier move than the one we're checking showing that the rook has moved before
                             break;
                         }
-                        else if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == hRookStartSquare){
+                        else if(convertCoordinateToBoardIndex((*it)[1]-'A',(*it)[2]-'1') == hRookStartSquare && convertCoordinateToBoardIndex(prevFile,prevRank) == hRookStartSquare){
                             *hRookPreviouslyMoved = true;
                             break;
                         }
+                if(prevIndex == aRookStartSquare){*aRookPreviouslyMoved = false;}
+                else if(prevIndex == hRookStartSquare){*hRookPreviouslyMoved = false;}
                     }
                 }
               }
@@ -3026,6 +3058,9 @@ void TextBoard::undoLastMove(){
 
     m_moveHistory.pop_front(); // We've handled the move, remove it from history
     m_captureHistory.pop_front(); // Remove the capture from the history
+    if(recalcMoves){
+        calcPlayerMovesetV2(m_playerTurn, true);
+    }
     // m_whiteIndexHistory.pop();
     // m_whitePieceIndices = m_whiteIndexHistory.top();
     // m_blackIndexHistory.pop();
